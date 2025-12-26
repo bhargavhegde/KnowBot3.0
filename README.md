@@ -1,16 +1,15 @@
-## Demo (60-second silent walkthrough)
-
-[![KnowBot in Action](demo/thumbnail.png)](https://github.com/bhargavhegde/RAG-KnowBot/raw/main/demo/knowbot_demo.mp4)
-
-Click the image above to play the 60-second silent demo.
 
 # KnowBot - Personal RAG Chatbot (100% Local & Private)
 
 A beautiful, fully offline personal knowledge chatbot that lets you chat with your own documents using **Retrieval-Augmented Generation (RAG)**.  
 No API keys, no cloud services, no data ever leaves your machine.
 
-![Demo](demo/knowbot_demo.gif)  
-*(Add a 30–60 second screen recording here – it dramatically improves first impressions!)*
+## Demo (60-second silent walkthrough)
+
+[![KnowBot in Action](demo/thumbnail.png)](https://github.com/bhargavhegde/RAG-KnowBot/raw/main/demo/knowbot_demo.mp4)
+
+Click the image above to play the 60-second silent demo.
+
 
 ## ✨ Features
 
