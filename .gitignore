@@ -1,0 +1,29 @@
+# Python & env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+rag_env/
+.env
+
+# Chroma & data
+chroma_db/
+data/*.pdf
+data/*.docx
+data/*.txt
+*.db
+
+# IDE & system files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Large archives
+*.zip
+*.tar.gz
