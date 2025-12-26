@@ -1,14 +1,14 @@
+<img width="2263" height="1220" alt="image" src="https://github.com/user-attachments/assets/68cb01ac-5666-4fed-a767-17c77216aecb" />
 
 # KnowBot - Personal RAG Chatbot (100% Local & Private)
 
 A beautiful, fully offline personal knowledge chatbot that lets you chat with your own documents using **Retrieval-Augmented Generation (RAG)**.  
 No API keys, no cloud services, no data ever leaves your machine.
 
-## Demo (60-second silent walkthrough)
+## Demo 
 
 Click to watch:[knowbotDemo.webm](https://github.com/user-attachments/assets/d7484a5b-3f2e-430e-842e-167a9e14f497)
 
-*(Silent video showing file upload, indexing, questions, answers, and source citations)*
 ## ✨ Features
 
 - 100% local execution using Ollama + Llama 3.1 8B  
