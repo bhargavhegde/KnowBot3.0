@@ -9,12 +9,12 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MessageBubble } from './MessageBubble';
 import { BrainHologram } from './BrainHologram';
-import { useChat } from '@/hooks/useChat';
+import { useChat } from '@/context/ChatContext';
 
 export function ChatContainer() {
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const { messages, isLoading, error, sendChatMessage, clearMessages } = useChat();
+    const { messages, isLoading, sendMessage, clearMessages } = useChat();
 
     // Auto-scroll to bottom when new messages arrive
     useEffect(() => {
@@ -27,7 +27,7 @@ export function ChatContainer() {
         if (!trimmedInput || isLoading) return;
 
         setInput('');
-        await sendChatMessage(trimmedInput);
+        await sendMessage(trimmedInput);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -62,7 +62,12 @@ export function ChatContainer() {
                 </div>
             </div>
 
-
+            {/* Persistent Hologram Background */}
+            <div className="absolute inset-0 z-0 flex items-center justify-center opacity-40 pointer-events-none overflow-hidden">
+                <div className="scale-100 transform transition-transform duration-1000 mt-20">
+                    <BrainHologram />
+                </div>
+            </div>
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 custom-scrollbar relative z-10">
@@ -77,6 +82,7 @@ export function ChatContainer() {
                             <MessageBubble
                                 key={message.id || idx}
                                 message={message}
+                                isLatest={idx === messages.length - 1}
                             />
                         ))}
 

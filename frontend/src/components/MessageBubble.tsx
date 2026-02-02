@@ -16,8 +16,9 @@ interface MessageBubbleProps {
     isLatest?: boolean; // To trigger laser effect
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
     const [showCitations, setShowCitations] = useState(false);
+    const bubbleRef = useRef<HTMLDivElement>(null);
     const isUser = message.role === 'user';
     const hasCitations = message.citations && message.citations.length > 0;
 
@@ -26,30 +27,80 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}
+            className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4 relative group`}
         >
-            <div className={`flex items-start gap-3 max-w-[80%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+            <div className={`flex items-start gap-3 max-w-[85%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
                 {/* Avatar */}
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-lg
-          ${isUser ? 'bg-blue-600' : 'bg-[#1e2530]'}`}
+                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center relative z-20
+          ${isUser ? 'bg-blue-600' : 'bg-transparent'}`}
                 >
-                    {isUser ? '👤' : '🤖'}
+                    {isUser ? '👤' : <CyberBrainIcon className="w-full h-full drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />}
                 </div>
 
+                {/* Laser Eye Effect Overlay */}
+                {!isUser && isLatest && (
+                    <div className="absolute top-4 left-5 w-[800px] h-[200px] pointer-events-none z-0 opacity-80 overflow-hidden">
+                        <svg width="100%" height="100%" className="overflow-visible">
+                            <defs>
+                                <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8" />
+                                    <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
+                                </linearGradient>
+                                <filter id="laserGlow">
+                                    <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur" />
+                                        <feMergeNode in="SourceGraphic" />
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            {/* The Beam */}
+                            <motion.line
+                                x1="20" y1="10"
+                                x2="100%" y2="20"
+                                stroke="url(#laserGrad)"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                filter="url(#laserGlow)"
+                                initial={{ opacity: 0, x2: 50 }}
+                                animate={{
+                                    opacity: [0, 1, 0.5, 0],
+                                    x2: ["50", "200", "400"],
+                                    y2: [10, 40, 10]
+                                }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                            />
+                            {/* Eye Sparkle */}
+                            <motion.circle cx="20" cy="10" r="2" fill="#ec4899" animate={{ opacity: [1, 0.5, 1] }} transition={{ duration: 0.1, repeat: Infinity }} />
+                        </svg>
+                    </div>
+                )}
+
                 {/* Message Content */}
-                <div className="flex flex-col">
-                    <div className={`px-4 py-3 ${isUser ? 'chat-bubble-user text-white' : 'chat-bubble-assistant'}`}>
+                <div className="flex flex-col relative z-10" ref={bubbleRef}>
+                    <div className={`px-5 py-4 ${isUser ? 'chat-bubble-user text-white' : 'chat-bubble-assistant relative overflow-hidden'}`}>
+                        {/* Scanning Scanline for Assistant */}
+                        {!isUser && isLatest && (
+                            <motion.div
+                                className="absolute inset-0 bg-blue-400/10 pointer-events-none"
+                                initial={{ top: -100 }}
+                                animate={{ top: "100%" }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                style={{ height: '20px', boxShadow: '0 0 20px #22d3ee' }}
+                            />
+                        )}
+
                         <div className="prose prose-invert prose-sm max-w-none">
                             <ReactMarkdown
                                 components={{
-                                    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                                    p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
                                     ul: ({ children }) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
                                     ol: ({ children }) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
                                     code: ({ children }) => (
-                                        <code className="bg-[#2d3748] px-1 py-0.5 rounded text-sm">{children}</code>
+                                        <code className="bg-[#1e2530] px-1.5 py-0.5 rounded text-cyan-300 font-mono text-xs">{children}</code>
                                     ),
                                     pre: ({ children }) => (
-                                        <pre className="bg-[#2d3748] p-3 rounded-lg overflow-x-auto my-2">{children}</pre>
+                                        <pre className="bg-[#0f172a] p-4 rounded-xl border border-white/5 overflow-x-auto my-3 text-sm scrollbar-thin scrollbar-thumb-gray-700">{children}</pre>
                                     ),
                                 }}
                             >
@@ -63,7 +114,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                         <div className="mt-2">
                             <button
                                 onClick={() => setShowCitations(!showCitations)}
-                                className="text-sm text-[#4a90e2] hover:text-[#5ba0f2] flex items-center gap-1"
+                                className="text-xs text-[#4a90e2] hover:text-[#5ba0f2] flex items-center gap-1 transition-colors"
                             >
                                 📌 {showCitations ? 'Hide' : 'Show'} Sources ({message.citations.length})
                             </button>

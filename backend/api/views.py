@@ -199,6 +199,15 @@ def chat(request):
         citations=citations
     )
     
+    # Auto-title session if it's the first message
+    if session.title == "New Chat":
+        session.title = message[:50] + ("..." if len(message) > 50 else "")
+        session.save()
+    else:
+        # Update timestamp
+        session.updated_at = timezone.now()
+        session.save()
+    
     return Response({
         'response': response_text,
         'citations': citations,

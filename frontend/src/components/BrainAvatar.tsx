@@ -28,62 +28,74 @@ export function BrainAvatar() {
                     </filter>
                 </defs>
 
-                {/* Brain Body with Animated "Horns" (Lobes) - Cute Version */}
+                {/* Brain Body with Animated "Cyber Lobes" */}
                 <g filter="url(#glow)">
-                    {/* Left Lobe (Horn) */}
+                    {/* Left Cyber Lobe */}
                     <motion.path
                         d="M30,50 Q30,20 50,20 L 50,80 Q30,80 30,50"
                         fill="url(#avatarGrad)"
-                        stroke="rgba(255,255,255,0.4)"
+                        stroke="rgba(147, 197, 253, 0.5)"
                         strokeWidth="1.5"
                         initial={{ rotate: 0, transformOrigin: "50px 80px" }}
                         whileHover={{ rotate: -15 }}
                         transition={{ type: "spring", stiffness: 300, damping: 10 }}
                     />
+                    {/* Left Tech Detail */}
+                    <motion.path
+                        d="M35,30 L45,30 M35,70 L45,70"
+                        stroke="white" strokeOpacity="0.3" strokeWidth="1"
+                        initial={{ rotate: 0, transformOrigin: "50px 80px" }}
+                        whileHover={{ rotate: -15 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                    />
 
-                    {/* Right Lobe (Horn) */}
+                    {/* Right Cyber Lobe */}
                     <motion.path
                         d="M70,50 Q70,20 50,20 L 50,80 Q70,80 70,50"
                         fill="url(#avatarGrad)"
-                        stroke="rgba(255,255,255,0.4)"
+                        stroke="rgba(147, 197, 253, 0.5)"
                         strokeWidth="1.5"
+                        initial={{ rotate: 0, transformOrigin: "50px 80px" }}
+                        whileHover={{ rotate: 15 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                    />
+                    {/* Right Tech Detail */}
+                    <motion.path
+                        d="M55,30 L65,30 M55,70 L65,70"
+                        stroke="white" strokeOpacity="0.3" strokeWidth="1"
                         initial={{ rotate: 0, transformOrigin: "50px 80px" }}
                         whileHover={{ rotate: 15 }}
                         transition={{ type: "spring", stiffness: 300, damping: 10 }}
                     />
 
                     {/* Central Connector/Face Base */}
-                    <path d="M45,20 L55,20 L55,80 L45,80 Z" fill="url(#avatarGrad)" opacity="0" />
+                    <path d="M48,20 L52,20 L52,80 L48,80 Z" fill="#3b82f6" opacity="0.5" />
 
-                    {/* Eyes Container - Cute Version */}
+                    {/* Eyes Container - Cyber Style */}
                     <g transform="translate(0, 5)">
-                        {/* Left Eye */}
-                        <motion.ellipse
-                            cx="42" cy="45" rx="4" ry="5" fill="white"
-                            animate={{ ry: [5, 5, 0.5, 5] }} // Blink
+                        {/* Left Eye - Digital */}
+                        <motion.rect
+                            x="40" y="42" width="6" height="6" rx="1" fill="#cffafe"
+                            animate={{ height: [6, 6, 1, 6] }} // Digital Blink
                             transition={{ duration: 4, repeat: Infinity, times: [0, 0.9, 0.95, 1] }}
                         />
-                        <motion.circle
-                            cx="42" cy="45" r="2" fill="#0f172a"
-                            animate={{ x: [-1, 1, -1] }} // Look around
-                            transition={{ duration: 5, repeat: Infinity }}
+                        <motion.rect
+                            x="42" y="44" width="2" height="2" fill="#0891b2"
                         />
 
-                        {/* Right Eye */}
-                        <motion.ellipse
-                            cx="58" cy="45" rx="4" ry="5" fill="white"
-                            animate={{ ry: [5, 5, 0.5, 5] }} // Blink
+                        {/* Right Eye - Digital */}
+                        <motion.rect
+                            x="54" y="42" width="6" height="6" rx="1" fill="#cffafe"
+                            animate={{ height: [6, 6, 1, 6] }} // Digital Blink
                             transition={{ duration: 4, repeat: Infinity, times: [0, 0.9, 0.95, 1] }}
                         />
-                        <motion.circle
-                            cx="58" cy="45" r="2" fill="#0f172a"
-                            animate={{ x: [-1, 1, -1] }} // Look around
-                            transition={{ duration: 5, repeat: Infinity }}
+                        <motion.rect
+                            x="56" y="44" width="2" height="2" fill="#0891b2"
                         />
                     </g>
-                    {/* Blush */}
-                    <motion.circle cx="35" cy="62" r="3" fill="#ec4899" opacity="0.3" animate={{ opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 2, repeat: Infinity }} />
-                    <motion.circle cx="65" cy="62" r="3" fill="#ec4899" opacity="0.3" animate={{ opacity: [0.2, 0.4, 0.2] }} transition={{ duration: 2, repeat: Infinity }} />
+                    {/* Cyber Cheek Nodes */}
+                    <circle cx="35" cy="62" r="2" fill="#22d3ee" opacity="0.6" />
+                    <circle cx="65" cy="62" r="2" fill="#22d3ee" opacity="0.6" />
                 </g>
             </svg>
         </div>

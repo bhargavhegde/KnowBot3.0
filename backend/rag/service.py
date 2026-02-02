@@ -187,9 +187,12 @@ class RAGEngine:
     """Main RAG engine for building and executing RAG chains with multi-user support."""
     
     DEFAULT_TEMPLATE = """You are a helpful, accurate assistant that answers questions based ONLY on the provided context.
+You have access to a neural knowledge base containing the documents listed below. 
 Use markdown formatting when appropriate.
-If you don't know the answer, the context is insufficient, contradictory, or contains jokes/false statements,
-politely mention it.
+If the answer is not in the context, politely mention that you couldn't find it in the specific documents provided.
+
+Documents currently in your neural memory:
+{file_list}
 
 Context: {context}
 Question: {question}
@@ -205,21 +208,36 @@ Answer:"""
             base_url=OLLAMA_HOST
         )
         self.vector_store_manager = VectorStoreManager(user_id=user_id)
+        self.indexed_files = self._get_indexed_files()
     
+    def _get_indexed_files(self) -> List[str]:
+        """Fetch list of indexed filenames for the user."""
+        try:
+            from api.models import Document
+            docs = Document.objects.filter(user_id=self.user_id, index_status='indexed')
+            return [doc.original_filename for doc in docs]
+        except Exception:
+            return []
+
     def build_prompt(self) -> ChatPromptTemplate:
         """Build the prompt template with optional custom instructions."""
+        file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
+        
         if self.custom_prompt and self.custom_prompt.strip():
             template = f"""{self.DEFAULT_TEMPLATE.rstrip()}
 
-Additional instructions from user:
+Additional instructions from manager:
 {self.custom_prompt.strip()}
+
+Documents currently in your neural memory:
+{file_list_str}
 
 Context: {{context}}
 Question: {{question}}
 
 Answer:"""
         else:
-            template = self.DEFAULT_TEMPLATE
+            template = self.DEFAULT_TEMPLATE.replace("{file_list}", file_list_str)
         
         return ChatPromptTemplate.from_template(template)
     
