@@ -8,6 +8,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MessageBubble } from './MessageBubble';
+import { BrainHologram } from './BrainHologram';
 import { useChat } from '@/hooks/useChat';
 
 export function ChatContainer() {
@@ -49,12 +50,12 @@ export function ChatContainer() {
                 <div className="flex gap-2">
                     <button
                         onClick={clearMessages}
-                        className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs font-semibold rounded-xl border border-white/5 transition-all flex items-center gap-2 hover:shadow-lg hover:border-white/10"
+                        className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs font-semibold rounded-xl border border-white/5 transition-all flex items-center gap-2 hover:shadow-lg hover:border-white/10 group"
                         title="Clear chat history"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        {/* Cute Dustbin Icon */}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="group-hover:rotate-12 transition-transform">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 11v6m4-6v6" />
                         </svg>
                         Clear
                     </button>
@@ -65,18 +66,18 @@ export function ChatContainer() {
             <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 custom-scrollbar">
                 {messages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.8, ease: "backOut" }}
-                            className="w-24 h-24 rounded-3xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/30 flex items-center justify-center text-5xl shadow-[0_0_50px_rgba(59,130,246,0.2)] backdrop-blur-xl"
-                        >
-                            🧠
-                        </motion.div>
-                        <div className="space-y-3">
-                            <h2 className="text-3xl font-bold text-white tracking-tight drop-shadow-xl">How can I help you today?</h2>
+                        {/* Holographic Brain Animation */}
+                        <div className="scale-125 transform transition-transform duration-1000">
+                            <BrainHologram />
+                        </div>
+
+                        <div className="space-y-3 relative z-10 -mt-10">
+                            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white drop-shadow-xl">
+                                How can I help you today?
+                            </h2>
                             <p className="text-blue-200/60 max-w-sm mx-auto text-sm font-light leading-relaxed">
-                                Ask me anything about the documents you've uploaded. Your data is processed locally and privately.
+                                Ask me anything about your documents. <br />
+                                <span className="opacity-50 text-xs">Ready to process complex queries.</span>
                             </p>
                         </div>
                     </div>
@@ -140,7 +141,7 @@ export function ChatContainer() {
                         </button>
                     </form>
                     <p className="text-[10px] text-blue-300/40 mt-4 text-center font-medium uppercase tracking-[0.2em] animate-pulse-subtle">
-                        Your local knowledge base is active ● Encrypted Connection {isLoading && "● Processing..."}
+                        Powered by Neural RAG Engine ● Secure Local Processing {isLoading && "● Processing..."}
                     </p>
                 </div>
             </div>
