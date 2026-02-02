@@ -12,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-knowbot}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-knowbot}" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -24,12 +24,29 @@ services:
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # Django Backend
+  # Ollama LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: knowbot-ollama
+    volumes:
+      - /home/bhargav/.ollama:/root/.ollama
+    # Remove ports mapping to avoid conflict with system service
+    # The backend will still reach it via http://ollama:11434
+    # Enable GPU if available (optional, but recommended for speed)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+    # Django Backend
   backend:
     build:
       context: ./backend
@@ -46,7 +63,7 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-dev-secret-key}
       - DJANGO_DEBUG=${DJANGO_DEBUG:-True}
-      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_HOST=http://ollama:11434
     volumes:
       - ./backend:/app
       - ./data:/app/data
@@ -58,8 +75,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      ollama:
+        condition: service_started
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
@@ -79,7 +96,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_HOST=http://ollama:11434
     volumes:
       - ./backend:/app
       - ./data:/app/data
@@ -89,8 +106,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      ollama:
+        condition: service_started
     command: celery -A knowbot worker -l INFO
 
   # Next.js Frontend

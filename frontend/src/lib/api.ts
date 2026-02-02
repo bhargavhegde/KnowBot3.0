@@ -1,21 +1,62 @@
-/**
- * API Client for KnowBot Backend
- */
-
 import axios from 'axios';
 
-// API Base URL - use environment variable or fallback
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 // Create axios instance
 const api = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Types
+// Add a request interceptor to include auth token
+api.interceptors.request.use(
+    (config) => {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
+// Add a response interceptor to handle token expiration
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            const refreshToken = localStorage.getItem('refresh_token');
+            if (refreshToken) {
+                try {
+                    const res = await axios.post(`${API_URL}/token/refresh/`, { refresh: refreshToken });
+                    localStorage.setItem('access_token', res.data.access);
+                    originalRequest.headers.Authorization = `Bearer ${res.data.access}`;
+                    return api(originalRequest);
+                } catch (refreshError) {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    if (typeof window !== 'undefined') window.location.href = '/login';
+                }
+            } else {
+                if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+                    window.location.href = '/login';
+                }
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
+export interface User {
+    id: number;
+    username: string;
+    email: string;
+}
+
 export interface Document {
     id: number;
     filename: string;
@@ -29,18 +70,21 @@ export interface Document {
     indexed_at: string | null;
 }
 
-export interface Citation {
-    source: string;
-    content: string;
-    page?: number;
-}
-
-export interface ChatMessage {
+export interface Message {
     id: number;
     role: 'user' | 'assistant' | 'system';
     content: string;
     citations: Citation[];
     created_at: string;
+}
+
+export interface Citation {
+    content: string;
+    metadata: {
+        source: string;
+        page?: number;
+        [key: string]: any;
+    };
 }
 
 export interface ChatSession {
@@ -49,7 +93,7 @@ export interface ChatSession {
     created_at: string;
     updated_at: string;
     message_count: number;
-    messages?: ChatMessage[];
+    messages?: Message[];
 }
 
 export interface SystemPrompt {
@@ -61,111 +105,46 @@ export interface SystemPrompt {
     updated_at: string;
 }
 
-export interface ChatResponse {
-    response: string;
-    session_id: number;
-    citations: Citation[];
-}
+// API Methods
+export const apiService = {
+    // Auth
+    login: (credentials: any) => api.post('/token/', credentials),
+    register: (data: any) => api.post('/auth/register/', data),
+    getMe: () => api.get<User>('/auth/me/'),
 
-// API Functions
+    // Documents
+    getDocuments: () => api.get<Document[]>('/documents/'),
+    uploadDocument: (file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return api.post<Document>('/documents/upload/', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+    },
+    deleteDocument: (id: number) => api.delete(`/documents/${id}/`),
+    getDocumentStatus: (id: number) => api.get(`/documents/${id}/status/`),
 
-// Health Check
-export const checkHealth = async () => {
-    const response = await api.get('/health/');
-    return response.data;
-};
+    // Chat
+    getSessions: () => api.get<ChatSession[]>('/sessions/'),
+    getSession: (id: number) => api.get<ChatSession>(`/sessions/${id}/`),
+    createSession: (title: string = 'New Chat') => api.post<ChatSession>('/sessions/', { title }),
+    deleteSession: (id: number) => api.delete(`/sessions/${id}/`),
+    getMessages: (sessionId: number) => api.get<Message[]>(`/sessions/${sessionId}/messages/`),
+    clearMessages: (sessionId: number) => api.delete(`/sessions/${sessionId}/clear/`),
 
-// Documents
-export const getDocuments = async (): Promise<Document[]> => {
-    const response = await api.get('/documents/');
-    return response.data;
-};
+    sendMessage: (messageText: string, sessionId?: number) =>
+        api.post<{ response: string; session_id: number; citations: Citation[] }>('/chat/', {
+            message: messageText,
+            session_id: sessionId,
+        }),
 
-export const uploadDocument = async (file: File): Promise<Document> => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await api.post('/documents/upload/', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
-    return response.data;
-};
-
-export const deleteDocument = async (id: number): Promise<void> => {
-    await api.delete(`/documents/${id}/`);
-};
-
-export const getDocumentStatus = async (id: number): Promise<{ index_status: string; chunk_count: number; error_message: string | null }> => {
-    const response = await api.get(`/documents/${id}/status/`);
-    return response.data;
-};
-
-// Chat
-export const sendMessage = async (message: string, sessionId?: number): Promise<ChatResponse> => {
-    const response = await api.post('/chat/', {
-        message,
-        session_id: sessionId,
-    });
-    return response.data;
-};
-
-// Sessions
-export const getSessions = async (): Promise<ChatSession[]> => {
-    const response = await api.get('/sessions/');
-    return response.data;
-};
-
-export const getSession = async (id: number): Promise<ChatSession> => {
-    const response = await api.get(`/sessions/${id}/`);
-    return response.data;
-};
-
-export const createSession = async (): Promise<ChatSession> => {
-    const response = await api.post('/sessions/', {});
-    return response.data;
-};
-
-export const deleteSession = async (id: number): Promise<void> => {
-    await api.delete(`/sessions/${id}/`);
-};
-
-export const clearSessionMessages = async (id: number): Promise<void> => {
-    await api.delete(`/sessions/${id}/clear/`);
-};
-
-// System Prompts
-export const getSystemPrompts = async (): Promise<SystemPrompt[]> => {
-    const response = await api.get('/prompts/');
-    return response.data;
-};
-
-export const getActivePrompt = async (): Promise<SystemPrompt | null> => {
-    try {
-        const response = await api.get('/prompts/active/');
-        return response.data.id ? response.data : null;
-    } catch {
-        return null;
-    }
-};
-
-export const createPrompt = async (name: string, content: string, isActive: boolean = false): Promise<SystemPrompt> => {
-    const response = await api.post('/prompts/', {
-        name,
-        content,
-        is_active: isActive,
-    });
-    return response.data;
-};
-
-export const activatePrompt = async (id: number): Promise<SystemPrompt> => {
-    const response = await api.post(`/prompts/${id}/activate/`);
-    return response.data;
-};
-
-export const resetToDefaultPrompt = async (): Promise<void> => {
-    await api.post('/prompts/reset/');
+    // Prompts
+    getPrompts: () => api.get<SystemPrompt[]>('/prompts/'),
+    getActivePrompt: () => api.get<SystemPrompt>('/prompts/active/'),
+    createPrompt: (data: Partial<SystemPrompt>) => api.post<SystemPrompt>('/prompts/', data),
+    activatePrompt: (id: number) => api.post<SystemPrompt>(`/prompts/${id}/activate/`),
+    resetPrompt: () => api.post('/prompts/reset/'),
+    deletePrompt: (id: number) => api.delete(`/prompts/${id}/`),
 };
 
 export default api;

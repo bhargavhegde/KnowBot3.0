@@ -5,6 +5,7 @@ Handles Documents, Chat Sessions, and Messages.
 
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
 
 
 class Document(models.Model):
@@ -16,6 +17,12 @@ class Document(models.Model):
         INDEXED = 'indexed', 'Indexed'
         FAILED = 'failed', 'Failed'
     
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='documents',
+        null=True, blank=True
+    )
     filename = models.CharField(max_length=255)
     original_filename = models.CharField(max_length=255)
     file_path = models.CharField(max_length=512)
@@ -43,6 +50,12 @@ class Document(models.Model):
 class ChatSession(models.Model):
     """Represents a chat session with the RAG system."""
     
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='sessions',
+        null=True, blank=True
+    )
     title = models.CharField(max_length=255, default="New Chat")
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
@@ -84,6 +97,12 @@ class ChatMessage(models.Model):
 class SystemPrompt(models.Model):
     """Custom system prompts for RAG chain."""
     
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='prompts',
+        null=True, blank=True
+    )
     name = models.CharField(max_length=100, default="Custom Prompt")
     content = models.TextField()
     is_active = models.BooleanField(default=False)
@@ -96,10 +115,15 @@ class SystemPrompt(models.Model):
     
     def __str__(self):
         active_status = " (Active)" if self.is_active else ""
-        return f"{self.name}{active_status}"
+        return f"{self.name} - {self.user.username if self.user else 'System'}{active_status}"
     
     def save(self, *args, **kwargs):
-        # Ensure only one prompt is active at a time
+        # Ensure only one prompt is active at a time per user
         if self.is_active:
-            SystemPrompt.objects.filter(is_active=True).update(is_active=False)
+            prompts = SystemPrompt.objects.filter(is_active=True)
+            if self.user:
+                prompts = prompts.filter(user=self.user)
+            else:
+                prompts = prompts.filter(user__isnull=True)
+            prompts.update(is_active=False)
         super().save(*args, **kwargs)

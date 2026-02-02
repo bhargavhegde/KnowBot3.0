@@ -5,7 +5,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { sendMessage, ChatMessage, ChatResponse, Citation } from '@/lib/api';
+import { apiService, Message } from '@/lib/api';
 
 interface UseChatOptions {
     sessionId?: number;
@@ -13,17 +13,17 @@ interface UseChatOptions {
 }
 
 interface UseChatReturn {
-    messages: ChatMessage[];
+    messages: Message[];
     isLoading: boolean;
     error: string | null;
     sessionId: number | null;
     sendChatMessage: (content: string) => Promise<void>;
     clearMessages: () => void;
-    setMessages: (messages: ChatMessage[]) => void;
+    setMessages: (messages: Message[]) => void;
 }
 
 export function useChat(options: UseChatOptions = {}): UseChatReturn {
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [sessionId, setSessionId] = useState<number | null>(options.sessionId || null);
@@ -33,7 +33,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         setError(null);
 
         // Optimistically add user message
-        const userMessage: ChatMessage = {
+        const userMessage: Message = {
             id: Date.now(),
             role: 'user',
             content,
@@ -43,7 +43,8 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         setMessages(prev => [...prev, userMessage]);
 
         try {
-            const response: ChatResponse = await sendMessage(content, sessionId || undefined);
+            const resp = await apiService.sendMessage(content, sessionId || undefined);
+            const response = resp.data;
 
             // Update session ID if this is a new session
             if (!sessionId && response.session_id) {
@@ -52,7 +53,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
             }
 
             // Add assistant message
-            const assistantMessage: ChatMessage = {
+            const assistantMessage: Message = {
                 id: Date.now() + 1,
                 role: 'assistant',
                 content: response.response,
@@ -66,7 +67,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
             setError(errorMessage);
 
             // Add error message to chat
-            const errorMsg: ChatMessage = {
+            const errorMsg: Message = {
                 id: Date.now() + 1,
                 role: 'assistant',
                 content: `⚠️ Error: ${errorMessage}`,
