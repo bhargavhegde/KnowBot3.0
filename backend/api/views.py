@@ -172,8 +172,9 @@ def chat(request):
     except SystemPrompt.DoesNotExist:
         pass
     
-    # Check if ANY user has indexed documents (Shared Knowledge Base)
+    # Check if user has any indexed documents
     has_docs = Document.objects.filter(
+        user=request.user, 
         index_status=Document.IndexStatus.INDEXED
     ).exists()
 
@@ -182,8 +183,7 @@ def chat(request):
         citations = []
     else:
         try:
-            # Initialize RAGEngine without user_id to search ALL documents
-            engine = RAGEngine(custom_prompt=custom_prompt, user_id=None)
+            engine = RAGEngine(custom_prompt=custom_prompt, user_id=request.user.id)
             result = engine.query(message)
             response_text = result['response']
             citations = result['citations']
