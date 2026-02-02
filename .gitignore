@@ -37,3 +37,7 @@ frontend/node_modules/
 
 # Docker
 .docker/
+
+# Logs
+*.log
+tilt_logs.txt
