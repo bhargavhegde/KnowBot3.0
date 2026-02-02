@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 
-export function BrainHologram() {
+export function BrainHologram({ className }: { className?: string }) {
     // Cybernetic Wing shapes
     const leftWing = [
         "M 150,200 L 80,80 L 160,140 Z",
@@ -17,7 +17,7 @@ export function BrainHologram() {
     ];
 
     return (
-        <div className="relative w-[500px] h-[500px] flex items-center justify-center pointer-events-none select-none">
+        <div className={`relative flex items-center justify-center pointer-events-none select-none ${className || 'w-[500px] h-[500px]'}`}>
             {/* Ambient Nebula - subtle */}
             <motion.div
                 className="absolute inset-0 bg-cyan-500/5 rounded-full blur-[100px]"

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 
+import { BrainHologram } from '@/components/BrainHologram';
+
 export default function LoginPage() {
     const { login } = useAuth();
     const [username, setUsername] = useState('');
@@ -26,14 +28,22 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-[#0e1117] px-4">
+        <div className="flex min-h-screen items-center justify-center bg-[#0e1117] px-4 overflow-hidden relative">
+            {/* Background Effect */}
+            <div className="aurora-bg"></div>
+
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl shadow-2xl"
+                className="w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-black/40 p-8 backdrop-blur-xl shadow-2xl relative z-10"
             >
+                <div className="flex justify-center -mt-12 -mb-6 pointer-events-none">
+                    <div className="scale-75">
+                        <BrainHologram className="w-64 h-64" />
+                    </div>
+                </div>
                 <div className="text-center">
-                    <h1 className="text-3xl font-bold tracking-tight text-white">KnowBot</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-white relative z-20">KnowBot</h1>
                     <p className="mt-2 text-sm text-gray-400">Welcome back! Please login to your account.</p>
                 </div>
 
