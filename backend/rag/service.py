@@ -34,6 +34,15 @@ CHROMA_DIR = str(getattr(settings, 'CHROMA_DIR', './chroma_db'))
 DATA_DIR = str(getattr(settings, 'DATA_DIR', './data'))
 OLLAMA_HOST = getattr(settings, 'OLLAMA_HOST', 'http://localhost:11434')
 
+# Global client singleton to prevent file locking/HNSW errors
+_CHROMA_CLIENT = None
+
+def get_chroma_client(persist_directory: str):
+    global _CHROMA_CLIENT
+    if _CHROMA_CLIENT is None:
+        _CHROMA_CLIENT = chromadb.PersistentClient(path=persist_directory)
+    return _CHROMA_CLIENT
+
 
 class DocumentProcessor:
     """Handles document loading and chunking."""
@@ -123,8 +132,8 @@ class VectorStoreManager:
             model=EMBEDDING_MODEL,
             base_url=OLLAMA_HOST
         )
-        # Initialize client explicitly
-        self.client = chromadb.PersistentClient(path=persist_directory)
+        # Initialize client explicitly using singleton
+        self.client = get_chroma_client(persist_directory)
     
     def create_vector_store(self, chunks: List) -> Chroma:
         """Create or add to vector store from document chunks."""
