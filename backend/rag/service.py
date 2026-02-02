@@ -86,7 +86,7 @@ class DocumentProcessor:
             add_start_index=True,
         )
     
-    def load_single_document(self, file_path: str, user_id: int = None) -> List:
+    def load_single_document(self, file_path: str, user_id: int = None, original_filename: str = None) -> List:
         """Load a single document and return chunks with user metadata."""
         path = Path(file_path)
         
@@ -95,6 +95,9 @@ class DocumentProcessor:
         
         ext = path.suffix.lower()
         documents = []
+        
+        # Use provided filename or fallback to path name
+        source_name = original_filename or path.name
         
         # Check if this is an image file - use OCR
         if ext in ['.png', '.jpg', '.jpeg', '.tiff', '.tif', '.bmp', '.gif']:
@@ -106,7 +109,8 @@ class DocumentProcessor:
                 doc = LangchainDocument(
                     page_content=result['text'],
                     metadata={
-                        'source': str(path),
+                        'source': source_name,
+                        'file_path': str(path),
                         'page': result.get('page', 1),
                         'ocr_applied': True
                     }
@@ -123,11 +127,13 @@ class DocumentProcessor:
                         doc = LangchainDocument(
                             page_content=result['text'],
                             metadata={
-                                'source': str(path),
+                                'source': source_name,
+                                'file_path': str(path),
                                 'page': result.get('page', 1),
                                 'ocr_applied': True
                             }
                         )
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.
                         documents.append(doc)
             
             # If no OCR results, use standard PDF loader
@@ -144,9 +150,14 @@ class DocumentProcessor:
         
         chunks = self.text_splitter.split_documents(documents)
         
-        # Add user_id to metadata for filtering
-        if user_id is not None:
-            for chunk in chunks:
+        # Add metadata locally
+        for chunk in chunks:
+            # Ensure source is the friendly name, not the UUID path
+            chunk.metadata['source'] = source_name
+            chunk.metadata['file_path'] = str(path)
+            
+            # Add user_id for filtering
+            if user_id is not None:
                 chunk.metadata['user_id'] = str(user_id)
         
         return chunks

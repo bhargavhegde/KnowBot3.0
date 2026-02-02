@@ -41,44 +41,7 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
                     {isUser ? '👤' : <CyberBrainIcon className="w-full h-full drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />}
                 </div>
 
-                {/* Laser Eye Effect Overlay */}
-                {!isUser && isLatest && (
-                    <div className="absolute top-4 left-5 w-[800px] h-[200px] pointer-events-none z-0 opacity-80 overflow-hidden">
-                        <svg width="100%" height="100%" className="overflow-visible">
-                            <defs>
-                                <linearGradient id="laserGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stopColor="#ec4899" stopOpacity="0.8" />
-                                    <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
-                                </linearGradient>
-                                <filter id="laserGlow">
-                                    <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                                    <feMerge>
-                                        <feMergeNode in="coloredBlur" />
-                                        <feMergeNode in="SourceGraphic" />
-                                    </feMerge>
-                                </filter>
-                            </defs>
-                            {/* The Beam */}
-                            <motion.line
-                                x1="20" y1="10"
-                                x2="100%" y2="20"
-                                stroke="url(#laserGrad)"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                filter="url(#laserGlow)"
-                                initial={{ opacity: 0, x2: 50 }}
-                                animate={{
-                                    opacity: [0, 1, 0.5, 0],
-                                    x2: ["50", "200", "400"],
-                                    y2: [10, 40, 10]
-                                }}
-                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                            />
-                            {/* Eye Sparkle */}
-                            <motion.circle cx="20" cy="10" r="2" fill="#ec4899" animate={{ opacity: [1, 0.5, 1] }} transition={{ duration: 0.1, repeat: Infinity }} />
-                        </svg>
-                    </div>
-                )}
+                {/* Laser Eye Effect Removed */}
 
                 {/* Message Content */}
                 <div className="flex flex-col relative z-10" ref={bubbleRef}>

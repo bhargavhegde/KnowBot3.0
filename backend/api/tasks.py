@@ -36,7 +36,11 @@ def index_document_task(self, document_id: int):
     try:
         # Load and chunk document with user context
         processor = DocumentProcessor()
-        chunks = processor.load_single_document(document.file_path, user_id=user_id)
+        chunks = processor.load_single_document(
+            document.file_path, 
+            user_id=user_id,
+            original_filename=document.original_filename
+        )
         
         # Create/update vector store for specific user
         manager = VectorStoreManager(user_id=user_id)

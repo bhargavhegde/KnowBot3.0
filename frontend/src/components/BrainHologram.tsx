@@ -108,15 +108,11 @@ export function BrainHologram({ className }: { className?: string }) {
                     </g>
                 </g>
 
-                {/* SVG Text - KNOWBOT 2.0 */}
+                {/* SVG Text - KNOWBOT */}
                 <g filter="url(#cyber-glow)">
                     <text x="200" y="350" textAnchor="middle" fill="#ec4899"
                         style={{ fontSize: '42px', fontWeight: '900', letterSpacing: '0.1em', fontFamily: 'system-ui' }}>
                         KNOWBOT
-                    </text>
-                    <text x="200" y="385" textAnchor="middle" fill="#22d3ee"
-                        style={{ fontSize: '28px', fontWeight: '700', letterSpacing: '0.4em', fontFamily: 'system-ui' }}>
-                        2.0
                     </text>
                 </g>
             </svg>
