@@ -1,6 +1,6 @@
 /**
  * Message Bubble Component
- * Displays individual chat messages with citations
+ * Displays individual chat messages with citations and TTS controls
  */
 
 'use client';
@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Message as ChatMessage, Citation } from '@/lib/api';
 import { CyberBrainIcon } from './CyberBrainIcon';
+import { useSpeech } from '@/hooks/useSpeech';
 
 interface MessageBubbleProps {
     message: ChatMessage;
@@ -21,6 +22,9 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
     const bubbleRef = useRef<HTMLDivElement>(null);
     const isUser = message.role === 'user';
     const hasCitations = message.citations && message.citations.length > 0;
+
+    // TTS functionality
+    const { speak, stop, isSpeaking, isSupported } = useSpeech();
 
     return (
         <motion.div
@@ -108,6 +112,39 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
                             </ReactMarkdown>
                         </div>
                     </div>
+
+                    {/* TTS Controls - Only for assistant messages */}
+                    {!isUser && isSupported && (
+                        <div className="mt-2 flex items-center gap-2">
+                            <button
+                                onClick={() => isSpeaking ? stop() : speak(message.content)}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all
+                                    ${isSpeaking
+                                        ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30 shadow-[0_0_15px_rgba(236,72,153,0.3)] animate-pulse'
+                                        : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-cyan-500/10 hover:text-cyan-400 hover:border-cyan-500/30'
+                                    }`}
+                                title={isSpeaking ? 'Stop speaking' : 'Read aloud'}
+                            >
+                                {isSpeaking ? (
+                                    <>
+                                        {/* Stop Icon */}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                                            <rect x="6" y="6" width="12" height="12" rx="1" />
+                                        </svg>
+                                        <span>Stop</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* Speaker Icon */}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                        </svg>
+                                        <span>Listen</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    )}
 
                     {/* Citations */}
                     {!isUser && hasCitations && (
