@@ -369,7 +369,10 @@ Answer:"""
         prompt = self.build_prompt()
         
         def format_docs(docs):
-            return "\n\n".join(doc.page_content for doc in docs)
+            return "\n\n".join(
+                f"[Source: {doc.metadata.get('source', 'unknown')}]\n{doc.page_content}"
+                for doc in docs
+            )
         
         chain = (
             {"context": retriever | format_docs, "question": RunnablePassthrough()}
