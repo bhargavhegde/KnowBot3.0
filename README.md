@@ -1,115 +1,109 @@
-<img width="2263" height="1220" alt="image" src="https://github.com/user-attachments/assets/68cb01ac-5666-4fed-a767-17c77216aecb" />
+# KnowBot 2.0 - The Neural Knowledge Assistant 🧠⚡
 
-# KnowBot - Personal RAG Chatbot (100% Local & Private)
+<img width="2263" height="1220" alt="KnowBot 2.0" src="https://github.com/user-attachments/assets/68cb01ac-5666-4fed-a767-17c77216aecb" />
 
-> [!NOTE]
-> This project has been restored to the stable Streamlit version after a migration attempt. All files are verified and working locally.
+**KnowBot 2.0** is a high-fidelity, private RAG (Retrieval-Augmented Generation) application designed for high-performance personal knowledge management. Featuring a stunning cybernetic interface and a robust full-stack architecture, it allows you to chat with your local documents with zero data leaks.
 
-A beautiful, fully offline personal knowledge chatbot that lets you chat with your own documents using **Retrieval-Augmented Generation (RAG)**.  
-No API keys, no cloud services, no data ever leaves your machine.
+---
 
-## Demo 
+## 🚀 What's New in 2.0?
 
-Click to watch:[knowbotDemo.webm](https://github.com/user-attachments/assets/d7484a5b-3f2e-430e-842e-167a9e14f497)
+KnowBot has evolved from a simple Streamlit script into a professional-grade full-stack beast:
 
-## ✨ Features
+- **Next-Gen Cybernetic UI**: Built with Next.js 15, Framer Motion, and Tailwind CSS. Features glassmorphism, holographic effects, and a custom-animated "Cyber Brain" avatar.
+- **Persistent Chat History**: Full multi-session support. Save, resume, or delete your "neural threads" at any time.
+- **Neural Knowledge Sync**: The AI explicitly tracks which files it has indexed, providing "Laser Eye" scanning feedback during document retrieval.
+- **Enterprise-Ready Backend**: Django REST Framework handles orchestration, while **Celery + Redis** manage asynchronous document indexing.
+- **Secure Multi-User**: Built-in authentication system with JWT. Your knowledge base is isolated to your account.
+- **Async Indexing**: Upload mega-files and watch them process in the background without blocking the UI.
 
-- 100% local execution using Ollama + Llama 3.1 8B  
-- Supports PDF, TXT, and Markdown documents  
-- Upload, delete, and re-index files directly from the browser  
-- Customizable system prompt (change tone, format, rules)  
-- Automatic source citations (shows which document parts were used)  
-- Modern dark-themed chat interface built with Streamlit  
-- Persistent Chroma vector database (fast reloads)  
-- Strong hallucination guardrails (refuses to make up facts)
+---
 
 ## 🛠️ Tech Stack
 
-- **LLM**: Llama 3.1 8B (via Ollama)  
-- **Embeddings**: nomic-embed-text (via Ollama)  
-- **Vector Store**: Chroma  
-- **Framework**: LangChain + LangChain-Ollama  
-- **UI**: Streamlit  
-- **Python**: 3.10+
+### Frontend
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS + Framer Motion
+- **Icons**: Custom SVG Cyber-Visuals
+- **State Management**: React Context API
 
-## 🚀 Quick Start (Local Setup)
+### Backend
+- **Framework**: Django REST Framework
+- **Task Queue**: Celery + Redis
+- **Database**: PostgreSQL (Users/Sessions) + ChromaDB (Vector Store)
+- **RAG Engine**: LangChain + Ollama
 
-### 1. Install Ollama
+### AI Core
+- **LLM**: Llama 3.1 8B (via Ollama)
+- **Embeddings**: Nomic Embed Text
+- **Vector Store**: Chroma (Persistent)
 
-Download and install from: https://ollama.com/download
+---
 
-### 2. Pull the required models
+## 🏗️ Quick Start
 
+The entire stack is containerized for a single-command deployment.
+
+### 1. Prerequisites
+- **Docker & Docker Compose** installed.
+- **Ollama** running on your host machine (or accessible via network).
 ```bash
 ollama pull llama3.1:8b
 ollama pull nomic-embed-text
 ```
 
-### 3. Clone this repository
-
+### 2. Setup Environment
+Clone the repo and create your `.env` file:
 ```bash
-git clone https://github.com/YOUR_USERNAME/knowbot.git
-cd knowbot
+git clone https://github.com/bhargavhegde/KnowBot-2.0.git
+cd KnowBot-2.0
+cp .env.example .env
 ```
 
-### 4. Create and activate virtual environment
-
+### 3. Launch via Docker
 ```bash
-# Create
-python -m venv venv
-
-# Activate (Linux/macOS)
-source venv/bin/activate
-
-# Activate (Windows)
-venv\Scripts\activate
+docker-compose up --build
 ```
 
-### 5. Install dependencies
+- **Frontend**: [http://localhost:3000](http://localhost:3000)
+- **Backend API**: [http://localhost:8000/api](http://localhost:8000/api)
+- **Admin Dashboard**: [http://localhost:8000/admin](http://localhost:8000/admin)
 
-```bash
-pip install -r requirements.txt
-```
-
-### 6. Start the application
-
-```bash
-streamlit run app.py
-```
-
-Open your browser at: http://localhost:8501
+---
 
 ## 📂 Project Structure
 
+```text
+KnowBot-2.0/
+├── backend/            # Django REST Framework app
+│   ├── api/            # Endpoints for chat, docs, and authentication
+│   ├── rag/            # The LangChain RAG engine logic
+│   └── knowbot/         # System settings & Celery config
+├── frontend/           # Next.js 15 Application
+│   ├── src/app/        # Pages (Login, Chat, Register)
+│   ├── src/components/ # Cybernetic UI Components
+│   └── src/context/    # State management
+├── streamlit_backup/   # Legacy Streamlit code (v1.0)
+└── docker-compose.yml  # Full-stack orchestration
 ```
-knowbot/
-├── app.py               # Streamlit UI + all user interaction logic
-├── rag_chain.py         # Document loading, chunking, embedding, RAG chain
-├── data/                # Put your documents here (gitignored)
-├── chroma_db/           # Persistent vector database (gitignored)
-├── requirements.txt     # Exact dependencies
-├── README.md
-└── .gitignore
-```
 
-## ⚙️ Customization Options
+---
 
-- **Chunk size & overlap** → edit in `rag_chain.py`  
-- **Default system prompt** → change in `build_rag_chain()` function  
-- **More file types** → add loaders in `load_and_chunk_documents()`  
-- **Model** → change `LLM_MODEL` or `EMBEDDING_MODEL` variables
+## 📌 Features in Detail
 
-## 📌 Future / Nice-to-have Ideas
+### ☄️ Laser-Eye Scanning
+When KnowBot retrieves information from your documents, the "Cyber Brain" avatar performs a visual scan, projecting a laser beam towards the text. This visual feedback tells you exactly when the RAG engine is working.
 
-- Multi-turn conversation memory  
-- Hybrid search (dense + BM25 keyword)  
-- Reranker (cross-encoder) for better retrieval quality  
-- Export/import knowledge base  
-- FastAPI backend + React/Vite frontend  
-- Evaluation metrics (RAGAS or manual)
+### 🧠 System Prompts
+Customize your AI's personality. Switch between a professional analyst, a creative tutor, or a strict fact-checker via the sidebar.
+
+### 📄 Managed Knowledge
+Upload **PDFs, TXTs, or MDs**. KnowBot chunks them, generates embeddings, and stores them in your private vector vault. You can delete documents individually or refresh your entire "Neural Memory" with one click.
+
+---
+
+## 🤝 Contributing
+Feel free to fork this project and add new features! Whether it's more document loaders, new UI animations, or advanced RAG techniques, contributions are welcome.
 
 ## 📄 License
-
-MIT License
-
-
+MIT License - 2024 Bhargav Hegde

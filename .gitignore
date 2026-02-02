@@ -1,20 +1,21 @@
 # Python & env
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
 .Python
 env/
 venv/
 rag_env/
 .env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Chroma & data
 chroma_db/
-data/*.pdf
-data/*.docx
-data/*.txt
+data/
 *.db
+*.sqlite3
 
 # IDE & system files
 .idea/
@@ -24,20 +25,23 @@ data/*.txt
 .DS_Store
 Thumbs.db
 
-# Large archives
-*.zip
-*.tar.gz
-
 # Node.js / Frontend
 node_modules/
 .next/
 frontend/.next/
 frontend/node_modules/
+dist/
+build/
+.next/
 *.tsbuildinfo
 
 # Docker
 .docker/
+docker-volumes/
 
 # Logs
 *.log
 tilt_logs.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
