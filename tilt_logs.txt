@@ -12809,3 +12809,418 @@ Successfully loaded Tiltfile (64.903432ms)
       backend │ [02/Feb/2026 16:45:17] "GET /api/documents/ HTTP/1.1" 200 341
       backend │ [02/Feb/2026 16:45:17] "GET /api/documents/ HTTP/1.1" 200 341
      frontend │  GET / 200 in 30ms (compile: 7ms, render: 23ms)
+      backend │ [02/Feb/2026 16:45:17] "GET /api/prompts/active/ HTTP/1.1" 200 46
+      backend │ [02/Feb/2026 16:45:17] "GET /api/prompts/active/ HTTP/1.1" 200 46
+      backend │ [02/Feb/2026 16:45:17] "GET /api/documents/ HTTP/1.1" 200 341
+      backend │ [02/Feb/2026 16:45:17] "GET /api/documents/ HTTP/1.1" 200 341
+     frontend │  GET / 200 in 51ms (compile: 6ms, render: 46ms)
+      backend │ [02/Feb/2026 16:45:35] "GET /api/auth/me/ HTTP/1.1" 200 45
+      backend │ [02/Feb/2026 16:45:35] "GET /api/documents/ HTTP/1.1" 200 341
+      backend │ [02/Feb/2026 16:45:35] "GET /api/prompts/active/ HTTP/1.1" 200 46
+      backend │ [02/Feb/2026 16:45:35] "GET /api/prompts/active/ HTTP/1.1" 200 46
+      backend │ [02/Feb/2026 16:45:35] "GET /api/documents/ HTTP/1.1" 200 341
+      backend │ [02/Feb/2026 16:45:37] "OPTIONS /api/documents/8/ HTTP/1.1" 200 0
+      backend │ [02/Feb/2026 16:45:37] "DELETE /api/documents/8/ HTTP/1.1" 204 0
+      backend │ [02/Feb/2026 16:45:37] "GET /api/documents/ HTTP/1.1" 200 2
+      backend │ Loaded vector store for collection: user_3
+       ollama │ time=2026-02-02T16:45:44.426Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat
+       ollama │ time=2026-02-02T16:45:44.426Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_eta
+       ollama │ time=2026-02-02T16:45:44.426Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_tau
+       ollama │ time=2026-02-02T16:45:44.426Z level=WARN source=types.go:966 msg="invalid option provided" option=tfs_z
+       ollama │ time=2026-02-02T16:45:44.433Z level=WARN source=cpu_linux.go:130 msg="failed to parse CPU allowed micro secs" error="strconv.ParseInt: parsing \"max\": invalid syntax"
+       ollama │ time=2026-02-02T16:45:44.446Z level=WARN source=server.go:167 msg="requested context size too large for model" num_ctx=8192 n_ctx_train=2048
+       ollama │ time=2026-02-02T16:45:44.446Z level=INFO source=server.go:429 msg="starting runner" cmd="/usr/bin/ollama runner --ollama-engine --model /root/.ollama/models/blobs/sha256-970aa74c0a90ef7482477cf803618e776e173c007bf957f635f1015bfcfef0e6 --port 44715"
+       ollama │ time=2026-02-02T16:45:44.447Z level=INFO source=sched.go:452 msg="system memory" total="30.6 GiB" free="30.6 GiB" free_swap="673.7 MiB"
+       ollama │ time=2026-02-02T16:45:44.447Z level=INFO source=server.go:755 msg="loading model" "model layers"=13 requested=-1
+       ollama │ time=2026-02-02T16:45:44.461Z level=INFO source=runner.go:1405 msg="starting ollama engine"
+       ollama │ time=2026-02-02T16:45:44.462Z level=INFO source=runner.go:1440 msg="Server listening on 127.0.0.1:44715"
+       ollama │ time=2026-02-02T16:45:44.469Z level=INFO source=runner.go:1278 msg=load request="{Operation:fit LoraPath:[] Parallel:1 BatchSize:512 FlashAttention:Disabled KvSize:2048 KvCacheType: NumThreads:8 GPULayers:[] MultiUserCache:false ProjectorPath: MainGPU:0 UseMmap:false}"
+       ollama │ time=2026-02-02T16:45:44.475Z level=INFO source=ggml.go:136 msg="" architecture=nomic-bert file_type=F16 name=nomic-embed-text-v1.5 description="" num_tensors=112 num_key_values=25
+       ollama │ load_backend: loaded CPU backend from /usr/lib/ollama/libggml-cpu-haswell.so
+       ollama │ time=2026-02-02T16:45:44.481Z level=INFO source=ggml.go:104 msg=system CPU.0.SSE3=1 CPU.0.SSSE3=1 CPU.0.AVX=1 CPU.0.AVX2=1 CPU.0.F16C=1 CPU.0.FMA=1 CPU.0.BMI2=1 CPU.0.LLAMAFILE=1 CPU.1.LLAMAFILE=1 compiler=cgo(gcc)
+       ollama │ time=2026-02-02T16:45:44.483Z level=WARN source=runner.go:1213 msg="model does not support caching, setting batch size to context length" batch_size=2048
+       ollama │ time=2026-02-02T16:45:44.484Z level=INFO source=runner.go:1278 msg=load request="{Operation:alloc LoraPath:[] Parallel:1 BatchSize:512 FlashAttention:Disabled KvSize:2048 KvCacheType: NumThreads:8 GPULayers:[] MultiUserCache:false ProjectorPath: MainGPU:0 UseMmap:false}"
+       ollama │ time=2026-02-02T16:45:44.490Z level=WARN source=runner.go:1213 msg="model does not support caching, setting batch size to context length" batch_size=2048
+       ollama │ time=2026-02-02T16:45:44.491Z level=INFO source=runner.go:1278 msg=load request="{Operation:commit LoraPath:[] Parallel:1 BatchSize:512 FlashAttention:Disabled KvSize:2048 KvCacheType: NumThreads:8 GPULayers:[] MultiUserCache:false ProjectorPath: MainGPU:0 UseMmap:false}"
+       ollama │ time=2026-02-02T16:45:44.492Z level=INFO source=ggml.go:482 msg="offloading 0 repeating layers to GPU"
+       ollama │ time=2026-02-02T16:45:44.492Z level=INFO source=ggml.go:486 msg="offloading output layer to CPU"
+       ollama │ time=2026-02-02T16:45:44.492Z level=INFO source=ggml.go:494 msg="offloaded 0/13 layers to GPU"
+       ollama │ time=2026-02-02T16:45:44.492Z level=INFO source=device.go:245 msg="model weights" device=CPU size="305.6 MiB"
+       ollama │ time=2026-02-02T16:45:44.492Z level=INFO source=device.go:267 msg="compute graph" device=CPU size="234.0 MiB"
+       ollama │ time=2026-02-02T16:45:44.492Z level=INFO source=device.go:272 msg="total memory" size="539.6 MiB"
+       ollama │ time=2026-02-02T16:45:44.492Z level=INFO source=sched.go:526 msg="loaded runners" count=1
+       ollama │ time=2026-02-02T16:45:44.492Z level=INFO source=server.go:1347 msg="waiting for llama runner to start responding"
+       ollama │ time=2026-02-02T16:45:44.493Z level=INFO source=server.go:1381 msg="waiting for server to become available" status="llm server loading model"
+       ollama │ time=2026-02-02T16:45:44.744Z level=INFO source=server.go:1385 msg="llama runner started in 0.30 seconds"
+       ollama │ [GIN] 2026/02/02 - 16:45:44 | 200 |  335.701172ms |      172.18.0.5 | POST     "/api/embed"
+       ollama │ time=2026-02-02T16:45:44.763Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat
+       ollama │ time=2026-02-02T16:45:44.763Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_eta
+       ollama │ time=2026-02-02T16:45:44.763Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_tau
+       ollama │ time=2026-02-02T16:45:44.763Z level=WARN source=types.go:966 msg="invalid option provided" option=tfs_z
+       ollama │ [GIN] 2026/02/02 - 16:45:44 | 200 |   19.160613ms |      172.18.0.5 | POST     "/api/embed"
+       ollama │ time=2026-02-02T16:45:44.876Z level=WARN source=cpu_linux.go:130 msg="failed to parse CPU allowed micro secs" error="strconv.ParseInt: parsing \"max\": invalid syntax"
+       ollama │ llama_model_loader: loaded meta data with 29 key-value pairs and 292 tensors from /root/.ollama/models/blobs/sha256-667b0c1932bc6ffc593ed1d03f895bf2dc8dc6df21db3042284a6f4416b06a29 (version GGUF V3 (latest))
+       ollama │ llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
+       ollama │ llama_model_loader: - kv   0:                       general.architecture str              = llama
+       ollama │ llama_model_loader: - kv   1:                               general.type str              = model
+       ollama │ llama_model_loader: - kv   2:                               general.name str              = Meta Llama 3.1 8B Instruct
+       ollama │ llama_model_loader: - kv   3:                           general.finetune str              = Instruct
+       ollama │ llama_model_loader: - kv   4:                           general.basename str              = Meta-Llama-3.1
+       ollama │ llama_model_loader: - kv   5:                         general.size_label str              = 8B
+       ollama │ llama_model_loader: - kv   6:                            general.license str              = llama3.1
+       ollama │ llama_model_loader: - kv   7:                               general.tags arr[str,6]       = ["facebook", "meta", "pytorch", "llam...
+       ollama │ llama_model_loader: - kv   8:                          general.languages arr[str,8]       = ["en", "de", "fr", "it", "pt", "hi", ...
+       ollama │ llama_model_loader: - kv   9:                          llama.block_count u32              = 32
+       ollama │ llama_model_loader: - kv  10:                       llama.context_length u32              = 131072
+       ollama │ llama_model_loader: - kv  11:                     llama.embedding_length u32              = 4096
+       ollama │ llama_model_loader: - kv  12:                  llama.feed_forward_length u32              = 14336
+       ollama │ llama_model_loader: - kv  13:                 llama.attention.head_count u32              = 32
+       ollama │ llama_model_loader: - kv  14:              llama.attention.head_count_kv u32              = 8
+       ollama │ llama_model_loader: - kv  15:                       llama.rope.freq_base f32              = 500000.000000
+       ollama │ llama_model_loader: - kv  16:     llama.attention.layer_norm_rms_epsilon f32              = 0.000010
+       ollama │ llama_model_loader: - kv  17:                          general.file_type u32              = 15
+       ollama │ llama_model_loader: - kv  18:                           llama.vocab_size u32              = 128256
+       ollama │ llama_model_loader: - kv  19:                 llama.rope.dimension_count u32              = 128
+       ollama │ llama_model_loader: - kv  20:                       tokenizer.ggml.model str              = gpt2
+       ollama │ llama_model_loader: - kv  21:                         tokenizer.ggml.pre str              = llama-bpe
+       ollama │ llama_model_loader: - kv  22:                      tokenizer.ggml.tokens arr[str,128256]  = ["!", "\"", "#", "$", "%", "&", "'", ...
+       ollama │ llama_model_loader: - kv  23:                  tokenizer.ggml.token_type arr[i32,128256]  = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+       ollama │ llama_model_loader: - kv  24:                      tokenizer.ggml.merges arr[str,280147]  = ["Ġ Ġ", "Ġ ĠĠĠ", "ĠĠ ĠĠ", "...
+       ollama │ llama_model_loader: - kv  25:                tokenizer.ggml.bos_token_id u32              = 128000
+       ollama │ llama_model_loader: - kv  26:                tokenizer.ggml.eos_token_id u32              = 128009
+       ollama │ llama_model_loader: - kv  27:                    tokenizer.chat_template str              = {{- bos_token }}\n{%- if custom_tools ...
+       ollama │ llama_model_loader: - kv  28:               general.quantization_version u32              = 2
+       ollama │ llama_model_loader: - type  f32:   66 tensors
+       ollama │ llama_model_loader: - type q4_K:  193 tensors
+       ollama │ llama_model_loader: - type q6_K:   33 tensors
+       ollama │ print_info: file format = GGUF V3 (latest)
+       ollama │ print_info: file type   = Q4_K - Medium
+       ollama │ print_info: file size   = 4.58 GiB (4.89 BPW) 
+       ollama │ load: printing all EOG tokens:
+       ollama │ load:   - 128001 ('<|end_of_text|>')
+       ollama │ load:   - 128008 ('<|eom_id|>')
+       ollama │ load:   - 128009 ('<|eot_id|>')
+       ollama │ load: special tokens cache size = 256
+       ollama │ load: token to piece cache size = 0.7999 MB
+       ollama │ print_info: arch             = llama
+       ollama │ print_info: vocab_only       = 1
+       ollama │ print_info: no_alloc         = 0
+       ollama │ print_info: model type       = ?B
+       ollama │ print_info: model params     = 8.03 B
+       ollama │ print_info: general.name     = Meta Llama 3.1 8B Instruct
+       ollama │ print_info: vocab type       = BPE
+       ollama │ print_info: n_vocab          = 128256
+       ollama │ print_info: n_merges         = 280147
+       ollama │ print_info: BOS token        = 128000 '<|begin_of_text|>'
+       ollama │ print_info: EOS token        = 128009 '<|eot_id|>'
+       ollama │ print_info: EOT token        = 128009 '<|eot_id|>'
+       ollama │ print_info: EOM token        = 128008 '<|eom_id|>'
+       ollama │ print_info: LF token         = 198 'Ċ'
+       ollama │ print_info: EOG token        = 128001 '<|end_of_text|>'
+       ollama │ print_info: EOG token        = 128008 '<|eom_id|>'
+       ollama │ print_info: EOG token        = 128009 '<|eot_id|>'
+       ollama │ print_info: max token length = 256
+       ollama │ llama_model_load: vocab only - skipping tensors
+       ollama │ time=2026-02-02T16:45:45.195Z level=INFO source=server.go:429 msg="starting runner" cmd="/usr/bin/ollama runner --model /root/.ollama/models/blobs/sha256-667b0c1932bc6ffc593ed1d03f895bf2dc8dc6df21db3042284a6f4416b06a29 --port 44223"
+       ollama │ time=2026-02-02T16:45:45.196Z level=INFO source=sched.go:452 msg="system memory" total="30.6 GiB" free="30.2 GiB" free_swap="673.7 MiB"
+       ollama │ time=2026-02-02T16:45:45.196Z level=INFO source=server.go:496 msg="loading model" "model layers"=33 requested=-1
+       ollama │ time=2026-02-02T16:45:45.196Z level=INFO source=device.go:245 msg="model weights" device=CPU size="4.3 GiB"
+       ollama │ time=2026-02-02T16:45:45.196Z level=INFO source=device.go:256 msg="kv cache" device=CPU size="512.0 MiB"
+       ollama │ time=2026-02-02T16:45:45.196Z level=INFO source=device.go:272 msg="total memory" size="4.8 GiB"
+       ollama │ time=2026-02-02T16:45:45.206Z level=INFO source=runner.go:965 msg="starting go runner"
+       ollama │ load_backend: loaded CPU backend from /usr/lib/ollama/libggml-cpu-haswell.so
+       ollama │ time=2026-02-02T16:45:45.210Z level=INFO source=ggml.go:104 msg=system CPU.0.SSE3=1 CPU.0.SSSE3=1 CPU.0.AVX=1 CPU.0.AVX2=1 CPU.0.F16C=1 CPU.0.FMA=1 CPU.0.BMI2=1 CPU.0.LLAMAFILE=1 CPU.1.LLAMAFILE=1 compiler=cgo(gcc)
+       ollama │ time=2026-02-02T16:45:45.211Z level=INFO source=runner.go:1001 msg="Server listening on 127.0.0.1:44223"
+       ollama │ time=2026-02-02T16:45:45.219Z level=INFO source=runner.go:895 msg=load request="{Operation:commit LoraPath:[] Parallel:1 BatchSize:512 FlashAttention:Auto KvSize:4096 KvCacheType: NumThreads:8 GPULayers:[] MultiUserCache:false ProjectorPath: MainGPU:0 UseMmap:false}"
+       ollama │ time=2026-02-02T16:45:45.219Z level=INFO source=server.go:1347 msg="waiting for llama runner to start responding"
+       ollama │ time=2026-02-02T16:45:45.219Z level=INFO source=server.go:1381 msg="waiting for server to become available" status="llm server loading model"
+       ollama │ llama_model_loader: loaded meta data with 29 key-value pairs and 292 tensors from /root/.ollama/models/blobs/sha256-667b0c1932bc6ffc593ed1d03f895bf2dc8dc6df21db3042284a6f4416b06a29 (version GGUF V3 (latest))
+       ollama │ llama_model_loader: Dumping metadata keys/values. Note: KV overrides do not apply in this output.
+       ollama │ llama_model_loader: - kv   0:                       general.architecture str              = llama
+       ollama │ llama_model_loader: - kv   1:                               general.type str              = model
+       ollama │ llama_model_loader: - kv   2:                               general.name str              = Meta Llama 3.1 8B Instruct
+       ollama │ llama_model_loader: - kv   3:                           general.finetune str              = Instruct
+       ollama │ llama_model_loader: - kv   4:                           general.basename str              = Meta-Llama-3.1
+       ollama │ llama_model_loader: - kv   5:                         general.size_label str              = 8B
+       ollama │ llama_model_loader: - kv   6:                            general.license str              = llama3.1
+       ollama │ llama_model_loader: - kv   7:                               general.tags arr[str,6]       = ["facebook", "meta", "pytorch", "llam...
+       ollama │ llama_model_loader: - kv   8:                          general.languages arr[str,8]       = ["en", "de", "fr", "it", "pt", "hi", ...
+       ollama │ llama_model_loader: - kv   9:                          llama.block_count u32              = 32
+       ollama │ llama_model_loader: - kv  10:                       llama.context_length u32              = 131072
+       ollama │ llama_model_loader: - kv  11:                     llama.embedding_length u32              = 4096
+       ollama │ llama_model_loader: - kv  12:                  llama.feed_forward_length u32              = 14336
+       ollama │ llama_model_loader: - kv  13:                 llama.attention.head_count u32              = 32
+       ollama │ llama_model_loader: - kv  14:              llama.attention.head_count_kv u32              = 8
+       ollama │ llama_model_loader: - kv  15:                       llama.rope.freq_base f32              = 500000.000000
+       ollama │ llama_model_loader: - kv  16:     llama.attention.layer_norm_rms_epsilon f32              = 0.000010
+       ollama │ llama_model_loader: - kv  17:                          general.file_type u32              = 15
+       ollama │ llama_model_loader: - kv  18:                           llama.vocab_size u32              = 128256
+       ollama │ llama_model_loader: - kv  19:                 llama.rope.dimension_count u32              = 128
+       ollama │ llama_model_loader: - kv  20:                       tokenizer.ggml.model str              = gpt2
+       ollama │ llama_model_loader: - kv  21:                         tokenizer.ggml.pre str              = llama-bpe
+       ollama │ llama_model_loader: - kv  22:                      tokenizer.ggml.tokens arr[str,128256]  = ["!", "\"", "#", "$", "%", "&", "'", ...
+       ollama │ llama_model_loader: - kv  23:                  tokenizer.ggml.token_type arr[i32,128256]  = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, ...
+       ollama │ llama_model_loader: - kv  24:                      tokenizer.ggml.merges arr[str,280147]  = ["Ġ Ġ", "Ġ ĠĠĠ", "ĠĠ ĠĠ", "...
+       ollama │ llama_model_loader: - kv  25:                tokenizer.ggml.bos_token_id u32              = 128000
+       ollama │ llama_model_loader: - kv  26:                tokenizer.ggml.eos_token_id u32              = 128009
+       ollama │ llama_model_loader: - kv  27:                    tokenizer.chat_template str              = {{- bos_token }}\n{%- if custom_tools ...
+       ollama │ llama_model_loader: - kv  28:               general.quantization_version u32              = 2
+       ollama │ llama_model_loader: - type  f32:   66 tensors
+       ollama │ llama_model_loader: - type q4_K:  193 tensors
+       ollama │ llama_model_loader: - type q6_K:   33 tensors
+       ollama │ print_info: file format = GGUF V3 (latest)
+       ollama │ print_info: file type   = Q4_K - Medium
+       ollama │ print_info: file size   = 4.58 GiB (4.89 BPW) 
+       ollama │ load: printing all EOG tokens:
+       ollama │ load:   - 128001 ('<|end_of_text|>')
+       ollama │ load:   - 128008 ('<|eom_id|>')
+       ollama │ load:   - 128009 ('<|eot_id|>')
+       ollama │ load: special tokens cache size = 256
+       ollama │ load: token to piece cache size = 0.7999 MB
+       ollama │ print_info: arch             = llama
+       ollama │ print_info: vocab_only       = 0
+       ollama │ print_info: no_alloc         = 0
+       ollama │ print_info: n_ctx_train      = 131072
+       ollama │ print_info: n_embd           = 4096
+       ollama │ print_info: n_embd_inp       = 4096
+       ollama │ print_info: n_layer          = 32
+       ollama │ print_info: n_head           = 32
+       ollama │ print_info: n_head_kv        = 8
+       ollama │ print_info: n_rot            = 128
+       ollama │ print_info: n_swa            = 0
+       ollama │ print_info: is_swa_any       = 0
+       ollama │ print_info: n_embd_head_k    = 128
+       ollama │ print_info: n_embd_head_v    = 128
+       ollama │ print_info: n_gqa            = 4
+       ollama │ print_info: n_embd_k_gqa     = 1024
+       ollama │ print_info: n_embd_v_gqa     = 1024
+       ollama │ print_info: f_norm_eps       = 0.0e+00
+       ollama │ print_info: f_norm_rms_eps   = 1.0e-05
+       ollama │ print_info: f_clamp_kqv      = 0.0e+00
+       ollama │ print_info: f_max_alibi_bias = 0.0e+00
+       ollama │ print_info: f_logit_scale    = 0.0e+00
+       ollama │ print_info: f_attn_scale     = 0.0e+00
+       ollama │ print_info: n_ff             = 14336
+       ollama │ print_info: n_expert         = 0
+       ollama │ print_info: n_expert_used    = 0
+       ollama │ print_info: n_expert_groups  = 0
+       ollama │ print_info: n_group_used     = 0
+       ollama │ print_info: causal attn      = 1
+       ollama │ print_info: pooling type     = 0
+       ollama │ print_info: rope type        = 0
+       ollama │ print_info: rope scaling     = linear
+       ollama │ print_info: freq_base_train  = 500000.0
+       ollama │ print_info: freq_scale_train = 1
+       ollama │ print_info: n_ctx_orig_yarn  = 131072
+       ollama │ print_info: rope_yarn_log_mul= 0.0000
+       ollama │ print_info: rope_finetuned   = unknown
+       ollama │ print_info: model type       = 8B
+       ollama │ print_info: model params     = 8.03 B
+       ollama │ print_info: general.name     = Meta Llama 3.1 8B Instruct
+       ollama │ print_info: vocab type       = BPE
+       ollama │ print_info: n_vocab          = 128256
+       ollama │ print_info: n_merges         = 280147
+       ollama │ print_info: BOS token        = 128000 '<|begin_of_text|>'
+       ollama │ print_info: EOS token        = 128009 '<|eot_id|>'
+       ollama │ print_info: EOT token        = 128009 '<|eot_id|>'
+       ollama │ print_info: EOM token        = 128008 '<|eom_id|>'
+       ollama │ print_info: LF token         = 198 'Ċ'
+       ollama │ print_info: EOG token        = 128001 '<|end_of_text|>'
+       ollama │ print_info: EOG token        = 128008 '<|eom_id|>'
+       ollama │ print_info: EOG token        = 128009 '<|eot_id|>'
+       ollama │ print_info: max token length = 256
+       ollama │ load_tensors: loading model tensors, this can take a while... (mmap = false)
+       ollama │ load_tensors:          CPU model buffer size =  4685.30 MiB
+       ollama │ llama_context: constructing llama_context
+       ollama │ llama_context: n_seq_max     = 1
+       ollama │ llama_context: n_ctx         = 4096
+       ollama │ llama_context: n_ctx_seq     = 4096
+       ollama │ llama_context: n_batch       = 512
+       ollama │ llama_context: n_ubatch      = 512
+       ollama │ llama_context: causal_attn   = 1
+       ollama │ llama_context: flash_attn    = auto
+       ollama │ llama_context: kv_unified    = false
+       ollama │ llama_context: freq_base     = 500000.0
+       ollama │ llama_context: freq_scale    = 1
+       ollama │ llama_context: n_ctx_seq (4096) < n_ctx_train (131072) -- the full capacity of the model will not be utilized
+       ollama │ llama_context:        CPU  output buffer size =     0.50 MiB
+       ollama │ llama_kv_cache:        CPU KV buffer size =   512.00 MiB
+       ollama │ llama_kv_cache: size =  512.00 MiB (  4096 cells,  32 layers,  1/1 seqs), K (f16):  256.00 MiB, V (f16):  256.00 MiB
+       ollama │ llama_context: Flash Attention was auto, set to enabled
+       ollama │ llama_context:        CPU compute buffer size =   258.50 MiB
+       ollama │ llama_context: graph nodes  = 999
+       ollama │ llama_context: graph splits = 1
+       ollama │ time=2026-02-02T16:45:47.979Z level=INFO source=server.go:1385 msg="llama runner started in 2.78 seconds"
+       ollama │ time=2026-02-02T16:45:47.979Z level=INFO source=sched.go:526 msg="loaded runners" count=2
+       ollama │ time=2026-02-02T16:45:47.979Z level=INFO source=server.go:1347 msg="waiting for llama runner to start responding"
+       ollama │ time=2026-02-02T16:45:47.979Z level=INFO source=server.go:1385 msg="llama runner started in 2.78 seconds"
+       ollama │ [GIN] 2026/02/02 - 16:45:53 | 200 |  9.067760444s |      172.18.0.5 | POST     "/api/chat"
+      backend │ [02/Feb/2026 16:45:53] "POST /api/chat/ HTTP/1.1" 200 227
+      backend │ [02/Feb/2026 16:45:58] "POST /api/documents/upload/ HTTP/1.1" 201 314
+       celery │ [2026-02-02 16:45:58,925: INFO/MainProcess] Task api.tasks.index_document_task[a6ead697-0a57-4693-abd0-7ede6ef08ce0] received
+      backend │ [02/Feb/2026 16:45:58] "GET /api/documents/ HTTP/1.1" 200 319
+       celery │ [2026-02-02 16:45:59,017: INFO/ForkPoolWorker-16] Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+       ollama │ time=2026-02-02T16:45:59.085Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat
+       ollama │ time=2026-02-02T16:45:59.085Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_eta
+       ollama │ time=2026-02-02T16:45:59.085Z level=WARN source=types.go:966 msg="invalid option provided" option=tfs_z
+       ollama │ time=2026-02-02T16:45:59.085Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_tau
+       ollama │ [GIN] 2026/02/02 - 16:45:59 | 200 |  898.977771ms |      172.18.0.6 | POST     "/api/embed"
+       celery │ [2026-02-02 16:45:59,981: INFO/ForkPoolWorker-16] HTTP Request: POST http://ollama:11434/api/embed "HTTP/1.1 200 OK"
+       celery │ [2026-02-02 16:46:00,013: WARNING/ForkPoolWorker-16] Vector store updated for collection: user_3
+       celery │ [2026-02-02 16:46:00,017: INFO/ForkPoolWorker-16] Task api.tasks.index_document_task[a6ead697-0a57-4693-abd0-7ede6ef08ce0] succeeded in 1.090818885999397s: {'success': True, 'document_id': 9, 'chunks': 7, 'user_id': 3}
+      backend │ [02/Feb/2026 16:46:00] "OPTIONS /api/documents/9/status/ HTTP/1.1" 200 0
+      backend │ [02/Feb/2026 16:46:00] "GET /api/documents/9/status/ HTTP/1.1" 200 70
+      backend │ [02/Feb/2026 16:46:00] "GET /api/documents/ HTTP/1.1" 200 341
+      backend │ Loaded vector store for collection: user_3
+       ollama │ time=2026-02-02T16:46:05.652Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat
+       ollama │ time=2026-02-02T16:46:05.652Z level=WARN source=types.go:966 msg="invalid option provided" option=tfs_z
+       ollama │ time=2026-02-02T16:46:05.652Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_eta
+       ollama │ time=2026-02-02T16:46:05.652Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_tau
+       ollama │ [GIN] 2026/02/02 - 16:46:05 | 200 |   29.778775ms |      172.18.0.5 | POST     "/api/embed"
+      backend │ Internal Server Error: /api/chat/
+      backend │ [02/Feb/2026 16:46:05] "POST /api/chat/ HTTP/1.1" 500 107
+      backend │ Loaded vector store for collection: user_3
+       ollama │ time=2026-02-02T16:46:10.509Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_eta
+       ollama │ time=2026-02-02T16:46:10.509Z level=WARN source=types.go:966 msg="invalid option provided" option=tfs_z
+       ollama │ time=2026-02-02T16:46:10.509Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat
+       ollama │ time=2026-02-02T16:46:10.509Z level=WARN source=types.go:966 msg="invalid option provided" option=mirostat_tau
+       ollama │ [GIN] 2026/02/02 - 16:46:10 | 200 |   24.570462ms |      172.18.0.5 | POST     "/api/embed"
+      backend │ Internal Server Error: /api/chat/
+      backend │ [02/Feb/2026 16:46:10] "POST /api/chat/ HTTP/1.1" 500 107
+      backend │ /app/rag/service.py changed, reloading.
+      backend │ Watching for file changes with StatReloader
+      backend │ Performing system checks...
+      backend │ 
+      backend │ System check identified no issues (0 silenced).
+      backend │ February 02, 2026 - 16:48:08
+      backend │ Django version 5.2.10, using settings 'knowbot.settings'
+      backend │ Starting development server at http://0.0.0.0:8000/
+      backend │ Quit the server with CONTROL-C.
+      backend │ 
+      backend │ WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+      backend │ For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
+           db │ 2026-02-02 16:49:53.729 UTC [27] LOG:  checkpoint starting: time
+       celery │ 
+       celery │ worker: Warm shutdown (MainProcess)
+           db │ 2026-02-02 16:49:55.167 UTC [27] LOG:  checkpoint complete: wrote 17 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.406 s, sync=0.017 s, total=1.439 s; sync files=16, longest=0.011 s, average=0.002 s; distance=21 kB, estimate=21 kB; lsn=0/1A59EA0, redo lsn=0/1A59E68
+     frontend │ [?25h
+        redis │ 1:signal-handler (1770051005) Received SIGTERM scheduling shutdown...
+           db │ 2026-02-02 16:50:05.787 UTC [1] LOG:  received fast shutdown request
+           db │ 2026-02-02 16:50:05.787 UTC [1] LOG:  aborting any active transactions
+           db │ 2026-02-02 16:50:05.790 UTC [1] LOG:  background worker "logical replication launcher" (PID 32) exited with exit code 1
+           db │ 2026-02-02 16:50:05.790 UTC [27] LOG:  shutting down
+           db │ 2026-02-02 16:50:05.790 UTC [27] LOG:  checkpoint starting: shutdown immediate
+           db │ 2026-02-02 16:50:05.793 UTC [27] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.004 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=19 kB; lsn=0/1A59F50, redo lsn=0/1A59F50
+           db │ 2026-02-02 16:50:05.799 UTC [1] LOG:  database system is shut down
+        redis │ 1:M 02 Feb 2026 16:50:05.854 * User requested shutdown...
+        redis │ 1:M 02 Feb 2026 16:50:05.854 * Saving the final RDB snapshot before exiting.
+        redis │ 1:M 02 Feb 2026 16:50:05.856 * DB saved on disk
+        redis │ 1:M 02 Feb 2026 16:50:05.856 # Redis is now ready to exit, bye bye...
+           db │ WARNING: healthcheck: /var/run/postgresql:5432 - accepting connections
+           db │ 
+           db │ WARNING: healthcheck: PONG
+           db │ 
+           db │ 
+           db │ PostgreSQL Database directory appears to contain a database; Skipping initialization
+           db │ 
+           db │ 2026-02-02 16:50:09.780 UTC [1] LOG:  starting PostgreSQL 16.11 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
+           db │ 2026-02-02 16:50:09.780 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+           db │ 2026-02-02 16:50:09.780 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+           db │ 2026-02-02 16:50:09.782 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+           db │ 2026-02-02 16:50:09.785 UTC [29] LOG:  database system was shut down at 2026-02-02 16:50:05 UTC
+           db │ 2026-02-02 16:50:09.790 UTC [1] LOG:  database system is ready to accept connections
+       ollama │ time=2026-02-02T16:50:09.768Z level=INFO source=routes.go:1631 msg="server config" env="map[CUDA_VISIBLE_DEVICES: GGML_VK_VISIBLE_DEVICES: GPU_DEVICE_ORDINAL: HIP_VISIBLE_DEVICES: HSA_OVERRIDE_GFX_VERSION: HTTPS_PROXY: HTTP_PROXY: NO_PROXY: OLLAMA_CONTEXT_LENGTH:4096 OLLAMA_DEBUG:INFO OLLAMA_FLASH_ATTENTION:false OLLAMA_GPU_OVERHEAD:0 OLLAMA_HOST:http://0.0.0.0:11434 OLLAMA_KEEP_ALIVE:5m0s OLLAMA_KV_CACHE_TYPE: OLLAMA_LLM_LIBRARY: OLLAMA_LOAD_TIMEOUT:5m0s OLLAMA_MAX_LOADED_MODELS:0 OLLAMA_MAX_QUEUE:512 OLLAMA_MODELS:/root/.ollama/models OLLAMA_MULTIUSER_CACHE:false OLLAMA_NEW_ENGINE:false OLLAMA_NOHISTORY:false OLLAMA_NOPRUNE:false OLLAMA_NUM_PARALLEL:1 OLLAMA_ORIGINS:[http://localhost https://localhost http://localhost:* https://localhost:* http://127.0.0.1 https://127.0.0.1 http://127.0.0.1:* https://127.0.0.1:* http://0.0.0.0 https://0.0.0.0 http://0.0.0.0:* https://0.0.0.0:* app://* file://* tauri://* vscode-webview://* vscode-file://*] OLLAMA_REMOTES:[ollama.com] OLLAMA_SCHED_SPREAD:false OLLAMA_VULKAN:false ROCR_VISIBLE_DEVICES: http_proxy: https_proxy: no_proxy:]"
+       ollama │ time=2026-02-02T16:50:09.769Z level=INFO source=images.go:473 msg="total blobs: 9"
+       ollama │ time=2026-02-02T16:50:09.769Z level=INFO source=images.go:480 msg="total unused blobs removed: 0"
+       ollama │ time=2026-02-02T16:50:09.769Z level=INFO source=routes.go:1684 msg="Listening on [::]:11434 (version 0.15.4)"
+       ollama │ time=2026-02-02T16:50:09.770Z level=INFO source=runner.go:67 msg="discovering available GPUs..."
+       ollama │ time=2026-02-02T16:50:09.770Z level=INFO source=server.go:429 msg="starting runner" cmd="/usr/bin/ollama runner --ollama-engine --port 32867"
+       ollama │ time=2026-02-02T16:50:09.800Z level=INFO source=server.go:429 msg="starting runner" cmd="/usr/bin/ollama runner --ollama-engine --port 45407"
+       ollama │ time=2026-02-02T16:50:09.827Z level=INFO source=runner.go:106 msg="experimental Vulkan support disabled.  To enable, set OLLAMA_VULKAN=1"
+       ollama │ time=2026-02-02T16:50:09.828Z level=INFO source=types.go:60 msg="inference compute" id=cpu library=cpu compute="" name=cpu description=cpu libdirs=ollama driver="" pci_id="" type="" total="30.6 GiB" available="30.6 GiB"
+       ollama │ time=2026-02-02T16:50:09.828Z level=INFO source=routes.go:1725 msg="entering low vram mode" "total vram"="0 B" threshold="20.0 GiB"
+        redis │ 1:C 02 Feb 2026 16:50:09.788 # WARNING Memory overcommit must be enabled! Without it, a background save or replication may fail under low memory condition. Being disabled, it can also cause failures without low memory condition, see https://github.com/jemalloc/jemalloc/issues/1328. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.
+        redis │ 1:C 02 Feb 2026 16:50:09.788 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+        redis │ 1:C 02 Feb 2026 16:50:09.788 * Redis version=7.4.7, bits=64, commit=00000000, modified=0, pid=1, just started
+        redis │ 1:C 02 Feb 2026 16:50:09.788 # Warning: no config file specified, using the default config. In order to specify a config file use redis-server /path/to/redis.conf
+        redis │ 1:M 02 Feb 2026 16:50:09.788 * Increased maximum number of open files to 10032 (it was originally set to 1024).
+        redis │ 1:M 02 Feb 2026 16:50:09.788 * monotonic clock: POSIX clock_gettime
+        redis │ 1:M 02 Feb 2026 16:50:09.789 * Running mode=standalone, port=6379.
+        redis │ 1:M 02 Feb 2026 16:50:09.789 * Server initialized
+        redis │ 1:M 02 Feb 2026 16:50:09.789 * Ready to accept connections tcp
+     frontend │ 
+     frontend │ > frontend@0.1.0 dev
+     frontend │ > next dev
+     frontend │ 
+     frontend │ ▲ Next.js 16.1.6 (Turbopack)
+     frontend │ - Local:         http://localhost:3000
+     frontend │ - Network:       http://172.18.0.7:3000
+     frontend │ 
+     frontend │ ✓ Starting...
+     frontend │ Attention: Next.js now collects completely anonymous telemetry regarding usage.
+     frontend │ This information is used to shape Next.js' roadmap and prioritize features.
+     frontend │ You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+     frontend │ https://nextjs.org/telemetry
+     frontend │ 
+     frontend │ ✓ Ready in 709ms
+      backend │ Operations to perform:
+      backend │   Apply all migrations: admin, api, auth, contenttypes, sessions
+      backend │ Running migrations:
+      backend │   No migrations to apply.
+       celery │ /usr/local/lib/python3.11/site-packages/celery/platforms.py:841: SecurityWarning: You're running the worker with superuser privileges: this is
+       celery │ absolutely not recommended!
+       celery │ 
+       celery │ Please specify a different user using the --uid option.
+       celery │ 
+       celery │ User information: uid=0 euid=0 gid=0 egid=0
+       celery │ 
+       celery │   warnings.warn(SecurityWarning(ROOT_DISCOURAGED.format(
+       celery │  
+       celery │  -------------- celery@d9ea070869c6 v5.6.2 (recovery)
+       celery │ --- ***** ----- 
+       celery │ -- ******* ---- Linux-6.8.0-90-generic-x86_64-with-glibc2.41 2026-02-02 16:50:17
+       celery │ - *** --- * --- 
+       celery │ - ** ---------- [config]
+       celery │ - ** ---------- .> app:         knowbot:0x728df4900250
+       celery │ - ** ---------- .> transport:   redis://redis:6379/0
+       celery │ - ** ---------- .> results:     redis://redis:6379/0
+       celery │ - *** --- * --- .> concurrency: 16 (prefork)
+       celery │ -- ******* ---- .> task events: OFF (enable -E to monitor tasks in this worker)
+       celery │ --- ***** ----- 
+       celery │  -------------- [queues]
+       celery │                 .> celery           exchange=celery(direct) key=celery
+       celery │                 
+       celery │ 
+       celery │ [tasks]
+       celery │   . api.tasks.cleanup_orphaned_files_task
+       celery │   . api.tasks.index_document_task
+       celery │   . api.tasks.reindex_all_documents_task
+       celery │   . knowbot.celery.debug_task
+       celery │ 
+      backend │ Watching for file changes with StatReloader
+      backend │ Performing system checks...
+      backend │ 
+       celery │ [2026-02-02 16:50:18,820: INFO/MainProcess] Connected to redis://redis:6379/0
+       celery │ [2026-02-02 16:50:18,823: INFO/MainProcess] mingle: searching for neighbors
+      backend │ System check identified no issues (0 silenced).
+      backend │ February 02, 2026 - 16:50:19
+      backend │ Django version 5.2.10, using settings 'knowbot.settings'
+      backend │ Starting development server at http://0.0.0.0:8000/
+      backend │ Quit the server with CONTROL-C.
+      backend │ 
+      backend │ WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+      backend │ For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
+       celery │ [2026-02-02 16:50:19,828: INFO/MainProcess] mingle: all alone
+       celery │ [2026-02-02 16:50:19,843: INFO/MainProcess] celery@d9ea070869c6 ready.
+     frontend │  GET / 200 in 2.5s (compile: 2.2s, render: 312ms)
+     frontend │  GET / 200 in 67ms (compile: 8ms, render: 59ms)
+      backend │ [02/Feb/2026 16:50:22] "GET /api/auth/me/ HTTP/1.1" 200 45
+      backend │ [02/Feb/2026 16:50:22] "GET /api/documents/ HTTP/1.1" 200 341
+      backend │ [02/Feb/2026 16:50:22] "GET /api/prompts/active/ HTTP/1.1" 200 46
+      backend │ [02/Feb/2026 16:50:22] "GET /api/prompts/active/ HTTP/1.1" 200 46
+      backend │ [02/Feb/2026 16:50:22] "GET /api/documents/ HTTP/1.1" 200 341
+      backend │ [02/Feb/2026 16:50:22] "GET /api/auth/me/ HTTP/1.1" 200 45
+      backend │ [02/Feb/2026 16:50:22] "GET /api/prompts/active/ HTTP/1.1" 200 46
+      backend │ [02/Feb/2026 16:50:22] "GET /api/documents/ HTTP/1.1" 200 341
+      backend │ [02/Feb/2026 16:50:22] "GET /api/documents/ HTTP/1.1" 200 341
+      backend │ [02/Feb/2026 16:50:22] "GET /api/prompts/active/ HTTP/1.1" 200 46

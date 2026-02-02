@@ -6,7 +6,7 @@ This module provides the core RAG functionality:
 - Vector store management (ChromaDB)
 - RAG chain building and execution
 
-Now supports multi-user isolation via user-specific collections.
+Now supports multi-user isolation via metadata filtering.
 """
 
 import os
@@ -69,7 +69,7 @@ class DocumentProcessor:
         # Add user_id to metadata for filtering
         if user_id is not None:
             for chunk in chunks:
-                chunk.metadata['user_id'] = user_id
+                chunk.metadata['user_id'] = str(user_id)
         
         return chunks
     
@@ -112,12 +112,12 @@ class DocumentProcessor:
 
 
 class VectorStoreManager:
-    """Manages ChromaDB vector store operations with multi-user support."""
+    """Manages ChromaDB vector store operations with multi-user support via metadata filtering."""
     
     def __init__(self, persist_directory: str = CHROMA_DIR, user_id: int = None):
         self.persist_directory = persist_directory
         self.user_id = user_id
-        self.collection_name = f"user_{user_id}" if user_id else "default"
+        self.collection_name = "knowbot_docs"  # Single shared collection
         self.embeddings = OllamaEmbeddings(
             model=EMBEDDING_MODEL,
             base_url=OLLAMA_HOST
@@ -132,25 +132,37 @@ class VectorStoreManager:
         if self.user_id is not None:
             for chunk in chunks:
                 if 'user_id' not in chunk.metadata:
-                    chunk.metadata['user_id'] = self.user_id
+                    chunk.metadata['user_id'] = str(self.user_id)
         
-        vector_store = Chroma.from_documents(
-            documents=chunks,
-            embedding=self.embeddings,
-            persist_directory=self.persist_directory,
-            collection_name=self.collection_name
-        )
-        print(f"Vector store updated for collection: {self.collection_name}")
+        # Try to load existing store first, then add documents
+        try:
+            vector_store = Chroma(
+                persist_directory=self.persist_directory,
+                embedding_function=self.embeddings,
+                collection_name=self.collection_name
+            )
+            vector_store.add_documents(chunks)
+            print(f"Added {len(chunks)} chunks to vector store for user {self.user_id}")
+        except Exception as e:
+            # If collection doesn't exist, create new one
+            vector_store = Chroma.from_documents(
+                documents=chunks,
+                embedding=self.embeddings,
+                persist_directory=self.persist_directory,
+                collection_name=self.collection_name
+            )
+            print(f"Created vector store with {len(chunks)} chunks for user {self.user_id}")
+        
         return vector_store
     
     def load_vector_store(self) -> Chroma:
-        """Load existing vector store for user's collection."""
+        """Load existing vector store."""
         vector_store = Chroma(
             persist_directory=self.persist_directory,
             embedding_function=self.embeddings,
             collection_name=self.collection_name
         )
-        print(f"Loaded vector store for collection: {self.collection_name}")
+        print(f"Loaded vector store for user {self.user_id}")
         return vector_store
     
     def get_or_create_vector_store(self, chunks: List = None) -> Chroma:
@@ -201,8 +213,17 @@ Answer:"""
         return ChatPromptTemplate.from_template(template)
     
     def get_retriever(self, k: int = 5):
-        """Get retriever from vector store."""
+        """Get retriever from vector store with user-specific filtering."""
         vector_store = self.vector_store_manager.load_vector_store()
+        
+        # Use metadata filtering to only retrieve user's documents
+        if self.user_id is not None:
+            return vector_store.as_retriever(
+                search_kwargs={
+                    "k": k,
+                    "filter": {"user_id": str(self.user_id)}
+                }
+            )
         return vector_store.as_retriever(search_kwargs={"k": k})
     
     def build_chain(self):
