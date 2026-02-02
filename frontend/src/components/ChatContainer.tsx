@@ -79,7 +79,11 @@ export function ChatContainer() {
                 ) : (
                     <>
                         {messages.map((message, idx) => (
-                            <MessageBubble key={message.id || idx} message={message} />
+                            <MessageBubble
+                                key={message.id || idx}
+                                message={message}
+                                isLatest={idx === messages.length - 1}
+                            />
                         ))}
 
                         {isLoading && (

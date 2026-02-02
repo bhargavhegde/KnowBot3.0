@@ -42,8 +42,7 @@ export default function LoginPage() {
                         <BrainHologram className="w-64 h-64" />
                     </div>
                 </div>
-                <div className="text-center">
-                    <h1 className="text-3xl font-bold tracking-tight text-white relative z-20">KnowBot</h1>
+                <div className="text-center relative z-20">
                     <p className="mt-2 text-sm text-gray-400">Welcome back! Please login to your account.</p>
                 </div>
 
@@ -101,9 +100,9 @@ export default function LoginPage() {
                             href="http://localhost:8000/admin/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+                            className="flex items-center justify-center gap-2 text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
                         >
-                            Admin Dashboard
+                            <span>🔧</span> Admin Dashboard
                         </a>
                     </div>
                 </div>
