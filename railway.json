@@ -1,0 +1,14 @@
+{
+    "$schema": "https://railway.app/railway.schema.json",
+    "build": {
+        "builder": "DOCKERFILE",
+        "dockerfilePath": "backend/Dockerfile",
+        "context": "."
+    },
+    "deploy": {
+        "startCommand": "sh -c 'python manage.py migrate && gunicorn knowbot.wsgi:application --bind 0.0.0.0:8000'",
+        "healthcheckPath": "/api/health/",
+        "healthcheckTimeout": 100,
+        "restartPolicyType": "ON_FAILURE"
+    }
+}
