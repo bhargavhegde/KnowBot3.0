@@ -149,11 +149,16 @@ SIMPLE_JWT = {
 
 
 # CORS settings - allow frontend (React/Next.js) to connect
-CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', "http://localhost:3000,http://127.0.0.1:3000").split(',')
+_cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', "http://localhost:3000,http://127.0.0.1:3000").split(',')
+CORS_ALLOW_ALL_ORIGINS = '*' in _cors_origins
+CORS_ALLOWED_ORIGINS = [o for o in _cors_origins if o != '*']
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF settings for production (needed for admin and secure requests)
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', "http://localhost:3000,http://127.0.0.1:3000").split(',')
+# Fix for '*' in CSRF_TRUSTED_ORIGINS if needed (Django requires schemes usually)
+if '*' in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [o for o in CSRF_TRUSTED_ORIGINS if o != '*']
 
 
 # --- 5. CELERY CONFIGURATION (REDIS) ---
