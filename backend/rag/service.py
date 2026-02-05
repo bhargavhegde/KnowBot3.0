@@ -34,6 +34,7 @@ from django.conf import settings
 
 import chromadb
 from langchain_ollama import OllamaEmbeddings, ChatOllama
+from langchain_groq import ChatGroq
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
@@ -69,6 +70,9 @@ LLM_MODEL = getattr(settings, 'LLM_MODEL', 'llama3.1:8b')
 CHROMA_DIR = str(getattr(settings, 'CHROMA_DIR', './chroma_db'))
 DATA_DIR = str(getattr(settings, 'DATA_DIR', './data'))
 OLLAMA_HOST = getattr(settings, 'OLLAMA_HOST', 'http://localhost:11434')
+LLM_PROVIDER = getattr(settings, 'LLM_PROVIDER', 'ollama')
+GROQ_API_KEY = getattr(settings, 'GROQ_API_KEY', '')
+GROQ_MODEL = getattr(settings, 'GROQ_MODEL', 'llama-3.3-70b-versatile')
 
 # Global client singleton to prevent file locking/HNSW errors
 _CHROMA_CLIENT = None
@@ -356,11 +360,28 @@ Answer:"""
     def __init__(self, custom_prompt: Optional[str] = None, user_id: int = None):
         self.custom_prompt = custom_prompt
         self.user_id = user_id
-        self.llm = ChatOllama(
-            model=LLM_MODEL,
-            temperature=0.2,
-            base_url=OLLAMA_HOST
-        )
+        if LLM_PROVIDER == 'groq':
+            if not GROQ_API_KEY:
+                print("Warning: GROQ_API_KEY not found. Falling back to Ollama.")
+                self.llm = ChatOllama(
+                    model=LLM_MODEL,
+                    temperature=0.2,
+                    base_url=OLLAMA_HOST
+                )
+            else:
+                print(f"Using Groq LLM: {GROQ_MODEL}")
+                self.llm = ChatGroq(
+                    model=GROQ_MODEL,
+                    temperature=0.2,
+                    groq_api_key=GROQ_API_KEY
+                )
+        else:
+            print(f"Using Ollama LLM: {LLM_MODEL}")
+            self.llm = ChatOllama(
+                model=LLM_MODEL,
+                temperature=0.2,
+                base_url=OLLAMA_HOST
+            )
         self.vector_store_manager = VectorStoreManager(user_id=user_id)
         self.indexed_files = self._get_indexed_files()
     

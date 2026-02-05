@@ -165,6 +165,11 @@ CELERY_TIMEZONE = 'UTC'
 
 # --- 6. KNOWBOT AI & STORAGE ---
 
+# LLM Provider Configuration
+LLM_PROVIDER = os.environ.get('LLM_PROVIDER', 'ollama').lower() # 'ollama' or 'groq'
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
+GROQ_MODEL = os.environ.get('GROQ_MODEL', 'llama-3.3-70b-versatile')
+
 # Ollama Connection (Where Llama 3 lives)
 OLLAMA_HOST = os.environ.get('OLLAMA_HOST', 'http://localhost:11434')
 LLM_MODEL = 'llama3.1:8b'
