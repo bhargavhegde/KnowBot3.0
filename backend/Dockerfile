@@ -17,7 +17,13 @@ RUN apt-get update && apt-get install -y \
     poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Optimize Image Size:
+# 1. Install Torch CPU version explicitly (saves ~2GB)
+# 2. Install sentence-transformers (pulls in small dependencies)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir sentence-transformers
+
+# Install the rest of the Python dependencies
 COPY backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
