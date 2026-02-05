@@ -190,8 +190,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         """Custom delete logic to ensure vectors and files are removed too."""
         document = self.get_object()
+        doc_filename = document.original_filename
         try:
             # Delete from Vector Store first
+            # Now safe because VectorStoreManager uses lazy embeddings!
             manager = VectorStoreManager(user_id=request.user.id)
             manager.delete_from_vector_store(document.file_path)
             
@@ -199,8 +201,15 @@ class DocumentViewSet(viewsets.ModelViewSet):
             file_path = Path(document.file_path)
             if file_path.exists():
                 file_path.unlink()
+                print(f"✅ Deleted file: {file_path}")
+            
+            import gc
+            gc.collect() # Helper for memory pressure
+            
         except Exception as e:
-            print(f"Error deleting file/vectors: {e}")
+            print(f"⚠️ Non-critical error during file/vector deletion for {doc_filename}: {e}")
+            # We continue anyway to super().destroy() to remove the DB record
+            
         return super().destroy(request, *args, **kwargs)
 
 
