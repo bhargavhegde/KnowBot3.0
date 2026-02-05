@@ -1,7 +1,18 @@
 #!/usr/bin/env python
-"""Django's command-line utility for administrative tasks."""
+"""
+KnowBot Management CLI.
+
+This is the primary command-line tool for the backend.
+It is used for:
+1. `python manage.py runserver` -> Local development server.
+2. `python manage.py migrate`   -> Syncing the database schema.
+3. `python manage.py createsuperuser` -> Creating admin accounts.
+"""
+
 import os
 import sys
+
+# ... rest of the file ...
 
 
 def main():

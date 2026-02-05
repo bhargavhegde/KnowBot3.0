@@ -1,10 +1,27 @@
 """
-RAG Service - Migrated from Streamlit rag_chain.py
+RAG Service - The Core "Brain" of KnowBot.
 
-This module provides the core RAG functionality:
-- Document loading and chunking
-- Vector store management (ChromaDB)
-- RAG chain building and execution
+This module implements the Retrieval Augmented Generation (RAG) pipeline.
+It connects the specific user's query to their private documents and feeds that context to the LLM.
+
+KEY COMPONENTS:
+
+1. `DocumentProcessor` (Ingestion):
+   - HOW IT WORKS: Takes a file path -> Reads content -> Splits into small chunks.
+   - CONTEXT WINDOW STRATEGY: We split files into chunks of 800 characters with 150 overlap.
+     This ensures that we can feed small, relevant pieces to the LLM without exceeding its
+     token limit (typically 8k or 128k tokens). We don't feed the whole file!
+
+2. `VectorStoreManager` (Long-Term Memory):
+   - STORAGE: Uses ChromaDB to store "Embeddings" (vectors representing text meaning).
+   - ISOLATION: Each chunk matches a `user_id`. When searching, we strict-filter by this ID
+     so users never see each other's data.
+
+3. `RAGEngine` (The Thinking Process):
+   - RETRIEVAL: Converts user question to vector -> finds top 5 closest chunks in ChromaDB.
+   - GENERATION: Combines [System Prompt] + [Top 5 Chunks] + [User Question] -> LLM.
+   - HYBRID SEARCH: Optionally combines Keyword search (BM25) with Semantic search (Vectors)
+     for better accuracy.
 
 Refactored to use chromadb.PersistentClient to fix HNSW index errors.
 """
@@ -45,8 +62,8 @@ except ImportError:
 
 
 # Configuration from Django settings
-CHUNK_SIZE = 800
-CHUNK_OVERLAP = 150
+CHUNK_SIZE = 800      # Characters per chunk (Context Window optimization)
+CHUNK_OVERLAP = 150   # Overlap ensures context isn't cut mid-sentence
 EMBEDDING_MODEL = getattr(settings, 'EMBEDDING_MODEL', 'nomic-embed-text')
 LLM_MODEL = getattr(settings, 'LLM_MODEL', 'llama3.1:8b')
 CHROMA_DIR = str(getattr(settings, 'CHROMA_DIR', './chroma_db'))
@@ -57,6 +74,10 @@ OLLAMA_HOST = getattr(settings, 'OLLAMA_HOST', 'http://localhost:11434')
 _CHROMA_CLIENT = None
 
 def get_chroma_client(persist_directory: str = None):
+    """
+    Singleton pattern for ChromaDB client.
+    Prevents multiple connections locking the SQLite database file.
+    """
     global _CHROMA_CLIENT
     if _CHROMA_CLIENT is None:
         chroma_host = os.environ.get('CHROMA_HOST')
@@ -74,7 +95,13 @@ def get_chroma_client(persist_directory: str = None):
 
 
 class DocumentProcessor:
-    """Handles document loading and chunking."""
+    """
+    Handles document loading and chunking (Ingestion Phase).
+    
+    CRITICAL FOR CONTEXT WINDOW:
+    We cannot feed entire PDFs to the LLM. This class breaks them down into
+    manageable `CHUNK_SIZE` blocks (e.g. 800 chars).
+    """
     
     def __init__(self, chunk_size: int = CHUNK_SIZE, chunk_overlap: int = CHUNK_OVERLAP):
         self.chunk_size = chunk_size
@@ -87,7 +114,14 @@ class DocumentProcessor:
         )
     
     def load_single_document(self, file_path: str, user_id: int = None, original_filename: str = None) -> List:
-        """Load a single document and return chunks with user metadata."""
+        """
+        Load a single document and return chunks with user metadata.
+        
+        Args:
+            file_path: Absolute path to file on disk.
+            user_id: The ID of the owner (CRITICAL for data isolation).
+            original_filename: Display name of the file.
+        """
         path = Path(file_path)
         
         if not path.exists():
@@ -210,7 +244,12 @@ class DocumentProcessor:
 
 
 class VectorStoreManager:
-    """Manages ChromaDB vector store operations using PersistentClient."""
+    """
+    Manages ChromaDB vector store operations.
+    
+    This class handles the interface with the Vector Database.
+    It stamps every vector with `user_id` upon creation to ensure data privacy.
+    """
     
     def __init__(self, persist_directory: str = CHROMA_DIR, user_id: int = None):
         self.persist_directory = persist_directory
@@ -251,7 +290,7 @@ class VectorStoreManager:
         return vector_store
     
     def delete_from_vector_store(self, file_path: str):
-        """Delete all chunks associated with a specific file path."""
+        """Delete all vectors associated with a specific file path."""
         try:
             collection = self.client.get_collection(self.collection_name)
             # Try deleting by file_path usage in metadata (new schema)
@@ -293,7 +332,13 @@ class VectorStoreManager:
 
 
 class RAGEngine:
-    """Main RAG engine for building and executing RAG chains with multi-user support."""
+    """
+    Main RAG engine for building and executing RAG chains with multi-user support.
+    
+    CONTEXT MANAGEMENT:
+    This class is responsible for the "R" in RAG (Retrieval).
+    It ensures that when a user asks a question, we only retrieve their documents.
+    """
     
     DEFAULT_TEMPLATE = """You are a helpful, accurate assistant that answers questions based ONLY on the provided context.
 You have access to a neural knowledge base containing the documents listed below. 
@@ -354,14 +399,19 @@ Answer:"""
         """
         Get retriever from vector store with user-specific filtering.
         
-        Args:
-            k: Number of documents to retrieve
-            use_hybrid: If True and available, use hybrid BM25+semantic search
+        ARGS:
+            k (int): LIMIT on how many chunks to retrieve (e.g., 5).
+                     This is the key to managing the CONTEXT WINDOW.
+                     We can't feed a million docs; we pick the Top 5 most relevant.
+            
+            use_hybrid (bool): If True, mixes Keyword search (BM25) with vector search.
         """
         vector_store = self.vector_store_manager.load_vector_store()
         
         # Base vector retriever with user filtering
         if self.user_id is not None:
+            # THIS IS THE KEY SECURITY FEATURE (Metadta Filtering)
+            # Only retrieve vectors where metadata['user_id'] == current_user
             vector_retriever = vector_store.as_retriever(
                 search_kwargs={
                     "k": k,
@@ -436,6 +486,23 @@ Answer:"""
         return {
             "response": response,
             "citations": citations
+        }
+
+    def general_query(self, question: str) -> Dict[str, Any]:
+        """Execute a general LLM query without RAG context."""
+        template = """You are KnowBot, a helpful AI assistant.
+        
+Question: {question}
+
+Answer:"""
+        prompt = ChatPromptTemplate.from_template(template)
+        chain = prompt | self.llm | StrOutputParser()
+        
+        response = chain.invoke({"question": question})
+        
+        return {
+            "response": response,
+            "citations": []
         }
 
 

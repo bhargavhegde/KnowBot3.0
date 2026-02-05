@@ -128,11 +128,11 @@ services:
       - "8005:8000"
     environment:
       - IS_PERSISTENT=TRUE
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    # healthcheck:
+    #   test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat" ]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 5
 
   # Next.js Frontend
   frontend:

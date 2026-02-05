@@ -1,14 +1,23 @@
 """
-Hybrid Search Module for KnowBot 2.0
+Hybrid Search - Knowledge Retrieval Optimization.
 
-Implements BM25 + Semantic (Vector) search fusion using Reciprocal Rank Fusion (RRF).
-This improves retrieval accuracy by combining exact keyword matching with semantic understanding.
+This module blends two different search technologies to get the best results:
+1. BM25 (Keyword Search): Great for exact matches (names, specific terms, acronyms).
+2. Vector Search (Semantic): Great for finding "meaning" and related concepts.
+
+FUSION ALGORITHM:
+We use Reciprocal Rank Fusion (RRF). 
+It takes the Top N results from both searches, calculates a "combined rank" 
+score, and re-orders the chunks. This ensures that a document mentioned by 
+both systems stays at the top.
+
+COMPONENTS:
+- `BM25Index`: A lightweight keyword index maintained alongside ChromaDB.
+- `HybridRetriever`: A LangChain-compatible retriever that orchestrates the fusion.
 """
 
 from typing import List, Dict, Any, Optional, Callable
-
 from collections import defaultdict
-
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.callbacks import CallbackManagerForRetrieverRun

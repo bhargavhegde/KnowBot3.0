@@ -1,3 +1,19 @@
+"""
+API Views for KnowBot.
+
+This file acts as the ORCHESTRATOR for the backend.
+It defines the endpoints (URLs) and the logic that runs when a user interacts with the app.
+
+KEY RESPONSIBILITIES:
+1. Document Management: Uploading files, triggering the RAG indexing, and managing deletion.
+2. Chat Logic: Handling user messages, retrieving context from RAG, and formatting LLM responses.
+3. Authentication: Managing user profiles and registration.
+4. Prompt Management: Allowing users to switch between different AI personalities/instructions.
+
+WORKFLOW:
+Frontend Request -> View Function -> Serializer (Validation) -> Models/RAG Service -> JSON Response.
+"""
+
 import uuid
 import os
 from pathlib import Path
@@ -20,7 +36,10 @@ from .serializers import (
 
 
 class RegisterView(generics.CreateAPIView):
-    """View for user registration."""
+    """
+    Handles new user registration.
+    Uses the RegisterSerializer to validate password strength and unique usernames.
+    """
     queryset = User.objects.all()
     permission_classes = (permissions.AllowAny,)
     serializer_class = RegisterSerializer
@@ -28,21 +47,36 @@ class RegisterView(generics.CreateAPIView):
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def get_user_profile(request):
-    """Get current user profile."""
+    """
+    Returns the current logged-in user's details.
+    Used by the frontend to confirm state after login.
+    """
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
 class DocumentViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing documents."""
+    """
+    ViewSet for managing documents (CRUD operations).
+    
+    SPECIAL ACTIONS:
+    - upload: Receives a file, saves it to disk, and triggers the RAG indexing task.
+    - status: Checks if a document is PENDING, INDEXED, or FAILED.
+    - preview: Safely serves the file content (e.g., PDF) to the browser.
+    - reset: Completely wipes all documents and the vector store for the user.
+    """
     serializer_class = DocumentSerializer
     parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
+        """Ensure users only see THEIR OWN documents."""
         return Document.objects.filter(user=self.request.user)
     
     @action(detail=False, methods=['post'], url_path='upload')
     def upload(self, request):
-        """Upload a new document."""
+        """
+        Main upload entry point.
+        Workflow: Save File -> Create DB Record -> Start Indexing (Celery or Sync).
+        """
         serializer = DocumentUploadSerializer(data=request.data)
         
         if not serializer.is_valid():
@@ -53,6 +87,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
         data_dir = Path(settings.DATA_DIR)
         data_dir.mkdir(parents=True, exist_ok=True)
         
+        # Generate a unique filename to prevent overwrites
         ext = '.' + uploaded_file.name.split('.')[-1].lower()
         unique_filename = f"{uuid.uuid4()}{ext}"
         file_path = data_dir / unique_filename
@@ -71,10 +106,12 @@ class DocumentViewSet(viewsets.ModelViewSet):
             index_status=Document.IndexStatus.PENDING
         )
         
+        # Try to offload to Celery worker if available, otherwise process synchronously
         try:
             from .tasks import index_document_task
             index_document_task.delay(document.id)
         except Exception as e:
+            # Fallback to synchronous processing if Celery is down
             try:
                 processor = DocumentProcessor()
                 chunks = processor.load_single_document(str(file_path), user_id=request.user.id)
@@ -93,6 +130,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['get'], url_path='status')
     def get_status(self, request, pk=None):
+        """Polling endpoint for the frontend to check if indexing is complete."""
         document = self.get_object()
         return Response({
             'id': document.id,
@@ -103,7 +141,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['get'], url_path='preview')
     def preview(self, request, pk=None):
-        """Serve the document file for preview."""
+        """Serve the document file for preview in the UI."""
         import mimetypes
         from django.http import FileResponse
         
@@ -118,7 +156,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'], url_path='reset')
     def reset_knowledge(self, request):
-        """Wipe user's vector store and documents."""
+        """HARD RESET: Wipes all user documents from Postgres and ChromaDB."""
         try:
             # Wipe ChromaDB
             manager = VectorStoreManager(user_id=request.user.id)
@@ -143,6 +181,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def destroy(self, request, *args, **kwargs):
+        """Custom delete logic to ensure vectors and files are removed too."""
         document = self.get_object()
         try:
             # Delete from Vector Store first
@@ -159,7 +198,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
 
 class ChatSessionViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing chat sessions."""
+    """
+    ViewSet for managing chat sessions.
+    Allows users to have multiple independent conversations.
+    """
     
     def get_queryset(self):
         return ChatSession.objects.filter(user=self.request.user)
@@ -174,6 +216,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['get'], url_path='messages')
     def messages(self, request, pk=None):
+        """Returns the full message history for a specific session."""
         session = self.get_object()
         messages = session.messages.all()
         serializer = ChatMessageSerializer(messages, many=True)
@@ -181,6 +224,7 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['delete'], url_path='clear')
     def clear_messages(self, request, pk=None):
+        """Wipes messages but keeps the session container."""
         session = self.get_object()
         session.messages.all().delete()
         return Response({'message': 'Messages cleared'})
@@ -189,7 +233,16 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def chat(request):
-    """Main chat endpoint."""
+    """
+    Main chat endpoint (The Intelligence Engine).
+    
+    LOGIC:
+    1. Receive user message.
+    2. Check if user has INDEXED documents.
+    3. If YES: Run RAGEngine (Semantic Search -> LLM).
+    4. If NO: Use General Chat (LLM only).
+    5. Save User Q and Assistant A to Postgres history.
+    """
     serializer = ChatRequestSerializer(data=request.data)
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -197,6 +250,7 @@ def chat(request):
     message = serializer.validated_data['message']
     session_id = serializer.validated_data.get('session_id')
     
+    # Get or Create Session
     if session_id:
         try:
             session = ChatSession.objects.get(id=session_id, user=request.user)
@@ -205,12 +259,14 @@ def chat(request):
     else:
         session = ChatSession.objects.create(user=request.user)
     
+    # Save user message
     ChatMessage.objects.create(
         session=session,
         role=ChatMessage.Role.USER,
         content=message
     )
     
+    # Load custom prompt if active
     custom_prompt = None
     try:
         active_prompt = SystemPrompt.objects.get(is_active=True, user=request.user)
@@ -218,26 +274,34 @@ def chat(request):
     except SystemPrompt.DoesNotExist:
         pass
     
-    # Check if user has any indexed documents
-    has_docs = Document.objects.filter(
-        user=request.user, 
-        index_status=Document.IndexStatus.INDEXED
-    ).exists()
+    # Check document status for better context
+    user_docs = Document.objects.filter(user=request.user)
+    has_indexed = user_docs.filter(index_status=Document.IndexStatus.INDEXED).exists()
+    has_pending = user_docs.filter(index_status__in=[Document.IndexStatus.PENDING, Document.IndexStatus.PROCESSING]).exists()
 
-    if not has_docs:
-        response_text = "I don't have any documents to answer from yet. Please upload some documents."
-        citations = []
-    else:
-        try:
-            engine = RAGEngine(custom_prompt=custom_prompt, user_id=request.user.id)
+    try:
+        engine = RAGEngine(custom_prompt=custom_prompt, user_id=request.user.id)
+        
+        if has_indexed:
+            # Standard RAG Query (Retrieval Augmented Generation)
             result = engine.query(message)
-            response_text = result['response']
-            citations = result['citations']
-        except Exception as e:
-            # Fallback for RAG errors
-            response_text = f"I encountered an error while searching your documents: {str(e)}"
-            citations = []
+        else:
+            # Fallback to General Chat (No documents found)
+            result = engine.general_query(message)
+            
+            # Subtly notify user if their docs are still being processed
+            if has_pending:
+                result['response'] = f"*Note: Your documents are currently being processed.*\n\n{result['response']}"
+                
+        response_text = result['response']
+        citations = result['citations']
 
+    except Exception as e:
+        # Fallback for errors (e.g. Ollama down)
+        response_text = f"I encountered an error: {str(e)}"
+        citations = []
+
+    # Save LLM response to DB
     ChatMessage.objects.create(
         session=session,
         role=ChatMessage.Role.ASSISTANT,
@@ -245,12 +309,12 @@ def chat(request):
         citations=citations
     )
     
-    # Auto-title session if it's the first message
+    # Auto-title session based on first message
     if session.title == "New Chat":
         session.title = message[:50] + ("..." if len(message) > 50 else "")
         session.save()
     else:
-        # Update timestamp
+        # Update timestamp for sorting
         session.updated_at = timezone.now()
         session.save()
     
@@ -264,7 +328,7 @@ def chat(request):
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def preview_document(request, pk):
-    """Securely preview a document."""
+    """Securely preview a document by checking ownership first."""
     try:
         document = Document.objects.get(pk=pk, user=request.user)
         if not os.path.exists(document.file_path):
@@ -279,11 +343,13 @@ def preview_document(request, pk):
         return response
     except Document.DoesNotExist:
         return Response({'error': 'Document not found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class SystemPromptViewSet(viewsets.ModelViewSet):
-    """ViewSet for managing system prompts."""
+    """
+    ViewSet for managing system prompts (Personas).
+    Ensures that only ONE prompt is active at a time per user.
+    """
     serializer_class = SystemPromptSerializer
 
     def get_queryset(self):
@@ -294,6 +360,7 @@ class SystemPromptViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'], url_path='active')
     def get_active(self, request):
+        """Returns the currently selected persona."""
         try:
             prompt = SystemPrompt.objects.get(is_active=True, user=request.user)
             return Response(SystemPromptSerializer(prompt).data)
@@ -302,6 +369,7 @@ class SystemPromptViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], url_path='activate')
     def activate(self, request, pk=None):
+        """Set a specific prompt as the current persona."""
         prompt = self.get_object()
         prompt.is_active = True
         prompt.save()
@@ -309,6 +377,7 @@ class SystemPromptViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'], url_path='reset')
     def reset_to_default(self, request):
+        """Deactivates all custom prompts, falling back to System default."""
         SystemPrompt.objects.filter(is_active=True, user=request.user).update(is_active=False)
         return Response({'message': 'Reset to default prompt'})
 
@@ -316,9 +385,13 @@ class SystemPromptViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def health_check(request):
-    """Health check endpoint."""
+    """
+    Basic health check endpoint.
+    Used by Tilt/Docker to confirm the API is reachable.
+    """
     return Response({
         'status': 'healthy',
         'service': 'knowbot-api',
         'timestamp': timezone.now().isoformat()
     })
+

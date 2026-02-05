@@ -1,7 +1,16 @@
 """
-Django settings for knowbot project.
+Django Settings for KnowBot.
 
-Full-stack migration from Streamlit to Django + Next.js
+This is the GLOBAL CONFIGURATION file for the entire backend.
+It defines how the application connects to databases, what AI models to use, 
+and how security is handled.
+
+SECTIONS:
+1. INFRASTRUCTURE: PATHS, Secret Keys, Debug Mode.
+2. DATABASE: PostgreSQL connection details.
+3. SECURITY: JWT Token settings and CORS (allowed frontends).
+4. CELERY: Background task worker configuration (using Redis).
+5. KNOWBOT-SPECIFIC: Ollama host, LLM models, and local data paths.
 """
 
 import os
@@ -10,6 +19,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# --- 1. SECURITY & INFRASTRUCTURE ---
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key-change-in-production')
 
@@ -18,8 +28,7 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
 
-
-# Application definition
+# Apps installed in this project
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -27,15 +36,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third-party
+    # Third-party (DRF, CORS)
     'rest_framework',
     'corsheaders',
-    # Local apps
+    # Local application domain
     'api',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',      # Must be first for CORS to work
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -66,7 +75,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'knowbot.wsgi.application'
 
 
-# Database - PostgreSQL
+# --- 2. DATABASE (PostgreSQL) ---
+# We use Postgres for metadata (Users, Documents, Chat History).
+# Vector data is stored separately in ChromaDB.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -79,7 +90,7 @@ DATABASES = {
 }
 
 
-# Password validation
+# --- 3. PASSWORD VALIDATION ---
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -95,7 +106,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files
+# Static files (CSS, Images)
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
@@ -104,7 +115,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Django REST Framework
+# --- 4. DJANGO REST FRAMEWORK & JWT ---
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -121,22 +132,20 @@ REST_FRAMEWORK = {
 
 from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),     # User stays logged in for 24 hours
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
     'AUTH_HEADER_TYPES': ('Bearer',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
 }
 
 
-# CORS settings - allow frontend
+# CORS settings - allow frontend (React/Next.js) to connect
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -144,7 +153,8 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 
-# Celery Configuration
+# --- 5. CELERY CONFIGURATION (REDIS) ---
+# Used for processing document embeddings in the background (Async).
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
@@ -153,14 +163,19 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 
-# Ollama Configuration
+# --- 6. KNOWBOT AI & STORAGE ---
+
+# Ollama Connection (Where Llama 3 lives)
 OLLAMA_HOST = os.environ.get('OLLAMA_HOST', 'http://localhost:11434')
 LLM_MODEL = 'llama3.1:8b'
 EMBEDDING_MODEL = 'nomic-embed-text'
 
 
-# File Upload Settings
-DATA_DIR = BASE_DIR / 'data'
-CHROMA_DIR = BASE_DIR / 'chroma_db'
+# Local Storage Paths
+DATA_DIR = BASE_DIR / 'data'          # Raw PDF/TXT file storage
+CHROMA_DIR = BASE_DIR / 'chroma_db'   # Vector database storage (Index)
+
+# File Upload Limits
 MAX_UPLOAD_SIZE = 50 * 1024 * 1024  # 50MB
 ALLOWED_UPLOAD_EXTENSIONS = ['.pdf', '.txt', '.md']
+

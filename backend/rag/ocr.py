@@ -1,13 +1,26 @@
 """
-OCR Processor Module for KnowBot 2.0
+OCR Processor - KnowBot's "Eyes" for Scanned Documents.
 
-Handles text extraction from scanned PDFs and images using Tesseract OCR.
+This module provides the capability to "read" images and non-searchable PDFs.
+It serves as a fallback for the RAG pipeline when standard text extraction fails.
+
+KEY WORKFLOWS:
+1. Image Extraction: Uses Tesseract (via pytesseract) to read .png, .jpg, etc.
+2. PDF OCR: Converts scanned PDF pages into temporary images, then runs OCR on each.
+3. Scanned Detection: Smart logic determines if a PDF has native text or needs OCR.
+
+DEPENDENCIES:
+- Tesseract-OCR: The underlying engine.
+- Poppler: Needed for PDF -> Image conversion.
+- Pytesseract/Pillow: Python wrappers for OCR and Image manipulation.
 """
 
 import os
 import tempfile
 from pathlib import Path
 from typing import List, Optional
+
+# ... rest of the file ...
 
 try:
     import pytesseract

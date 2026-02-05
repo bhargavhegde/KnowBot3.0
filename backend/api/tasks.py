@@ -1,6 +1,15 @@
 """
-Celery Tasks for KnowBot.
-Handles async document processing and indexing.
+Celery Background Tasks for KnowBot.
+
+This file handles ASYNCHRONOUS processing.
+Certain operations (like converting a 50MB PDF into math vectors) take too 
+long to do during a normal web request. We offload these to "Celery Workers".
+
+KEY TASKS:
+1. `index_document_task`: The bread-and-butter of the RAG pipeline.
+   Runs after an upload to handle the heavy lifting of chunking/embedding.
+2. `reindex_all_documents_task`: Maintenance task to rebuild the index.
+3. `cleanup_orphaned_files_task`: Housekeeping to keep the disk clean.
 """
 
 from celery import shared_task
@@ -14,27 +23,25 @@ from rag.service import DocumentProcessor, VectorStoreManager
 @shared_task(bind=True, max_retries=3)
 def index_document_task(self, document_id: int):
     """
-    Async task to index a single document.
+    Main Indexing Task.
+    Workflow: Load File -> Chunk Text -> Embed in ChromaDB -> Mark SUCCESS.
     
-    This task:
-    1. Loads and chunks the document
-    2. Creates/updates the vector store for the user's collection
-    3. Updates document status in database
+    This runs in a separate process/container (`knowbot-celery`).
     """
     try:
         document = Document.objects.get(id=document_id)
     except Document.DoesNotExist:
         return {'error': f'Document {document_id} not found'}
     
-    # Get user ID for isolation
+    # Get user ID for isolation (Ensures User A's task doesn't save to User B's folder)
     user_id = document.user_id
     
-    # Update status to processing
+    # Update status so the frontend knows we've started
     document.index_status = Document.IndexStatus.PROCESSING
     document.save()
     
     try:
-        # Load and chunk document with user context
+        # 1. Load and slice document into small chunks (800 chars)
         processor = DocumentProcessor()
         chunks = processor.load_single_document(
             document.file_path, 
@@ -42,11 +49,11 @@ def index_document_task(self, document_id: int):
             original_filename=document.original_filename
         )
         
-        # Create/update vector store for specific user
+        # 2. Save math vectors to ChromaDB
         manager = VectorStoreManager(user_id=user_id)
         manager.create_vector_store(chunks)
         
-        # Update document record
+        # 3. Mark complete
         document.index_status = Document.IndexStatus.INDEXED
         document.chunk_count = len(chunks)
         document.indexed_at = timezone.now()
@@ -61,35 +68,36 @@ def index_document_task(self, document_id: int):
         }
         
     except Exception as e:
+        # If something breaks (e.g. Ollama is down), record the error and retry
         document.index_status = Document.IndexStatus.FAILED
         document.error_message = str(e)
         document.save()
         
-        # Retry on failure
+        # Automatically try again up to 3 times
         raise self.retry(exc=e, countdown=60)
 
 
 @shared_task(bind=True)
 def reindex_all_documents_task(self):
     """
-    Async task to reindex all documents.
-    Useful after a document deletion or for rebuilding the vector store.
+    Maintenance task to rebuild the entire knowledge base.
+    Useful if switching embedding models or fixing corrupted indices.
     """
     from django.conf import settings
     
     try:
-        # Load all documents from data directory
+        # Load all documents from disk
         processor = DocumentProcessor()
         all_chunks = processor.load_all_documents()
         
         if not all_chunks:
             return {'message': 'No documents to index'}
         
-        # Create new vector store
+        # Bulk-create new vector store
         manager = VectorStoreManager()
         manager.create_vector_store(all_chunks)
         
-        # Update all document records
+        # Update Postgres records in bulk
         Document.objects.filter(
             index_status__in=[Document.IndexStatus.INDEXED, Document.IndexStatus.FAILED]
         ).update(
@@ -110,7 +118,8 @@ def reindex_all_documents_task(self):
 @shared_task
 def cleanup_orphaned_files_task():
     """
-    Cleanup task to remove files that are no longer in the database.
+    Housekeeping: Deletes physical files on disk that no longer have a database record.
+    Prevents the server from running out of storage.
     """
     from django.conf import settings
     
@@ -118,10 +127,10 @@ def cleanup_orphaned_files_task():
     if not data_dir.exists():
         return {'message': 'Data directory does not exist'}
     
-    # Get all filenames from database
+    # Get all active filenames from Postgres
     db_filenames = set(Document.objects.values_list('filename', flat=True))
     
-    # Check files in data directory
+    # Scan disk and delete any file not found in Postgres
     removed = []
     for file_path in data_dir.iterdir():
         if file_path.is_file() and file_path.name not in db_filenames:

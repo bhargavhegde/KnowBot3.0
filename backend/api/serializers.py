@@ -1,17 +1,33 @@
+"""
+API Serializers for KnowBot.
+
+Serializers handle the conversion between complex data (like Django Model instances)
+and JSON format that the frontend can understand. They also handle VALIDATION
+for incoming data.
+
+CONCEPTS:
+1. Data Validation: Checking file sizes, allowed extensions, and required fields.
+2. Nesting: Representing relationships (e.g., including Messages inside a Session).
+3. Derived Fields: Calculating data on-the-fly (e.g., `message_count`).
+"""
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Document, ChatSession, ChatMessage, SystemPrompt
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer for User model."""
+    """Simple serializer for basic user information."""
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    """Serializer for user registration."""
+    """
+    Handles user registration logic.
+    Converts username/password JSON into a persistent User object.
+    """
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -19,6 +35,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['username', 'password', 'email']
 
     def create(self, validated_data):
+        """Hashes the password before saving to the database."""
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
@@ -28,7 +45,10 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class DocumentSerializer(serializers.ModelSerializer):
-    """Serializer for Document model."""
+    """
+    Full representation of a document.
+    Includes status flags and metadata about the file.
+    """
     user = UserSerializer(read_only=True)
     
     class Meta:
@@ -45,12 +65,19 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 class DocumentUploadSerializer(serializers.Serializer):
-    """Serializer for document upload."""
+    """
+    Specialized serializer for the upload process.
+    Handles strict validation of file types and sizes.
+    """
     
     file = serializers.FileField()
     
     def validate_file(self, value):
-        # Check file extension (including images for OCR)
+        """
+        Custom validation logic for uploaded files.
+        Ensures we only accept supported formats and manageable file sizes.
+        """
+        # Check file extension (including images for OCR support)
         allowed_extensions = ['.pdf', '.txt', '.md', '.png', '.jpg', '.jpeg', '.tiff', '.tif', '.bmp']
         ext = '.' + value.name.split('.')[-1].lower() if '.' in value.name else ''
         
@@ -59,7 +86,7 @@ class DocumentUploadSerializer(serializers.Serializer):
                 f"File type not allowed. Allowed types: {', '.join(allowed_extensions)}"
             )
         
-        # Check file size (50MB limit)
+        # Check file size (50MB limit to prevent server overload)
         max_size = 50 * 1024 * 1024
         if value.size > max_size:
             raise serializers.ValidationError(
@@ -70,7 +97,7 @@ class DocumentUploadSerializer(serializers.Serializer):
 
 
 class ChatMessageSerializer(serializers.ModelSerializer):
-    """Serializer for ChatMessage model."""
+    """Represents a single message in a conversation thread."""
     
     class Meta:
         model = ChatMessage
@@ -79,7 +106,10 @@ class ChatMessageSerializer(serializers.ModelSerializer):
 
 
 class ChatSessionSerializer(serializers.ModelSerializer):
-    """Serializer for ChatSession model."""
+    """
+    Detailed session view.
+    Includes the full message history (nested list of Message objects).
+    """
     
     user = UserSerializer(read_only=True)
     messages = ChatMessageSerializer(many=True, read_only=True)
@@ -91,11 +121,15 @@ class ChatSessionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'user', 'created_at', 'updated_at']
     
     def get_message_count(self, obj):
+        """Calculates total messages in this session dynamically."""
         return obj.messages.count()
 
 
 class ChatSessionListSerializer(serializers.ModelSerializer):
-    """Lightweight serializer for listing chat sessions."""
+    """
+    Lightweight serializer used for the sidebar list.
+    Performance optimization: Doesn't load full message history.
+    """
     
     message_count = serializers.SerializerMethodField()
     last_message = serializers.SerializerMethodField()
@@ -108,6 +142,7 @@ class ChatSessionListSerializer(serializers.ModelSerializer):
         return obj.messages.count()
     
     def get_last_message(self, obj):
+        """Returns a short snippet of the final message for display in the sidebar."""
         last = obj.messages.last()
         if last:
             preview = last.content[:100] + "..." if len(last.content) > 100 else last.content
@@ -116,14 +151,14 @@ class ChatSessionListSerializer(serializers.ModelSerializer):
 
 
 class ChatRequestSerializer(serializers.Serializer):
-    """Serializer for incoming chat requests."""
+    """Validates the incoming payload when a user sends a message."""
     
     message = serializers.CharField(max_length=10000)
     session_id = serializers.IntegerField(required=False, allow_null=True)
 
 
 class ChatResponseSerializer(serializers.Serializer):
-    """Serializer for chat responses."""
+    """Struct describing the data sent back to the user after a chat interaction."""
     
     response = serializers.CharField()
     session_id = serializers.IntegerField()
@@ -131,10 +166,11 @@ class ChatResponseSerializer(serializers.Serializer):
 
 
 class SystemPromptSerializer(serializers.ModelSerializer):
-    """Serializer for SystemPrompt model."""
+    """Handles CRUD and activation for Bot Personas."""
     user = UserSerializer(read_only=True)
     
     class Meta:
         model = SystemPrompt
         fields = ['id', 'user', 'name', 'content', 'is_active', 'created_at', 'updated_at']
         read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+

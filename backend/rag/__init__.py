@@ -1,1 +1,6 @@
-# RAG Module - Migrated from rag_chain.py
+"""
+RAG (Retrieval-Augmented Generation) Module.
+
+Contains the core logic for document processing, OCR, indexing, 
+and hybrid retrieval.
+"""
