@@ -110,21 +110,28 @@ class DocumentViewSet(viewsets.ModelViewSet):
         try:
             from .tasks import index_document_task
             index_document_task.delay(document.id)
+            print(f"🚀 Document {document.id} queued for background indexing.")
         except Exception as e:
             # Fallback to synchronous processing if Celery is down
+            print(f"⚠️ Celery not available, processing document {document.id} synchronously: {e}")
             try:
                 processor = DocumentProcessor()
                 chunks = processor.load_single_document(str(file_path), user_id=request.user.id)
                 manager = VectorStoreManager(user_id=request.user.id)
                 manager.create_vector_store(chunks)
+                
                 document.index_status = Document.IndexStatus.INDEXED
                 document.chunk_count = len(chunks)
                 document.indexed_at = timezone.now()
                 document.save()
+                print(f"✅ Synchronous indexing successful for {document.original_filename}")
             except Exception as sync_error:
+                print(f"❌ Synchronous indexing failed for {document.original_filename}: {sync_error}")
                 document.index_status = Document.IndexStatus.FAILED
                 document.error_message = str(sync_error)
                 document.save()
+                # We return success for the upload itself, but the status will show FAILED
+                # This prevents the frontend from timing out on the initial POST
         
         return Response(DocumentSerializer(document).data, status=status.HTTP_201_CREATED)
     
