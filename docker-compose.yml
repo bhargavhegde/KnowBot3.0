@@ -22,12 +22,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  # Django Backend
+    # Django Backend
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     # In production, we don't mount local volumes
     volumes:
       - data_volume:/app/data
@@ -46,8 +45,8 @@ services:
   # Celery Worker
   celery:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     volumes:
       - data_volume:/app/data
       - chroma_data:/app/chroma_db
