@@ -50,6 +50,24 @@ export function Sidebar() {
         }
     };
 
+    const handleHardReset = async () => {
+        if (!window.confirm('WARNING: This will permanently wipe all uploaded documents and neural memory for your account. Continue?')) {
+            return;
+        }
+        setIsSyncing(true);
+        try {
+            await apiService.resetKnowledge();
+            setDocuments([]);
+            setError(null);
+            alert('Knowledge base cleared successfully.');
+        } catch (err) {
+            console.error('Failed to reset knowledge:', err);
+            setError('Failed to clear knowledge base');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
+
     // Poll for document status updates
     useEffect(() => {
         const pendingDocs = documents.filter(d =>
@@ -154,6 +172,12 @@ export function Sidebar() {
                 >
                     <span className={isSyncing ? 'animate-spin' : ''}>🔄</span>
                     {isSyncing ? 'Syncing Neural Memory...' : 'Sync Knowledge'}
+                </button>
+                <button
+                    onClick={handleHardReset}
+                    className="mt-1 text-[9px] text-gray-500 hover:text-red-400 uppercase tracking-widest font-bold transition-colors"
+                >
+                    ⚠️ Hard Reset Memory
                 </button>
             </div>
 
