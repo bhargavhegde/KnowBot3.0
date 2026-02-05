@@ -21,7 +21,10 @@ RUN apt-get update && apt-get install -y \
 # 1. Install Torch CPU version explicitly (saves ~2GB)
 # 2. Install sentence-transformers (pulls in small dependencies)
 RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
-    pip install --no-cache-dir sentence-transformers
+    pip install --no-cache-dir sentence-transformers langchain-huggingface
+
+# Verify installation (fail build if import fails)
+RUN python -c "import sentence_transformers; print('sentence-transformers version:', sentence_transformers.__version__)"
 
 # Install the rest of the Python dependencies
 COPY backend/requirements.txt ./requirements.txt
