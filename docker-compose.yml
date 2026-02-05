@@ -2,15 +2,12 @@ services:
   # PostgreSQL Database
   db:
     image: postgres:16-alpine
-    container_name: knowbot-db
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-knowbot}
       POSTGRES_USER: ${POSTGRES_USER:-knowbot}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-knowbot_dev_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-knowbot}" ]
       interval: 5s
@@ -20,78 +17,45 @@ services:
   # Redis for Celery
   redis:
     image: redis:7-alpine
-    container_name: knowbot-redis
-    ports:
-      - "6379:6379"
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  # Ollama LLM Service
-  ollama:
-    image: ollama/ollama:latest
-    container_name: knowbot-ollama
-    volumes:
-      - /home/bhargav/.ollama:/root/.ollama
-    # Remove ports mapping to avoid conflict with system service
-    # The backend will still reach it via http://ollama:11434
-    # Enable GPU if available (optional, but recommended for speed)
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
-
-    # Django Backend
+  # Django Backend
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: knowbot-backend
-    env_file:
-      - .env
+    # In production, we don't mount local volumes
     volumes:
-      - ./backend:/app
-      - ./data:/app/data
-      - ./chroma_db:/app/chroma_db
-    ports:
-      - "8000:8000"
+      - data_volume:/app/data
+      - chroma_data:/app/chroma_db
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-      ollama:
-        condition: service_started
       chromadb:
         condition: service_started
     command: >
       sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+             gunicorn knowbot.wsgi:application --bind 0.0.0.0:8000"
 
   # Celery Worker
   celery:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: knowbot-celery
-    env_file:
-      - .env
     volumes:
-      - ./backend:/app
-      - ./data:/app/data
-      - ./chroma_db:/app/chroma_db
+      - data_volume:/app/data
+      - chroma_data:/app/chroma_db
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_healthy
-      ollama:
-        condition: service_started
       chromadb:
         condition: service_started
     command: celery -A knowbot worker -l INFO
@@ -99,36 +63,12 @@ services:
   # ChromaDB Vector Database Service
   chromadb:
     image: chromadb/chroma:latest
-    container_name: knowbot-chroma
     volumes:
-      - ./chroma_db:/chroma/chroma
-    ports:
-      - "8005:8000"
+      - chroma_data:/chroma/chroma
     environment:
       - IS_PERSISTENT=TRUE
-    # healthcheck:
-    #   test: [ "CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat" ]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 5
-
-    # Next.js Frontend
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: knowbot-frontend
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    command: npm run dev
 
 volumes:
   postgres_data:
+  data_volume:
+  chroma_data:

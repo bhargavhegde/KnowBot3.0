@@ -34,6 +34,8 @@ from django.conf import settings
 
 import chromadb
 from langchain_ollama import OllamaEmbeddings, ChatOllama
+from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_groq import ChatGroq
 from langchain_chroma import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -73,6 +75,9 @@ OLLAMA_HOST = getattr(settings, 'OLLAMA_HOST', 'http://localhost:11434')
 LLM_PROVIDER = getattr(settings, 'LLM_PROVIDER', 'ollama')
 GROQ_API_KEY = getattr(settings, 'GROQ_API_KEY', '')
 GROQ_MODEL = getattr(settings, 'GROQ_MODEL', 'llama-3.3-70b-versatile')
+EMBEDDING_PROVIDER = getattr(settings, 'EMBEDDING_PROVIDER', 'ollama')
+OPENAI_API_KEY = getattr(settings, 'OPENAI_API_KEY', '')
+HUGGINGFACE_API_KEY = getattr(settings, 'HUGGINGFACE_API_KEY', '')
 
 # Global client singleton to prevent file locking/HNSW errors
 _CHROMA_CLIENT = None
@@ -259,10 +264,19 @@ class VectorStoreManager:
         self.persist_directory = persist_directory
         self.user_id = user_id
         self.collection_name = "knowbot_docs"
-        self.embeddings = OllamaEmbeddings(
-            model=EMBEDDING_MODEL,
-            base_url=OLLAMA_HOST
-        )
+        # Initialize Embeddings based on provider
+        if EMBEDDING_PROVIDER == 'openai':
+            print("Using OpenAI Embeddings")
+            self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
+        elif EMBEDDING_PROVIDER == 'huggingface':
+            print("Using HuggingFace Embeddings (Local/In-container)")
+            self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+        else:
+            print(f"Using Ollama Embeddings at {OLLAMA_HOST}")
+            self.embeddings = OllamaEmbeddings(
+                model=EMBEDDING_MODEL,
+                base_url=OLLAMA_HOST
+            )
         # Initialize client explicitly using singleton
         self.client = get_chroma_client(persist_directory)
     

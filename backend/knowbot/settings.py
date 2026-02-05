@@ -27,6 +27,9 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key-change-in-produ
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',')
+# Add Railway and Vercel wildcard or specific domains if provided
+if os.environ.get('RAILWAY_STATIC_URL'):
+    ALLOWED_HOSTS.append(os.environ.get('RAILWAY_STATIC_URL'))
 
 # Apps installed in this project
 INSTALLED_APPS = [
@@ -146,11 +149,11 @@ SIMPLE_JWT = {
 
 
 # CORS settings - allow frontend (React/Next.js) to connect
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', "http://localhost:3000,http://127.0.0.1:3000").split(',')
 CORS_ALLOW_CREDENTIALS = True
+
+# CSRF settings for production (needed for admin and secure requests)
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', "http://localhost:3000,http://127.0.0.1:3000").split(',')
 
 
 # --- 5. CELERY CONFIGURATION (REDIS) ---
@@ -169,6 +172,11 @@ CELERY_TIMEZONE = 'UTC'
 LLM_PROVIDER = os.environ.get('LLM_PROVIDER', 'ollama').lower() # 'ollama' or 'groq'
 GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 GROQ_MODEL = os.environ.get('GROQ_MODEL', 'llama-3.3-70b-versatile')
+
+# Embedding Configuration
+EMBEDDING_PROVIDER = os.environ.get('EMBEDDING_PROVIDER', 'ollama').lower() # 'ollama' or 'openai' or 'huggingface'
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
+HUGGINGFACE_API_KEY = os.environ.get('HUGGINGFACE_API_KEY', '') # For HF Inference API
 
 # Ollama Connection (Where Llama 3 lives)
 OLLAMA_HOST = os.environ.get('OLLAMA_HOST', 'http://localhost:11434')
