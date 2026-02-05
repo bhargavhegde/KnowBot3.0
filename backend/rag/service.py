@@ -264,21 +264,30 @@ class VectorStoreManager:
         self.persist_directory = persist_directory
         self.user_id = user_id
         self.collection_name = "knowbot_docs"
-        # Initialize Embeddings based on provider
-        if EMBEDDING_PROVIDER == 'openai':
-            print("Using OpenAI Embeddings")
-            self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
-        elif EMBEDDING_PROVIDER == 'huggingface':
-            print("Using HuggingFace Embeddings (Local/In-container)")
-            self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-        else:
-            print(f"Using Ollama Embeddings at {OLLAMA_HOST}")
-            self.embeddings = OllamaEmbeddings(
-                model=EMBEDDING_MODEL,
-                base_url=OLLAMA_HOST
-            )
+        self._embeddings = None
         # Initialize client explicitly using singleton
         self.client = get_chroma_client(persist_directory)
+
+    @property
+    def embeddings(self):
+        """Lazy loader for embedding model to save memory."""
+        if self._embeddings is None:
+            if EMBEDDING_PROVIDER == 'openai':
+                print("Using OpenAI Embeddings")
+                self._embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=OPENAI_API_KEY)
+            elif EMBEDDING_PROVIDER == 'huggingface':
+                print("Using HuggingFace Embeddings (Local/In-container)")
+                self._embeddings = HuggingFaceEmbeddings(
+                    model_name="all-MiniLM-L6-v2",
+                    model_kwargs={'device': 'cpu'}
+                )
+            else:
+                print(f"Using Ollama Embeddings at {OLLAMA_HOST}")
+                self._embeddings = OllamaEmbeddings(
+                    model=EMBEDDING_MODEL,
+                    base_url=OLLAMA_HOST
+                )
+        return self._embeddings
     
     def create_vector_store(self, chunks: List) -> Chroma:
         """Create or add to vector store from document chunks."""
