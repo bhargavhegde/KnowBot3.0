@@ -286,8 +286,18 @@ export function Sidebar() {
                             className="text-gray-400 text-[10px] group-hover:text-cyan-300 transition-colors uppercase font-bold tracking-widest flex items-center justify-center gap-2"
                             animate={isDragActive ? { scale: 1.1 } : {}}
                         >
-                            <span className="text-lg">{isDragActive ? '📥' : '📄'}</span>
-                            {isUploading ? 'Uploading...' : isDragActive ? 'Drop files here!' : 'Add Knowledge'}
+                            <span className="text-lg">
+                                {isUploading ? (
+                                    <motion.span
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                        className="inline-block"
+                                    >
+                                        ⏳
+                                    </motion.span>
+                                ) : isDragActive ? '📥' : '📄'}
+                            </span>
+                            {isUploading ? 'Uploading Neural Data...' : isDragActive ? 'Drop files here!' : 'Add Knowledge'}
                         </motion.div>
                     </div>
 

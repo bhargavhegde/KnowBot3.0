@@ -72,27 +72,7 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
                             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
                         }}
                     >
-                        {/* Shimmer effect for user messages */}
-                        {isUser && (
-                            <motion.div
-                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                                initial={{ x: '-100%' }}
-                                animate={{ x: '200%' }}
-                                transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-                            />
-                        )}
-
-                        {/* Scanning Scanline for Assistant */}
-                        {!isUser && isLatest && (
-                            <motion.div
-                                className="absolute left-0 right-0 h-4 bg-gradient-to-b from-cyan-400/10 to-transparent pointer-events-none"
-                                initial={{ top: 0 }}
-                                animate={{ top: "100%" }}
-                                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                                style={{ boxShadow: '0 0 20px rgba(34, 211, 238, 0.3)' }}
-                            />
-                        )}
-
+                        {/* Message Content Container */}
                         <div className="prose prose-invert prose-sm max-w-none relative z-10">
                             <ReactMarkdown
                                 components={{

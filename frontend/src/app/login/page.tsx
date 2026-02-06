@@ -72,7 +72,7 @@ export default function LoginPage() {
 
                     <div className="text-center mb-8">
                         <h1 className="text-3xl font-bold bg-gradient-to-r from-red-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">
-                            Access Terminal
+                            KnowBot 3.0
                         </h1>
                         <p className="text-slate-400 text-xs uppercase tracking-[0.2em] mt-2">
                             Secure Neural Uplink
@@ -124,7 +124,7 @@ export default function LoginPage() {
                             }}
                         >
                             <span className="relative z-10 flex items-center justify-center gap-2">
-                                {loading ? 'Authenticating...' : 'Establish Connection'}
+                                {loading ? 'Authenticating...' : 'Login'}
                                 {!loading && <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>}
                             </span>
                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
@@ -133,7 +133,7 @@ export default function LoginPage() {
 
                     <div className="mt-6 text-center">
                         <p className="text-slate-500 text-xs">
-                            New user? <Link href="/register" className="text-orange-400 hover:text-orange-300 transition-colors">Register Identity</Link>
+                            New user? <Link href="/register" className="text-orange-400 hover:text-orange-300 transition-colors">Sign Up</Link>
                         </p>
                     </div>
                 </motion.div>

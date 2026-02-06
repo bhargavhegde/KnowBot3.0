@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
-import { BrainLogo3 } from '@/components/BrainLogo3';
+import { NeuralBackground } from '@/components/NeuralBackground';
 
 export default function RegisterPage() {
     const { register } = useAuth();
@@ -41,146 +41,119 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center px-4 overflow-hidden relative">
-            {/* Background Effect */}
-            <div className="aurora-bg"></div>
+        <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#030810]">
 
-            {/* Floating Particles */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(20)].map((_, i) => (
+            {/* Constellation Background */}
+            <NeuralBackground />
+
+            {/* Content Wrapper */}
+            <div className="relative z-10 w-full max-w-md px-4">
+
+                {/* Floating Bot Icon (Small version for register) */}
+                <div className="flex justify-center mb-6">
                     <motion.div
-                        key={i}
-                        className="absolute w-1 h-1 rounded-full bg-purple-400/30"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                            y: [0, -30, 0],
-                            opacity: [0.2, 0.6, 0.2],
-                        }}
-                        transition={{
-                            duration: 3 + Math.random() * 2,
-                            repeat: Infinity,
-                            delay: Math.random() * 2,
-                        }}
-                    />
-                ))}
-            </div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md space-y-6 rounded-3xl border border-purple-500/20 bg-[#0a1628]/80 p-8 backdrop-blur-2xl shadow-2xl relative z-10"
-                style={{
-                    boxShadow: '0 0 60px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255,255,255,0.05)'
-                }}
-            >
-                {/* Logo */}
-                <div className="flex justify-center -mt-4 mb-2">
-                    <BrainLogo3 size="md" showText={true} />
+                        className="w-20 h-20 relative"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                    >
+                        <img
+                            src="/bot_red_idle_black.png"
+                            alt="KnowBot Register"
+                            className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,215,0,0.5)]"
+                            style={{ mixBlendMode: 'screen' }}
+                        />
+                    </motion.div>
                 </div>
 
-                <div className="text-center">
-                    <p className="text-sm text-purple-300/70">Create your private knowledge assistant.</p>
-                </div>
+                <motion.div
+                    className="backdrop-blur-xl bg-slate-900/40 border border-slate-700/50 p-8 rounded-3xl shadow-2xl relative"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                >
+                    {/* Glow Effects behind card */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 via-cyan-500/20 to-blue-500/20 rounded-3xl blur-xl -z-10" />
 
-                <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
-                    {error && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="rounded-xl bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/30 backdrop-blur"
-                        >
-                            {error}
-                        </motion.div>
-                    )}
+                    <div className="text-center mb-6">
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
+                            Initialize Identity
+                        </h1>
+                        <p className="text-slate-400 text-[10px] uppercase tracking-[0.2em] mt-2">
+                            New Knowledge Core Registration
+                        </p>
+                    </div>
 
-                    <div className="space-y-3">
-                        <div>
-                            <label className="block text-sm font-medium text-cyan-300/80 mb-1">Username</label>
+                    <form className="space-y-4" onSubmit={handleSubmit}>
+                        {error && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="bg-red-500/10 border border-red-500/20 text-red-200 p-3 rounded-xl text-xs text-center"
+                            >
+                                {error}
+                            </motion.div>
+                        )}
+
+                        <div className="space-y-3">
                             <input
                                 type="text"
                                 required
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-2.5 text-white placeholder-gray-500 
-                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
-                                         transition-all duration-300 backdrop-blur text-sm"
-                                placeholder="Choose a username"
+                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/20 transition-all text-sm"
+                                placeholder="Username"
                             />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-cyan-300/80 mb-1">Email (Optional)</label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-2.5 text-white placeholder-gray-500 
-                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
-                                         transition-all duration-300 backdrop-blur text-sm"
-                                placeholder="you@example.com"
+                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-400/50 focus:ring-1 focus:ring-blue-400/20 transition-all text-sm"
+                                placeholder="Email (Optional)"
                             />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-cyan-300/80 mb-1">Password</label>
                             <input
                                 type="password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-2.5 text-white placeholder-gray-500 
-                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
-                                         transition-all duration-300 backdrop-blur text-sm"
-                                placeholder="Create a password"
+                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all text-sm"
+                                placeholder="Create Passphrase"
                             />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-cyan-300/80 mb-1">Confirm Password</label>
                             <input
                                 type="password"
                                 required
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-2.5 text-white placeholder-gray-500 
-                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
-                                         transition-all duration-300 backdrop-blur text-sm"
-                                placeholder="Repeat password"
+                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all text-sm"
+                                placeholder="Confirm Passphrase"
                             />
                         </div>
+
+                        <motion.button
+                            type="submit"
+                            disabled={loading}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide text-white shadow-lg relative overflow-hidden group mt-2"
+                            style={{
+                                background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)' // Purple to Blue
+                            }}
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                {loading ? 'Initializing...' : 'Create Account'}
+                                {!loading && <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>}
+                            </span>
+                            <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                        </motion.button>
+                    </form>
+
+                    <div className="mt-6 text-center">
+                        <p className="text-slate-500 text-xs">
+                            Already have an account? <Link href="/login" className="text-cyan-400 hover:text-cyan-300 transition-colors">Sign In</Link>
+                        </p>
                     </div>
-
-                    <motion.button
-                        type="submit"
-                        disabled={loading}
-                        className="relative flex w-full justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg mt-6
-                                 disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden group"
-                        style={{
-                            background: 'linear-gradient(135deg, #8b5cf6, #6366f1, #3b82f6)',
-                            backgroundSize: '200% 200%',
-                        }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                    >
-                        <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                            initial={{ x: '-100%' }}
-                            whileHover={{ x: '100%' }}
-                            transition={{ duration: 0.6 }}
-                        />
-                        <span className="relative z-10">{loading ? 'Creating account...' : 'Create account'}</span>
-                    </motion.button>
-                </form>
-
-                <div className="text-center">
-                    <p className="text-sm text-gray-400">
-                        Already have an account?{' '}
-                        <Link href="/login" className="font-semibold text-cyan-400 hover:text-cyan-300 transition-colors">
-                            Sign in
-                        </Link>
-                    </p>
-                </div>
-            </motion.div>
+                </motion.div>
+            </div>
         </div>
     );
 }
