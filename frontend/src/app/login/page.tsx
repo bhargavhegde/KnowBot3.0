@@ -42,17 +42,17 @@ export default function LoginPage() {
                         transition={{ type: "spring", duration: 1.5 }}
                     >
                         <img
-                            src="/bot_red_idle.png"
+                            src="/bot_red_idle_black.png"
                             alt="KnowBot Login"
                             className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(255,215,0,0.6)]"
-                            style={{ maskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)', WebkitMaskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)' }}
+                            style={{ mixBlendMode: 'screen' }}
                         />
                         {/* Waving Hand Overlay Animation on Load */}
                         <motion.img
-                            src="/bot_red_wave.png"
+                            src="/bot_red_wave_black.png"
                             alt="Waving"
                             className="absolute inset-0 w-full h-full object-contain"
-                            style={{ maskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)', WebkitMaskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)' }}
+                            style={{ mixBlendMode: 'screen' }}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: [0, 1, 1, 0] }}
                             transition={{ duration: 2, delay: 1, repeat: 0 }}

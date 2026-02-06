@@ -6,45 +6,135 @@ export function BrainLoader() {
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-[#030810] text-cyan-500 font-mono relative overflow-hidden z-[100]">
 
-            {/* Background Grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.03)_1px,transparent_1px)] bg-[size:30px_30px]" />
+            {/* Animated Background Grid */}
+            <div className="absolute inset-0">
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(34,211,238,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(34,211,238,0.05)_1px,transparent_1px)] bg-[size:30px_30px]" />
 
-            <div className="relative z-10 flex flex-col items-center gap-6">
-                {/* Spinning Core */}
+                {/* Scan Lines */}
                 <motion.div
-                    className="w-16 h-16 border-4 border-t-cyan-400 border-r-transparent border-b-purple-500 border-l-transparent rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-500/10 to-transparent h-32"
+                    animate={{ y: ['0%', '100%'] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                 />
+            </div>
 
-                {/* Boot Log Text */}
-                <div className="h-12 flex flex-col items-center justify-center space-y-1">
-                    <motion.p
-                        className="text-xs uppercase tracking-[0.2em] text-cyan-300"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: [0, 1, 1, 0] }}
-                        transition={{ duration: 2, times: [0, 0.1, 0.9, 1], repeat: Infinity }}
+            {/* Floating Particles */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {[...Array(30)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute w-1 h-1 rounded-full bg-gradient-to-r from-cyan-400 to-purple-500"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                        }}
+                        animate={{
+                            y: [0, -100, -200],
+                            opacity: [0, 0.8, 0],
+                            scale: [0, 1.5, 0],
+                        }}
+                        transition={{
+                            duration: 2 + Math.random() * 3,
+                            repeat: Infinity,
+                            delay: Math.random() * 2,
+                            ease: 'easeOut',
+                        }}
+                    />
+                ))}
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center gap-8">
+                {/* 3D Hologram Effect */}
+                <div className="relative w-40 h-40">
+                    {/* Rotating Rings */}
+                    <motion.div
+                        className="absolute inset-0 border-4 border-cyan-400/30 rounded-full"
+                        animate={{ rotateY: 360 }}
+                        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                        style={{ transformStyle: 'preserve-3d' }}
+                    />
+                    <motion.div
+                        className="absolute inset-4 border-4 border-purple-500/30 rounded-full"
+                        animate={{ rotateX: 360 }}
+                        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+                        style={{ transformStyle: 'preserve-3d' }}
+                    />
+                    <motion.div
+                        className="absolute inset-8 border-4 border-fuchsia-500/30 rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                    />
+
+                    {/* Center Core */}
+                    <motion.div
+                        className="absolute inset-0 flex items-center justify-center"
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
                     >
-                        Initializing Neural Core...
+                        <div className="w-16 h-16 bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500 rounded-full blur-xl opacity-60" />
+                    </motion.div>
+
+                    {/* Spinning Core */}
+                    <motion.div
+                        className="absolute inset-0 flex items-center justify-center"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    >
+                        <div className="w-12 h-12 border-4 border-t-cyan-400 border-r-transparent border-b-fuchsia-500 border-l-transparent rounded-full" />
+                    </motion.div>
+                </div>
+
+                {/* Boot Log Text with Typewriter Effect */}
+                <div className="h-16 flex flex-col items-center justify-center space-y-2">
+                    <motion.p
+                        className="text-sm uppercase tracking-[0.3em] text-cyan-300 font-bold"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: [0, 1, 1, 0.3, 1, 1, 0] }}
+                        transition={{ duration: 3, times: [0, 0.1, 0.4, 0.5, 0.6, 0.9, 1], repeat: Infinity }}
+                    >
+                        ⟨ Initializing Neural Core ⟩
                     </motion.p>
                     <motion.p
-                        className="text-[10px] uppercase tracking-widest text-fuchsia-400/80"
+                        className="text-xs uppercase tracking-widest text-purple-400/90"
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: [0, 1, 1, 0] }}
-                        transition={{ duration: 2, delay: 1, times: [0, 0.1, 0.9, 1], repeat: Infinity }}
+                        animate={{ opacity: [0, 1, 1, 0.3, 1, 1, 0] }}
+                        transition={{ duration: 3, delay: 1.5, times: [0, 0.1, 0.4, 0.5, 0.6, 0.9, 1], repeat: Infinity }}
                     >
-                        Establishing Uplink...
+                        ⟨ Establishing Quantum Link ⟩
                     </motion.p>
                 </div>
 
-                {/* Loading Bar */}
-                <div className="w-64 h-1 bg-gray-800 rounded-full overflow-hidden mt-4">
-                    <motion.div
-                        className="h-full bg-gradient-to-r from-cyan-400 via-purple-500 to-fuchsia-500"
-                        initial={{ width: "0%" }}
-                        animate={{ width: "100%" }}
-                        transition={{ duration: 2.5, ease: "easeInOut" }}
-                    />
+                {/* Fancy Progress Bar */}
+                <div className="w-80 relative">
+                    <div className="h-2 bg-slate-900 rounded-full overflow-hidden border border-cyan-500/20">
+                        <motion.div
+                            className="h-full relative"
+                            style={{
+                                background: 'linear-gradient(90deg, #22d3ee, #a855f7, #ec4899, #22d3ee)',
+                                backgroundSize: '200% 100%',
+                            }}
+                            animate={{
+                                width: ["0%", "100%"],
+                                backgroundPosition: ['0% 0%', '200% 0%']
+                            }}
+                            transition={{
+                                width: { duration: 3, ease: "easeInOut", repeat: Infinity },
+                                backgroundPosition: { duration: 2, ease: "linear", repeat: Infinity }
+                            }}
+                        >
+                            {/* Glow Trail */}
+                            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/50 to-transparent" />
+                        </motion.div>
+                    </div>
+
+                    {/* Percentage */}
+                    <motion.p
+                        className="text-xs text-center mt-3 text-cyan-400/80 font-mono"
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                    >
+                        Loading Experience...
+                    </motion.p>
                 </div>
             </div>
         </div>

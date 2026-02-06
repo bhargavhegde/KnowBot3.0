@@ -36,7 +36,7 @@ export function BrainAvatar() {
                     src="/bot_brain_gold.png"
                     alt="Golden Brain"
                     className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_0_25px_rgba(255,215,0,0.8)] z-0"
-                    style={{ maskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)', WebkitMaskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)' }}
+                    style={{ mixBlendMode: 'screen' }}
                     initial={{ y: 0, opacity: 0, scale: 0.8 }}
                     animate={{
                         y: isHovering ? -35 : 0,
@@ -48,10 +48,10 @@ export function BrainAvatar() {
 
                 {/* IDLE State */}
                 <motion.img
-                    src="/bot_red_idle.png"
+                    src="/bot_red_idle_black.png"
                     alt="KnowBot Idle"
                     className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,215,0,0.3)] z-10"
-                    style={{ maskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)', WebkitMaskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)' }}
+                    style={{ mixBlendMode: 'screen' }}
                     initial={{ opacity: 1 }}
                     animate={{
                         opacity: isHovering ? 0 : 1,
@@ -62,13 +62,13 @@ export function BrainAvatar() {
 
                 {/* WAVE State */}
                 <motion.img
-                    src="/bot_red_wave.png"
+                    src="/bot_red_wave_black.png"
                     alt="KnowBot Waving"
                     className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,215,0,0.5)] z-10"
-                    style={{ maskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)', WebkitMaskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)' }}
+                    style={{ mixBlendMode: 'screen' }}
                     initial={{ opacity: 0 }}
                     animate={{
-                        opacity: isHovering ? 0.9 : 0, // Slight transparency to show brain pop better? No, keep solid.
+                        opacity: isHovering ? 1 : 0, // Slight transparency to show brain pop better? No, keep solid.
                         rotate: isHovering ? [0, -5, 5, 0] : 0
                     }}
                     transition={{ opacity: { duration: 0.2 }, rotate: { duration: 0.5, repeat: Infinity, repeatDelay: 1 } }}

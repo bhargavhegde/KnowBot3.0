@@ -24,9 +24,9 @@ export function NeuralBackground() {
         let width = window.innerWidth;
         let height = window.innerHeight;
 
-        const colors = ['#e879f9', '#22d3ee', '#facc15']; // Magenta, Cyan, Gold
-        const particleCount = 60;
-        const connectionDistance = 150;
+        const colors = ['#fbbf24', '#22d3ee', '#e879f9']; // Gold, Cyan, Magenta - more vibrant
+        const particleCount = 80; // Increased from 60
+        const connectionDistance = 180; // Increased range
         const mouseDistance = 200;
 
         let mouse = { x: -1000, y: -1000 };
@@ -44,7 +44,7 @@ export function NeuralBackground() {
                 this.y = Math.random() * height;
                 this.vx = (Math.random() - 0.5) * 0.5; // Slow drift
                 this.vy = (Math.random() - 0.5) * 0.5;
-                this.size = Math.random() * 2 + 0.5;
+                this.size = Math.random() * 3 + 1; // Larger particles (1-4px)
                 this.color = colors[Math.floor(Math.random() * colors.length)];
             }
 
@@ -76,7 +76,10 @@ export function NeuralBackground() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fillStyle = this.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
                 ctx.fill();
+                ctx.shadowBlur = 0;
             }
         }
 
@@ -106,8 +109,8 @@ export function NeuralBackground() {
                     if (distance < connectionDistance) {
                         const opacity = 1 - (distance / connectionDistance);
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(100, 116, 139, ${opacity * 0.2})`; // Subtle gray lines
-                        ctx.lineWidth = 0.5;
+                        ctx.strokeStyle = `rgba(34, 211, 238, ${opacity * 0.4})`; // Brighter cyan lines
+                        ctx.lineWidth = 1; // Thicker lines
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
                         ctx.stroke();
