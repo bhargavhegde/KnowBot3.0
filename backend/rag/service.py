@@ -417,13 +417,16 @@ Answer:"""
         except Exception:
             return []
 
-    def build_prompt(self) -> ChatPromptTemplate:
-        """Build the prompt template with optional custom instructions."""
+    def build_prompt(self, has_history: bool = False) -> ChatPromptTemplate:
+        """Build the prompt template with optional custom instructions and history support."""
         file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
+        
+        history_placeholder = "{chat_history}\n" if has_history else ""
         
         if self.custom_prompt and self.custom_prompt.strip():
             template = f"""{self.DEFAULT_TEMPLATE.rstrip()}
 
+{history_placeholder}
 Additional instructions from manager:
 {self.custom_prompt.strip()}
 
@@ -436,6 +439,9 @@ Question: {{question}}
 Answer:"""
         else:
             template = self.DEFAULT_TEMPLATE.replace("{file_list}", file_list_str)
+            if has_history:
+                # Insert history before the question in the default template
+                template = template.replace("Question: {question}", f"{history_placeholder}\nQuestion: {{question}}")
         
         return ChatPromptTemplate.from_template(template)
     
@@ -482,10 +488,11 @@ Answer:"""
         
         return vector_retriever
     
-    def build_chain(self):
-        """Build the complete RAG chain."""
+    def build_chain(self, chat_history: List = None):
+        """Build the complete RAG chain with optional history."""
         retriever = self.get_retriever()
-        prompt = self.build_prompt()
+        has_history = chat_history is not None and len(chat_history) > 0
+        prompt = self.build_prompt(has_history=has_history)
         
         def format_docs(docs):
             return "\n\n".join(
@@ -493,21 +500,33 @@ Answer:"""
                 for doc in docs
             )
         
-        chain = (
-            {"context": retriever | format_docs, "question": RunnablePassthrough()}
-            | prompt
-            | self.llm
-            | StrOutputParser()
-        )
+        if has_history:
+            chain = (
+                {
+                    "context": retriever | format_docs,
+                    "question": RunnablePassthrough(),
+                    "chat_history": lambda x: chat_history
+                }
+                | prompt
+                | self.llm
+                | StrOutputParser()
+            )
+        else:
+            chain = (
+                {"context": retriever | format_docs, "question": RunnablePassthrough()}
+                | prompt
+                | self.llm
+                | StrOutputParser()
+            )
         
         return {
             "chain": chain,
             "retriever": retriever
         }
     
-    def query(self, question: str) -> Dict[str, Any]:
+    def query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
         """Execute a RAG query and return response with citations."""
-        rag_result = self.build_chain()
+        rag_result = self.build_chain(chat_history=chat_history)
         chain = rag_result["chain"]
         retriever = rag_result["retriever"]
         
@@ -516,7 +535,8 @@ Answer:"""
         citations = []
         
         for doc in docs:
-            source = Path(doc.metadata.get("source", "unknown")).name
+            # metadata 'source' should be the original filename
+            source = doc.metadata.get("source", "unknown")
             content = doc.page_content.strip()
             citations.append({
                 "source": source,
@@ -532,17 +552,24 @@ Answer:"""
             "citations": citations
         }
 
-    def general_query(self, question: str) -> Dict[str, Any]:
+    def general_query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
         """Execute a general LLM query without RAG context."""
-        template = """You are KnowBot, a helpful AI assistant.
+        has_history = chat_history is not None and len(chat_history) > 0
+        history_placeholder = "{chat_history}\n" if has_history else ""
         
-Question: {question}
+        template = f"""You are KnowBot, a helpful AI assistant.
+        
+{history_placeholder}Question: {{question}}
 
 Answer:"""
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | self.llm | StrOutputParser()
         
-        response = chain.invoke({"question": question})
+        input_data = {"question": question}
+        if has_history:
+            input_data["chat_history"] = chat_history
+            
+        response = chain.invoke(input_data)
         
         return {
             "response": response,

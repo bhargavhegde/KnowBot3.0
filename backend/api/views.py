@@ -116,7 +116,11 @@ class DocumentViewSet(viewsets.ModelViewSet):
             print(f"⚠️ Celery not available, processing document {document.id} synchronously: {e}")
             try:
                 processor = DocumentProcessor()
-                chunks = processor.load_single_document(str(file_path), user_id=request.user.id)
+                chunks = processor.load_single_document(
+                    str(file_path), 
+                    user_id=request.user.id,
+                    original_filename=document.original_filename
+                )
                 manager = VectorStoreManager(user_id=request.user.id)
                 manager.create_vector_store(chunks)
                 
@@ -298,12 +302,24 @@ def chat(request):
     try:
         engine = RAGEngine(custom_prompt=custom_prompt, user_id=request.user.id)
         
+        # Fetch previous messages for context
+        history_messages = ChatMessage.objects.filter(session=session).order_by('-created_at')[1:6] # Skip current, take last 5
+        history_messages = reversed(history_messages)
+        
+        from langchain_core.messages import HumanMessage, AIMessage
+        chat_history = []
+        for msg in history_messages:
+            if msg.role == ChatMessage.Role.USER:
+                chat_history.append(HumanMessage(content=msg.content))
+            else:
+                chat_history.append(AIMessage(content=msg.content))
+
         if has_indexed:
             # Standard RAG Query (Retrieval Augmented Generation)
-            result = engine.query(message)
+            result = engine.query(message, chat_history=chat_history)
         else:
             # Fallback to General Chat (No documents found)
-            result = engine.general_query(message)
+            result = engine.general_query(message, chat_history=chat_history)
             
             # Subtly notify user if their docs are still being processed
             if has_pending:
