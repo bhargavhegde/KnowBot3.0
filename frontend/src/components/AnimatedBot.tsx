@@ -1,11 +1,16 @@
 /**
- * AnimatedBot Component V2
- * Pure SVG geometric robot with "Pop-Up" mechanics and expressive face.
+ * AnimatedBot Component V3
+ * Pure SVG geometric robot with:
+ * - "Pop-Up" Antennae
+ * - Mouse Tracking Eyes
+ * - Random Idle Animations (Blinking, Expressions)
+ * - Improved ViewBox framing
  */
 
 'use client';
 
 import { motion } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
 
 interface AnimatedBotProps {
     mode?: 'idle' | 'hover' | 'thinking';
@@ -25,8 +30,55 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
     const isThinking = mode === 'thinking';
     const isHovering = mode === 'hover';
 
+    // Mouse Tracking State
+    const [eyePosition, setEyePosition] = useState({ x: 0, y: 0 });
+    const botRef = useRef<HTMLDivElement>(null);
+
+    // Random Idle State
+    const [idleExpression, setIdleExpression] = useState<'neutral' | 'blink' | 'happy'>('neutral');
+
+    // Mouse Tracking Logic
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!botRef.current) return;
+
+            const rect = botRef.current.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // Calculate max offset (limit movement to keep eyes in sockets)
+            const maxOffset = 3;
+            const deltaX = Math.min(Math.max((e.clientX - centerX) / 20, -maxOffset), maxOffset);
+            const deltaY = Math.min(Math.max((e.clientY - centerY) / 20, -maxOffset), maxOffset);
+
+            setEyePosition({ x: deltaX, y: deltaY });
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
+
+    // Random Idle Animations (Blinking & Expressions)
+    useEffect(() => {
+        if (isHovering || isThinking) return;
+
+        const interval = setInterval(() => {
+            const random = Math.random();
+            if (random > 0.7) {
+                setIdleExpression('blink');
+                setTimeout(() => setIdleExpression('neutral'), 150);
+            } else if (random > 0.9) {
+                setIdleExpression('happy');
+                setTimeout(() => setIdleExpression('neutral'), 2000);
+            }
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [isHovering, isThinking]);
+
     return (
         <motion.div
+            ref={botRef}
             className={`relative ${className}`}
             style={{ width: dimension, height: dimension }}
             initial={{ scale: 0 }}
@@ -34,7 +86,7 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
         >
             <svg
-                viewBox="0 0 100 100"
+                viewBox="-25 -25 150 150" // Expanded viewBox to prevent cropping
                 className="w-full h-full"
                 style={{ filter: 'drop-shadow(0 0 15px rgba(234, 88, 12, 0.3))' }}
             >
@@ -55,18 +107,16 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                     </linearGradient>
                 </defs>
 
-                {/* --- Hardware Layer (Antennae) --- */}
-                {/* Positioned behind head so they "pop up" from behind */}
+                {/* --- Hardware Layer (Antennae - Fixed "Cut Off" Issue) --- */}
                 <motion.g
-                    initial={{ y: 15 }} // Start retracted (hidden behind head top)
-                    animate={{ y: isHovering || isThinking ? -10 : 15 }} // Pop UP on hover
+                    initial={{ y: 0 }}
+                    animate={{ y: isHovering || isThinking ? -25 : 0 }} // Higher pop-up
                     transition={{ type: "spring", stiffness: 200, damping: 12 }}
                 >
-                    {/* Left Antenna Stem */}
-                    <line x1="30" y1="30" x2="25" y2="10" stroke="url(#metalGradient)" strokeWidth="3" strokeLinecap="round" />
-                    {/* Left Bulb */}
+                    {/* Left Antenna */}
+                    <line x1="30" y1="30" x2="20" y2="0" stroke="url(#metalGradient)" strokeWidth="3" strokeLinecap="round" />
                     <motion.circle
-                        cx="25" cy="10" r="4"
+                        cx="20" cy="0" r="5"
                         fill="#fbbf24"
                         animate={{
                             fillOpacity: isThinking ? [0.6, 1, 0.6] : 1,
@@ -76,11 +126,10 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                         style={{ filter: 'drop-shadow(0 0 4px #fbbf24)' }}
                     />
 
-                    {/* Right Antenna Stem */}
-                    <line x1="70" y1="30" x2="75" y2="10" stroke="url(#metalGradient)" strokeWidth="3" strokeLinecap="round" />
-                    {/* Right Bulb */}
+                    {/* Right Antenna */}
+                    <line x1="70" y1="30" x2="80" y2="0" stroke="url(#metalGradient)" strokeWidth="3" strokeLinecap="round" />
                     <motion.circle
-                        cx="75" cy="10" r="4"
+                        cx="80" cy="0" r="5"
                         fill="#fbbf24"
                         animate={{
                             fillOpacity: isThinking ? [0.6, 1, 0.6] : 1,
@@ -92,7 +141,7 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                 </motion.g>
 
 
-                {/* --- Body Layer (Neck & Shoulders) --- */}
+                {/* --- Body Layer --- */}
                 <motion.path
                     d="M 35 75 L 35 90 Q 50 95 65 90 L 65 75"
                     fill="#1e293b"
@@ -123,55 +172,55 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                         strokeWidth="1"
                     />
 
-                    {/* --- Face Features --- */}
+                    {/* --- Face Features Group (Moves with Mouse) --- */}
+                    <motion.g
+                        animate={{ x: eyePosition.x, y: eyePosition.y }}
+                        transition={{ type: "tween", ease: "linear", duration: 0.1 }}
+                    >
+                        {/* Left Eye */}
+                        <motion.ellipse
+                            cx="38" cy="45"
+                            rx="6" ry="6"
+                            fill="url(#eyeGlow)"
+                            animate={{
+                                ry: idleExpression === 'blink' ? 0.5 : (isHovering ? 7 : 6),
+                                scale: isHovering ? 1.1 : 1
+                            }}
+                            transition={{ duration: 0.1 }}
+                            style={{ filter: 'drop-shadow(0 0 5px #22d3ee)' }}
+                        />
 
-                    {/* Left Eye */}
-                    <motion.ellipse
-                        cx="38" cy="45"
-                        rx="6" ry="6"
-                        fill="url(#eyeGlow)"
-                        animate={{
-                            ry: isHovering ? 7 : [6, 1, 6], // Blink in idle
-                            scale: isHovering ? 1.1 : 1
-                        }}
-                        transition={{
-                            ry: isHovering ? { duration: 0.2 } : { duration: 0.15, repeat: Infinity, repeatDelay: 3.5 },
-                        }}
-                        style={{ filter: 'drop-shadow(0 0 5px #22d3ee)' }}
-                    />
+                        {/* Right Eye */}
+                        <motion.ellipse
+                            cx="62" cy="45"
+                            rx="6" ry="6"
+                            fill="url(#eyeGlow)"
+                            animate={{
+                                ry: idleExpression === 'blink' ? 0.5 : (isHovering ? 7 : 6),
+                                scale: isHovering ? 1.1 : 1
+                            }}
+                            transition={{ duration: 0.1 }}
+                            style={{ filter: 'drop-shadow(0 0 5px #22d3ee)' }}
+                        />
 
-                    {/* Right Eye */}
-                    <motion.ellipse
-                        cx="62" cy="45"
-                        rx="6" ry="6"
-                        fill="url(#eyeGlow)"
-                        animate={{
-                            ry: isHovering ? 7 : [6, 1, 6], // Blink in idle
-                            scale: isHovering ? 1.1 : 1
-                        }}
-                        transition={{
-                            ry: isHovering ? { duration: 0.2 } : { duration: 0.15, repeat: Infinity, repeatDelay: 3.5 },
-                        }}
-                        style={{ filter: 'drop-shadow(0 0 5px #22d3ee)' }}
-                    />
-
-                    {/* Expressive Mouth */}
-                    <motion.path
-                        stroke="#22d3ee"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        fill="transparent"
-                        style={{ filter: 'drop-shadow(0 0 2px #22d3ee)' }}
-                        initial={{ d: "M 40 60 Q 50 60 60 60" }} // Neutral line
-                        animate={{
-                            d: isHovering
-                                ? "M 38 60 Q 50 70 62 60" // Smile (Curve Down)
-                                : isThinking
-                                    ? "M 40 62 L 45 58 L 50 62 L 55 58 L 60 62" // Zig Zag
-                                    : "M 42 62 Q 50 62 58 62" // Small Neutral
-                        }}
-                        transition={{ duration: 0.4, type: "spring" }}
-                    />
+                        {/* Expressive Mouth */}
+                        <motion.path
+                            stroke="#22d3ee"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            fill="transparent"
+                            style={{ filter: 'drop-shadow(0 0 2px #22d3ee)' }}
+                            initial={{ d: "M 40 60 Q 50 60 60 60" }} // Neutral line
+                            animate={{
+                                d: isHovering
+                                    ? "M 38 60 Q 50 70 62 60" // Smile (Curve Down)
+                                    : isThinking
+                                        ? "M 40 62 L 45 58 L 50 62 L 55 58 L 60 62" // Zig Zag
+                                        : "M 42 62 Q 50 62 58 62" // Small Neutral
+                            }}
+                            transition={{ duration: 0.4, type: "spring" }}
+                        />
+                    </motion.g>
                 </motion.g>
 
             </svg>
