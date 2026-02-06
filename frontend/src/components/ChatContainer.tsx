@@ -8,7 +8,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MessageBubble } from './MessageBubble';
-import { BrainHologram } from './BrainHologram';
+import { NeuralBackground } from './NeuralBackground';
 import { useChat } from '@/context/ChatContext';
 
 export function ChatContainer() {
@@ -99,14 +99,10 @@ export function ChatContainer() {
                 </div>
             </motion.div>
 
-            {/* Persistent Hologram Background */}
-            <div className="absolute inset-0 z-0 flex items-center justify-center opacity-30 pointer-events-none overflow-hidden">
-                <div className="scale-90 transform transition-transform duration-1000">
-                    <BrainHologram />
-                </div>
-            </div>
+            {/* Replaced old BrainHologram with NeuralBackground */}
+            <NeuralBackground />
 
-            {/* Neural Network Floating Lines */}
+            {/* Neural Network Floating Lines (Keeping these as nice accents) */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                 {[...Array(6)].map((_, i) => (
                     <motion.div

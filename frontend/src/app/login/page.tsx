@@ -1,176 +1,143 @@
 'use client';
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { BrainLogo3 } from '@/components/BrainLogo3';
+import Link from 'next/link';
+import { NeuralBackground } from '@/components/NeuralBackground';
 
 export default function LoginPage() {
-    const { login } = useAuth();
+    const { login, loading } = useAuth();
+    const router = useRouter();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
         try {
-            await login({ username, password });
+            await login(username, password);
+            router.push('/');
         } catch (err: any) {
-            setError(err.response?.data?.detail || 'Invalid username or password');
-        } finally {
-            setLoading(false);
+            setError(err.response?.data?.message || 'Invalid credentials');
         }
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center px-4 overflow-hidden relative">
-            {/* Background Effect */}
-            <div className="aurora-bg"></div>
+        <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#030810]">
 
-            {/* Floating Particles */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(20)].map((_, i) => (
+            {/* Constellation Background */}
+            <NeuralBackground />
+
+            {/* Content Wrapper */}
+            <div className="relative z-10 w-full max-w-md px-4">
+
+                {/* Floating Bot */}
+                <div className="flex justify-center mb-8">
                     <motion.div
-                        key={i}
-                        className="absolute w-1 h-1 rounded-full bg-cyan-400/30"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                            y: [0, -30, 0],
-                            opacity: [0.2, 0.6, 0.2],
-                        }}
-                        transition={{
-                            duration: 3 + Math.random() * 2,
-                            repeat: Infinity,
-                            delay: Math.random() * 2,
-                        }}
-                    />
-                ))}
-            </div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md space-y-6 rounded-3xl border border-cyan-500/20 bg-[#0a1628]/80 p-8 backdrop-blur-2xl shadow-2xl relative z-10"
-                style={{
-                    boxShadow: '0 0 60px rgba(34, 211, 238, 0.1), inset 0 1px 0 rgba(255,255,255,0.05)'
-                }}
-            >
-                {/* Logo */}
-                <div className="flex justify-center -mt-4 mb-2">
-                    <BrainLogo3 size="lg" showText={true} />
-                </div>
-
-                <div className="text-center relative z-20">
-                    <p className="text-sm text-cyan-300/70 mb-6">Welcome back! Please login to your account.</p>
-
-                    <div className="flex flex-col items-center gap-4 mb-2">
-                        <motion.div
-                            className="w-24 h-24 relative"
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1, rotate: [0, -5, 5, 0] }}
-                            transition={{ type: "spring", duration: 1.5, rotate: { repeat: Infinity, duration: 4 } }}
-                        >
-                            <img
-                                src="/bot_red_idle.png"
-                                alt="KnowBot Login"
-                                className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,215,0,0.6)]"
-                            />
-                        </motion.div>
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
-                            Welcome Back
-                        </h1>
-                    </div>
-                </div>
-
-                <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
-                    {error && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="rounded-xl bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/30 backdrop-blur"
-                        >
-                            {error}
-                        </motion.div>
-                    )}
-
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-cyan-300/80 mb-1.5">Username</label>
-                            <input
-                                type="text"
-                                required
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-3 text-white placeholder-gray-500
-                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20
-                                         transition-all duration-300 backdrop-blur"
-                                placeholder="Enter username"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-cyan-300/80 mb-1.5">Password</label>
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-3 text-white placeholder-gray-500 
-                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
-                                         transition-all duration-300 backdrop-blur"
-                                placeholder="Enter password"
-                            />
-                        </div>
-                    </div>
-
-                    <motion.button
-                        type="submit"
-                        disabled={loading}
-                        className="relative flex w-full justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg
-                                 disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden group"
-                        style={{
-                            background: 'linear-gradient(135deg, #0ea5e9, #3b82f6, #8b5cf6)',
-                            backgroundSize: '200% 200%',
-                        }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        className="w-32 h-32 relative"
+                        initial={{ y: -50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ type: "spring", duration: 1.5 }}
                     >
-                        <motion.div
-                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                            initial={{ x: '-100%' }}
-                            whileHover={{ x: '100%' }}
-                            transition={{ duration: 0.6 }}
+                        <img
+                            src="/bot_red_idle.png"
+                            alt="KnowBot Login"
+                            className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(255,215,0,0.6)]"
+                            style={{ maskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)', WebkitMaskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)' }}
                         />
-                        <span className="relative z-10">{loading ? 'Logging in...' : 'Sign in'}</span>
-                    </motion.button>
-                </form>
-
-                <div className="text-center space-y-4">
-                    <p className="text-sm text-gray-400">
-                        Don&apos;t have an account?{' '}
-                        <Link href="/register" className="font-semibold text-cyan-400 hover:text-cyan-300 transition-colors">
-                            Sign up
-                        </Link>
-                    </p>
-
-                    <div className="pt-4 border-t border-cyan-500/10">
-                        <a
-                            href="http://localhost:8000/admin/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 text-xs font-medium text-cyan-400/60 hover:text-cyan-300 transition-colors"
-                        >
-                            <span>🔧</span> Admin Dashboard
-                        </a>
-                    </div>
+                        {/* Waving Hand Overlay Animation on Load */}
+                        <motion.img
+                            src="/bot_red_wave.png"
+                            alt="Waving"
+                            className="absolute inset-0 w-full h-full object-contain"
+                            style={{ maskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)', WebkitMaskImage: 'radial-gradient(circle at center, black 60%, transparent 95%)' }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 1, 0] }}
+                            transition={{ duration: 2, delay: 1, repeat: 0 }}
+                        />
+                    </motion.div>
                 </div>
-            </motion.div>
+
+                {/* Glass Card */}
+                <motion.div
+                    className="backdrop-blur-xl bg-slate-900/40 border border-slate-700/50 p-8 rounded-3xl shadow-2xl relative"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    {/* Glow Effects behind card */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 via-orange-500/20 to-yellow-500/20 rounded-3xl blur-xl -z-10" />
+
+                    <div className="text-center mb-8">
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-red-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">
+                            Access Terminal
+                        </h1>
+                        <p className="text-slate-400 text-xs uppercase tracking-[0.2em] mt-2">
+                            Secure Neural Uplink
+                        </p>
+                    </div>
+
+                    <form className="space-y-6" onSubmit={handleSubmit}>
+                        {error && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="bg-red-500/10 border border-red-500/20 text-red-200 p-3 rounded-xl text-xs text-center"
+                            >
+                                {error}
+                            </motion.div>
+                        )}
+
+                        <div className="space-y-4">
+                            <div>
+                                <input
+                                    type="text"
+                                    required
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-400/50 focus:ring-1 focus:ring-orange-400/20 transition-all text-sm font-medium"
+                                    placeholder="Username / ID"
+                                />
+                            </div>
+                            <div>
+                                <input
+                                    type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-red-400/50 focus:ring-1 focus:ring-red-400/20 transition-all text-sm font-medium"
+                                    placeholder="Passphrase"
+                                />
+                            </div>
+                        </div>
+
+                        <motion.button
+                            type="submit"
+                            disabled={loading}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide text-slate-900 shadow-lg relative overflow-hidden group"
+                            style={{
+                                background: 'linear-gradient(135deg, #fbbf24, #f87171)' // Amber to Red
+                            }}
+                        >
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                {loading ? 'Authenticating...' : 'Establish Connection'}
+                                {!loading && <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>}
+                            </span>
+                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                        </motion.button>
+                    </form>
+
+                    <div className="mt-6 text-center">
+                        <p className="text-slate-500 text-xs">
+                            New user? <Link href="/register" className="text-orange-400 hover:text-orange-300 transition-colors">Register Identity</Link>
+                        </p>
+                    </div>
+                </motion.div>
+            </div>
         </div>
     );
 }
