@@ -170,31 +170,42 @@ export function Sidebar() {
 
                 <BrainAvatar />
 
-                {/* Control Buttons (Cinematic Style) */}
-                <div className="flex gap-6 w-full justify-center py-2">
-                    {/* Sync Button */}
+                {/* Wooden Control Panel Unit */}
+                <div className="mt-4 px-4 py-3 rounded-2xl relative overflow-hidden flex items-center justify-center gap-6 border-2 border-[#8B4513]/30 shadow-2xl"
+                    style={{
+                        background: 'linear-gradient(180deg, #3d2b1f 0%, #1a0f0a 100%)',
+                        boxShadow: 'inset 0 4px 15px rgba(0,0,0,0.8), 0 4px 10px rgba(0,0,0,0.4)',
+                        border: '1px solid #5d3a1a'
+                    }}
+                >
+                    {/* Wood Texture Accent (Subtle overlay) */}
+                    <div className="absolute inset-0 opacity-10 pointer-events-none"
+                        style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000, #000 1px, transparent 1px, transparent 10px)' }}
+                    />
+
+                    {/* Sync Button (Smaller, Intense Glow) */}
                     <motion.button
                         onClick={handleSyncKnowledge}
                         disabled={isSyncing}
-                        className="w-14 h-14 rounded-full flex items-center justify-center relative group"
+                        className="w-11 h-11 rounded-full flex items-center justify-center relative group"
                         style={{
                             background: isSyncing
                                 ? 'linear-gradient(135deg, #14532d, #166534)'
-                                : 'radial-gradient(circle at 35% 35%, #4ade80, #16a34a, #14532d)',
+                                : 'radial-gradient(circle at 35% 35%, #4ade80, #16a34a, #064e3b)',
                             boxShadow: isSyncing
                                 ? 'inset 0 2px 10px rgba(0,0,0,0.5)'
-                                : '0 10px 20px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.4), inset 0 -3px 8px rgba(0,0,0,0.4), 0 0 15px rgba(74, 222, 128, 0.3)',
-                            border: '2px solid rgba(187, 247, 208, 0.3)'
+                                : '0 6px 12px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.4)',
+                            border: '1.5px solid rgba(187, 247, 208, 0.2)'
                         }}
-                        whileHover={{ scale: 1.1, boxShadow: '0 0 25px rgba(74, 222, 128, 0.6), inset 0 2px 5px rgba(255,255,255,0.4)' }}
-                        whileTap={{ scale: 0.95, boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.6)' }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{
+                            scale: 0.9,
+                            boxShadow: '0 0 40px rgba(74, 222, 128, 0.9), inset 0 4px 12px rgba(0,0,0,0.6)'
+                        }}
                         title="Sync Knowledge"
                     >
-                        <motion.div
-                            className="absolute inset-0 rounded-full bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-20 transition-opacity"
-                        />
                         <motion.span
-                            className="text-2xl filter drop-shadow-md"
+                            className="text-xl filter drop-shadow-md"
                             animate={isSyncing ? { rotate: 360 } : {}}
                             transition={{ duration: 1, repeat: isSyncing ? Infinity : 0, ease: "linear" }}
                         >
@@ -202,23 +213,23 @@ export function Sidebar() {
                         </motion.span>
                     </motion.button>
 
-                    {/* Reset Button */}
+                    {/* Reset Button (Smaller, Intense Glow) */}
                     <motion.button
                         onClick={handleHardReset}
-                        className="w-14 h-14 rounded-full flex items-center justify-center relative group"
+                        className="w-11 h-11 rounded-full flex items-center justify-center relative group"
                         style={{
                             background: 'radial-gradient(circle at 35% 35%, #f87171, #dc2626, #7f1d1d)',
-                            boxShadow: '0 10px 20px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.4), inset 0 -3px 8px rgba(0,0,0,0.4), 0 0 15px rgba(248, 113, 113, 0.3)',
-                            border: '2px solid rgba(254, 202, 202, 0.3)'
+                            boxShadow: '0 6px 12px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.4)',
+                            border: '1.5px solid rgba(254, 202, 202, 0.2)'
                         }}
-                        whileHover={{ scale: 1.1, boxShadow: '0 0 25px rgba(248, 113, 113, 0.6), inset 0 2px 5px rgba(255,255,255,0.4)' }}
-                        whileTap={{ scale: 0.95, boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.6)' }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{
+                            scale: 0.9,
+                            boxShadow: '0 0 40px rgba(248, 113, 113, 0.9), inset 0 4px 12px rgba(0,0,0,0.6)'
+                        }}
                         title="Hard Reset Memory"
                     >
-                        <motion.div
-                            className="absolute inset-0 rounded-full bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-20 transition-opacity"
-                        />
-                        <span className="text-2xl filter drop-shadow-md">⚠️</span>
+                        <span className="text-xl filter drop-shadow-md">⚠️</span>
                     </motion.button>
                 </div>
             </div>
