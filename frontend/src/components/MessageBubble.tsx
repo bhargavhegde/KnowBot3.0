@@ -66,9 +66,9 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
                             background: 'linear-gradient(135deg, #0ea5e9, #3b82f6, #6366f1)',
                             boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
                         } : {
-                            background: 'rgba(15, 30, 55, 0.6)',
-                            backdropFilter: 'blur(12px)',
-                            border: '1px solid rgba(245, 158, 11, 0.2)', // Amber border
+                            background: 'rgba(15, 30, 55, 0.3)', // Highly transparent
+                            backdropFilter: 'blur(8px)',
+                            border: '1px solid rgba(251, 191, 36, 0.2)', // Amber border
                             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
                         }}
                     >
@@ -76,9 +76,10 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
                         <div className="prose prose-invert prose-sm max-w-none relative z-10">
                             <ReactMarkdown
                                 components={{
-                                    p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
-                                    ul: ({ children }) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
-                                    ol: ({ children }) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+                                    p: ({ children }) => <p className={`mb-2 last:mb-0 leading-relaxed ${isUser ? 'text-white' : 'text-amber-100/90'}`}>{children}</p>, // Gold text for bot
+                                    ul: ({ children }) => <ul className={`list-disc ml-4 mb-2 ${isUser ? 'text-white' : 'text-amber-100/90'}`}>{children}</ul>,
+                                    ol: ({ children }) => <ol className={`list-decimal ml-4 mb-2 ${isUser ? 'text-white' : 'text-amber-100/90'}`}>{children}</ol>,
+                                    strong: ({ children }) => <strong className="font-bold text-amber-300">{children}</strong>,
                                     code: ({ children }) => (
                                         <code className="bg-[#0c1a2e] px-1.5 py-0.5 rounded text-cyan-300 font-mono text-xs border border-cyan-500/20">{children}</code>
                                     ),

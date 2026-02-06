@@ -170,21 +170,31 @@ export function Sidebar() {
 
                 <BrainAvatar />
 
-                {/* Control Buttons */}
-                <div className="flex gap-4 w-full justify-center">
+                {/* Control Buttons (Cinematic Style) */}
+                <div className="flex gap-6 w-full justify-center py-2">
+                    {/* Sync Button */}
                     <motion.button
                         onClick={handleSyncKnowledge}
                         disabled={isSyncing}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all
-                        ${isSyncing
-                                ? 'bg-green-500/20 text-green-300 border border-green-500/40'
-                                : 'bg-gradient-to-br from-green-500 to-emerald-600 text-white border border-green-400/50 hover:shadow-green-500/30'}`}
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
+                        className="w-14 h-14 rounded-full flex items-center justify-center relative group"
+                        style={{
+                            background: isSyncing
+                                ? 'linear-gradient(135deg, #14532d, #166534)'
+                                : 'radial-gradient(circle at 35% 35%, #4ade80, #16a34a, #14532d)',
+                            boxShadow: isSyncing
+                                ? 'inset 0 2px 10px rgba(0,0,0,0.5)'
+                                : '0 10px 20px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.4), inset 0 -3px 8px rgba(0,0,0,0.4), 0 0 15px rgba(74, 222, 128, 0.3)',
+                            border: '2px solid rgba(187, 247, 208, 0.3)'
+                        }}
+                        whileHover={{ scale: 1.1, boxShadow: '0 0 25px rgba(74, 222, 128, 0.6), inset 0 2px 5px rgba(255,255,255,0.4)' }}
+                        whileTap={{ scale: 0.95, boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.6)' }}
                         title="Sync Knowledge"
                     >
+                        <motion.div
+                            className="absolute inset-0 rounded-full bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-20 transition-opacity"
+                        />
                         <motion.span
-                            className="text-xl"
+                            className="text-2xl filter drop-shadow-md"
                             animate={isSyncing ? { rotate: 360 } : {}}
                             transition={{ duration: 1, repeat: isSyncing ? Infinity : 0, ease: "linear" }}
                         >
@@ -192,14 +202,23 @@ export function Sidebar() {
                         </motion.span>
                     </motion.button>
 
+                    {/* Reset Button */}
                     <motion.button
                         onClick={handleHardReset}
-                        className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-red-500 to-rose-600 text-white border border-red-400/50 hover:shadow-red-500/30 transition-all"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
+                        className="w-14 h-14 rounded-full flex items-center justify-center relative group"
+                        style={{
+                            background: 'radial-gradient(circle at 35% 35%, #f87171, #dc2626, #7f1d1d)',
+                            boxShadow: '0 10px 20px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.4), inset 0 -3px 8px rgba(0,0,0,0.4), 0 0 15px rgba(248, 113, 113, 0.3)',
+                            border: '2px solid rgba(254, 202, 202, 0.3)'
+                        }}
+                        whileHover={{ scale: 1.1, boxShadow: '0 0 25px rgba(248, 113, 113, 0.6), inset 0 2px 5px rgba(255,255,255,0.4)' }}
+                        whileTap={{ scale: 0.95, boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.6)' }}
                         title="Hard Reset Memory"
                     >
-                        <span className="text-xl">⚠️</span>
+                        <motion.div
+                            className="absolute inset-0 rounded-full bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-20 transition-opacity"
+                        />
+                        <span className="text-2xl filter drop-shadow-md">⚠️</span>
                     </motion.button>
                 </div>
             </div>
