@@ -165,49 +165,43 @@ export function Sidebar() {
             }}
         >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-fuchsia-500/20 flex flex-col items-center gap-3 relative overflow-hidden"
-                style={{ background: 'linear-gradient(180deg, rgba(232, 121, 249, 0.05) 0%, transparent 100%)' }}>
-
-                {/* Animated top border */}
-                <motion.div
-                    className="absolute top-0 left-0 right-0 h-[2px]"
-                    style={{
-                        background: 'linear-gradient(90deg, transparent, #e879f9, #22d3ee, transparent)',
-                        backgroundSize: '200% 100%'
-                    }}
-                    animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                />
+            <div className="px-6 py-5 border-b border-amber-500/10 flex flex-col items-center gap-4 relative overflow-hidden"
+                style={{ background: 'linear-gradient(180deg, rgba(234, 88, 12, 0.05) 0%, transparent 100%)' }}>
 
                 <BrainAvatar />
 
-                <motion.button
-                    onClick={handleSyncKnowledge}
-                    disabled={isSyncing}
-                    className={`mt-2 w-full py-2.5 rounded-xl text-[10px] uppercase font-bold tracking-[0.2em] transition-all flex items-center justify-center gap-2
-                    ${isSyncing
-                            ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/40'
-                            : 'bg-transparent text-fuchsia-400 border-fuchsia-500/30 hover:bg-fuchsia-500/10 hover:border-fuchsia-400/50'}`}
-                    style={{ border: '1px solid' }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                >
-                    <motion.span
-                        animate={isSyncing ? { rotate: 360 } : {}}
-                        transition={{ duration: 1, repeat: isSyncing ? Infinity : 0, ease: "linear" }}
+                {/* Control Buttons */}
+                <div className="flex gap-4 w-full justify-center">
+                    <motion.button
+                        onClick={handleSyncKnowledge}
+                        disabled={isSyncing}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all
+                        ${isSyncing
+                                ? 'bg-green-500/20 text-green-300 border border-green-500/40'
+                                : 'bg-gradient-to-br from-green-500 to-emerald-600 text-white border border-green-400/50 hover:shadow-green-500/30'}`}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        title="Sync Knowledge"
                     >
-                        🔄
-                    </motion.span>
-                    {isSyncing ? 'Syncing Neural Memory...' : 'Sync Knowledge'}
-                </motion.button>
+                        <motion.span
+                            className="text-xl"
+                            animate={isSyncing ? { rotate: 360 } : {}}
+                            transition={{ duration: 1, repeat: isSyncing ? Infinity : 0, ease: "linear" }}
+                        >
+                            🔄
+                        </motion.span>
+                    </motion.button>
 
-                <motion.button
-                    onClick={handleHardReset}
-                    className="text-[9px] text-gray-500 hover:text-red-400 uppercase tracking-widest font-bold transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                >
-                    ⚠️ Hard Reset Memory
-                </motion.button>
+                    <motion.button
+                        onClick={handleHardReset}
+                        className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-red-500 to-rose-600 text-white border border-red-400/50 hover:shadow-red-500/30 transition-all"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        title="Hard Reset Memory"
+                    >
+                        <span className="text-xl">⚠️</span>
+                    </motion.button>
+                </div>
             </div>
 
             {/* Content Tabs/Sections */}
@@ -238,14 +232,14 @@ export function Sidebar() {
                                     onClick={() => selectSession(session.id)}
                                     className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all
                                         ${currentSessionId === session.id
-                                            ? 'bg-gradient-to-r from-cyan-500/15 to-purple-500/10 border-cyan-500/40 shadow-lg shadow-cyan-500/10'
-                                            : 'bg-white/5 border-white/5 hover:border-cyan-500/20 hover:bg-cyan-500/5'}`}
-                                    style={{ border: '1px solid' }}
+                                            ? 'bg-amber-500/10 border-amber-500/30 shadow-lg shadow-amber-500/10'
+                                            : 'bg-slate-900/40 border-slate-800 hover:border-amber-500/20 hover:bg-slate-800'}`}
+                                    style={{ border: '1px solid', borderColor: currentSessionId === session.id ? 'rgba(245, 158, 11, 0.3)' : 'rgba(30, 41, 59, 0.5)' }}
                                     whileHover={{ x: 4 }}
                                     transition={{ type: "spring", stiffness: 400 }}
                                 >
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-[11px] font-bold truncate ${currentSessionId === session.id ? 'text-cyan-300' : 'text-gray-300'}`}>
+                                        <p className={`text-[11px] font-bold truncate ${currentSessionId === session.id ? 'text-amber-300' : 'text-slate-400 group-hover:text-amber-200'}`}>
                                             {session.title || 'Untitled Session'}
                                         </p>
                                         <p className="text-[9px] text-gray-500 mt-1 uppercase tracking-tight">
@@ -270,7 +264,7 @@ export function Sidebar() {
 
                 {/* Documents Section */}
                 <div className="px-6 pb-6 flex-1 min-h-0">
-                    <h3 className="text-[10px] font-bold text-blue-400/80 uppercase tracking-[0.2em] mb-4">Neural Documents</h3>
+                    <h3 className="text-[10px] font-bold text-amber-500/80 uppercase tracking-[0.2em] mb-4">Neural Documents</h3>
 
                     {/* Compact Upload */}
                     <div
@@ -278,12 +272,12 @@ export function Sidebar() {
                         className={`border border-dashed rounded-xl p-4 text-center cursor-pointer mb-4
                         transition-all duration-300 group hover:scale-[1.02] active:scale-[0.98]
                         ${isDragActive
-                                ? 'border-cyan-400 bg-cyan-500/10'
-                                : 'border-cyan-500/20 hover:border-cyan-400/50 hover:bg-cyan-500/5'}`}
+                                ? 'border-amber-500 bg-amber-500/10'
+                                : 'border-slate-800 bg-slate-900/40 hover:border-amber-500/30 hover:bg-slate-800'}`}
                     >
                         <input {...getInputProps()} />
                         <motion.div
-                            className="text-gray-400 text-[10px] group-hover:text-cyan-300 transition-colors uppercase font-bold tracking-widest flex items-center justify-center gap-2"
+                            className="text-slate-500 text-[10px] group-hover:text-amber-300 transition-colors uppercase font-bold tracking-widest flex items-center justify-center gap-2"
                             animate={isDragActive ? { scale: 1.1 } : {}}
                         >
                             <span className="text-lg">
@@ -306,7 +300,7 @@ export function Sidebar() {
                         {documents.map((doc) => (
                             <motion.div
                                 key={doc.id}
-                                className="bg-white/5 rounded-xl p-3 border border-white/5 group hover:border-cyan-500/30 transition-all"
+                                className="bg-slate-900/40 rounded-xl p-3 border border-slate-800 group hover:border-amber-500/30 transition-all"
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 whileHover={{ x: 4 }}

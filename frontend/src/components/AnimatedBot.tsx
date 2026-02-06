@@ -93,7 +93,7 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
             switch (hoverExpression) {
                 case 'happy': return "M 38 60 Q 50 70 62 60"; // Smile
                 case 'sad': return "M 38 65 Q 50 55 62 65"; // Frown
-                case 'surprised': return "M 45 60 A 5 5 0 1 0 55 60 A 5 5 0 1 0 45 60"; // Open O
+                case 'surprised': return "M 45 60 Q 50 68 55 60 Q 50 52 45 60"; // Open O (Bezier approx)
                 case 'skeptical': return "M 40 65 L 60 55"; // Slant
                 default: return "M 38 60 Q 50 70 62 60";
             }

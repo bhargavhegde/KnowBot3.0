@@ -305,7 +305,7 @@ export function ChatContainer() {
                         animate={{ opacity: [0.4, 0.7, 0.4] }}
                         transition={{ duration: 3, repeat: Infinity }}
                     >
-                        Powered by Neural RAG Engine ● Secure Local Processing {isLoading && "● Processing..."}
+                        Powered by Neural RAG Engine {isLoading && "● Processing..."}
                     </motion.p>
                 </div>
             </div>
