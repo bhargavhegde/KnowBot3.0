@@ -92,7 +92,7 @@ export function BrainLoader() {
                         animate={{ opacity: [0, 1, 1, 0.3, 1, 1, 0] }}
                         transition={{ duration: 3, times: [0, 0.1, 0.4, 0.5, 0.6, 0.9, 1], repeat: Infinity }}
                     >
-                        ⟨ Initializing Neural Core ⟩
+                        ⟨ Loading Neural Interface... ⟩
                     </motion.p>
                     <motion.p
                         className="text-xs uppercase tracking-widest text-orange-400/90"
@@ -100,7 +100,7 @@ export function BrainLoader() {
                         animate={{ opacity: [0, 1, 1, 0.3, 1, 1, 0] }}
                         transition={{ duration: 3, delay: 1.5, times: [0, 0.1, 0.4, 0.5, 0.6, 0.9, 1], repeat: Infinity }}
                     >
-                        ⟨ Establishing Quantum Link ⟩
+                        ⟨ Please Stand By ⟩
                     </motion.p>
                 </div>
 

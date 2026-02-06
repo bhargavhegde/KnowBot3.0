@@ -66,10 +66,10 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
                             background: 'linear-gradient(135deg, #0ea5e9, #3b82f6, #6366f1)',
                             boxShadow: '0 4px 20px rgba(59, 130, 246, 0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
                         } : {
-                            background: 'rgba(15, 30, 55, 0.8)',
+                            background: 'rgba(15, 30, 55, 0.6)',
                             backdropFilter: 'blur(12px)',
-                            border: '1px solid rgba(34, 211, 238, 0.15)',
-                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)'
+                            border: '1px solid rgba(245, 158, 11, 0.2)', // Amber border
+                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)'
                         }}
                     >
                         {/* Message Content Container */}
@@ -179,16 +179,16 @@ function CitationCard({ citation, index }: CitationCardProps) {
         <motion.div
             className="text-xs p-3 rounded-xl"
             style={{
-                background: 'rgba(8, 25, 50, 0.7)',
-                border: '1px solid rgba(34, 211, 238, 0.15)',
-                borderLeft: '3px solid #22d3ee'
+                background: 'rgba(8, 25, 50, 0.5)',
+                border: '1px solid rgba(245, 158, 11, 0.2)',
+                borderLeft: '3px solid #fbbf24' // Amber
             }}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             whileHover={{ x: 4, borderColor: 'rgba(34, 211, 238, 0.3)' }}
         >
             <div className="flex items-center gap-2 mb-1.5">
-                <span className="font-bold text-cyan-400">Source {index}</span>
+                <span className="font-bold text-amber-400">Source {index}</span>
                 <span className="text-gray-500">({citation.metadata?.source || 'Unknown'})</span>
                 {citation.metadata?.page && <span className="text-gray-500">Page {citation.metadata.page}</span>}
             </div>
@@ -200,7 +200,7 @@ function CitationCard({ citation, index }: CitationCardProps) {
             {needsExpand && (
                 <motion.button
                     onClick={() => setExpanded(!expanded)}
-                    className="text-xs text-cyan-400 hover:text-cyan-300 mt-1.5"
+                    className="text-xs text-amber-400 hover:text-amber-300 mt-1.5"
                     whileHover={{ x: 2 }}
                 >
                     {expanded ? 'Show less' : 'Show more'}

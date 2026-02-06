@@ -1,10 +1,10 @@
 /**
- * AnimatedBot Component V3
+ * AnimatedBot Component V4
  * Pure SVG geometric robot with:
- * - "Pop-Up" Antennae
- * - Mouse Tracking Eyes
+ * - "Pop-Up" Antennae (Fixed Anatomy/Cropping)
+ * - Aggressive Mouse Tracking Eyes
+ * - Random Hover Expressions (Happy, Sad, Surprised, Skeptical)
  * - Random Idle Animations (Blinking, Expressions)
- * - Improved ViewBox framing
  */
 
 'use client';
@@ -34,10 +34,20 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
     const [eyePosition, setEyePosition] = useState({ x: 0, y: 0 });
     const botRef = useRef<HTMLDivElement>(null);
 
-    // Random Idle State
+    // Expression State
     const [idleExpression, setIdleExpression] = useState<'neutral' | 'blink' | 'happy'>('neutral');
+    const [hoverExpression, setHoverExpression] = useState<'happy' | 'sad' | 'surprised' | 'skeptical'>('happy');
 
-    // Mouse Tracking Logic
+    // Randomize expression on hover enter
+    useEffect(() => {
+        if (isHovering) {
+            const expressions: ('happy' | 'sad' | 'surprised' | 'skeptical')[] = ['happy', 'happy', 'surprised', 'skeptical', 'sad']; // Weighted towards happy
+            const random = expressions[Math.floor(Math.random() * expressions.length)];
+            setHoverExpression(random);
+        }
+    }, [isHovering]);
+
+    // Mouse Tracking Logic (Aggressive)
     useEffect(() => {
         const handleMouseMove = (e: MouseEvent) => {
             if (!botRef.current) return;
@@ -46,10 +56,10 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
 
-            // Calculate max offset (limit movement to keep eyes in sockets)
-            const maxOffset = 3;
-            const deltaX = Math.min(Math.max((e.clientX - centerX) / 20, -maxOffset), maxOffset);
-            const deltaY = Math.min(Math.max((e.clientY - centerY) / 20, -maxOffset), maxOffset);
+            // Calculate max offset (More aggressive tracking)
+            const maxOffset = 6;
+            const deltaX = Math.min(Math.max((e.clientX - centerX) / 10, -maxOffset), maxOffset); // Sensitivity / 10
+            const deltaY = Math.min(Math.max((e.clientY - centerY) / 10, -maxOffset), maxOffset);
 
             setEyePosition({ x: deltaX, y: deltaY });
         };
@@ -76,6 +86,22 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
         return () => clearInterval(interval);
     }, [isHovering, isThinking]);
 
+    // Get mouth path based on current state
+    const getMouthPath = () => {
+        if (isThinking) return "M 40 62 L 45 58 L 50 62 L 55 58 L 60 62"; // Zig Zag
+        if (isHovering) {
+            switch (hoverExpression) {
+                case 'happy': return "M 38 60 Q 50 70 62 60"; // Smile
+                case 'sad': return "M 38 65 Q 50 55 62 65"; // Frown
+                case 'surprised': return "M 45 60 A 5 5 0 1 0 55 60 A 5 5 0 1 0 45 60"; // Open O
+                case 'skeptical': return "M 40 65 L 60 55"; // Slant
+                default: return "M 38 60 Q 50 70 62 60";
+            }
+        }
+        if (idleExpression === 'happy') return "M 40 60 Q 50 65 60 60"; // Small Smile
+        return "M 40 60 Q 50 60 60 60"; // Neutral
+    };
+
     return (
         <motion.div
             ref={botRef}
@@ -86,7 +112,7 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
         >
             <svg
-                viewBox="-25 -25 150 150" // Expanded viewBox to prevent cropping
+                viewBox="-30 -50 160 200" // Significantly expanded viewBox to prevent cropping
                 className="w-full h-full"
                 style={{ filter: 'drop-shadow(0 0 15px rgba(234, 88, 12, 0.3))' }}
             >
@@ -107,14 +133,14 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                     </linearGradient>
                 </defs>
 
-                {/* --- Hardware Layer (Antennae - Fixed "Cut Off" Issue) --- */}
+                {/* --- Hardware Layer (Antennae - Fixed Visual Detachment) --- */}
                 <motion.g
                     initial={{ y: 0 }}
-                    animate={{ y: isHovering || isThinking ? -25 : 0 }} // Higher pop-up
+                    animate={{ y: isHovering || isThinking ? -30 : 0 }}
                     transition={{ type: "spring", stiffness: 200, damping: 12 }}
                 >
-                    {/* Left Antenna */}
-                    <line x1="30" y1="30" x2="20" y2="0" stroke="url(#metalGradient)" strokeWidth="3" strokeLinecap="round" />
+                    {/* Left Antenna - Stems extended deeper into body */}
+                    <line x1="30" y1="50" x2="20" y2="0" stroke="url(#metalGradient)" strokeWidth="3" strokeLinecap="round" />
                     <motion.circle
                         cx="20" cy="0" r="5"
                         fill="#fbbf24"
@@ -126,8 +152,8 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                         style={{ filter: 'drop-shadow(0 0 4px #fbbf24)' }}
                     />
 
-                    {/* Right Antenna */}
-                    <line x1="70" y1="30" x2="80" y2="0" stroke="url(#metalGradient)" strokeWidth="3" strokeLinecap="round" />
+                    {/* Right Antenna - Stems extended deeper into body */}
+                    <line x1="70" y1="50" x2="80" y2="0" stroke="url(#metalGradient)" strokeWidth="3" strokeLinecap="round" />
                     <motion.circle
                         cx="80" cy="0" r="5"
                         fill="#fbbf24"
@@ -175,7 +201,7 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                     {/* --- Face Features Group (Moves with Mouse) --- */}
                     <motion.g
                         animate={{ x: eyePosition.x, y: eyePosition.y }}
-                        transition={{ type: "tween", ease: "linear", duration: 0.1 }}
+                        transition={{ type: "tween", ease: "linear", duration: 0.05 }} // Faster tracking
                     >
                         {/* Left Eye */}
                         <motion.ellipse
@@ -183,7 +209,7 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                             rx="6" ry="6"
                             fill="url(#eyeGlow)"
                             animate={{
-                                ry: idleExpression === 'blink' ? 0.5 : (isHovering ? 7 : 6),
+                                ry: idleExpression === 'blink' ? 0.5 : (isHovering && hoverExpression === 'surprised' ? 7 : 6),
                                 scale: isHovering ? 1.1 : 1
                             }}
                             transition={{ duration: 0.1 }}
@@ -196,7 +222,7 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                             rx="6" ry="6"
                             fill="url(#eyeGlow)"
                             animate={{
-                                ry: idleExpression === 'blink' ? 0.5 : (isHovering ? 7 : 6),
+                                ry: idleExpression === 'blink' ? 0.5 : (isHovering && hoverExpression === 'surprised' ? 7 : 6),
                                 scale: isHovering ? 1.1 : 1
                             }}
                             transition={{ duration: 0.1 }}
@@ -210,13 +236,8 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                             strokeLinecap="round"
                             fill="transparent"
                             style={{ filter: 'drop-shadow(0 0 2px #22d3ee)' }}
-                            initial={{ d: "M 40 60 Q 50 60 60 60" }} // Neutral line
                             animate={{
-                                d: isHovering
-                                    ? "M 38 60 Q 50 70 62 60" // Smile (Curve Down)
-                                    : isThinking
-                                        ? "M 40 62 L 45 58 L 50 62 L 55 58 L 60 62" // Zig Zag
-                                        : "M 42 62 Q 50 62 58 62" // Small Neutral
+                                d: getMouthPath()
                             }}
                             transition={{ duration: 0.4, type: "spring" }}
                         />
