@@ -17,7 +17,7 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await login(username, password);
+            await login({ username, password });
             router.push('/');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Invalid credentials');
