@@ -165,71 +165,39 @@ export function Sidebar() {
             }}
         >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-amber-500/10 flex flex-col items-center gap-4 relative overflow-hidden"
+            <div className="px-6 pt-10 pb-6 border-b border-amber-500/10 flex flex-col items-center gap-6 relative overflow-hidden"
                 style={{ background: 'linear-gradient(180deg, rgba(234, 88, 12, 0.05) 0%, transparent 100%)' }}>
 
                 <BrainAvatar />
 
-                {/* Wooden Control Panel Unit */}
-                <div className="mt-4 px-4 py-3 rounded-2xl relative overflow-hidden flex items-center justify-center gap-6 border-2 border-[#8B4513]/30 shadow-2xl"
-                    style={{
-                        background: 'linear-gradient(180deg, #3d2b1f 0%, #1a0f0a 100%)',
-                        boxShadow: 'inset 0 4px 15px rgba(0,0,0,0.8), 0 4px 10px rgba(0,0,0,0.4)',
-                        border: '1px solid #5d3a1a'
-                    }}
-                >
-                    {/* Wood Texture Accent (Subtle overlay) */}
-                    <div className="absolute inset-0 opacity-10 pointer-events-none"
-                        style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000, #000 1px, transparent 1px, transparent 10px)' }}
-                    />
-
-                    {/* Sync Button (Smaller, Intense Glow) */}
+                {/* Control Tabs (Translucent Rectangle Style) */}
+                <div className="flex flex-col gap-3 w-full mt-2">
                     <motion.button
                         onClick={handleSyncKnowledge}
                         disabled={isSyncing}
-                        className="w-11 h-11 rounded-full flex items-center justify-center relative group"
-                        style={{
-                            background: isSyncing
-                                ? 'linear-gradient(135deg, #14532d, #166534)'
-                                : 'radial-gradient(circle at 35% 35%, #4ade80, #16a34a, #064e3b)',
-                            boxShadow: isSyncing
-                                ? 'inset 0 2px 10px rgba(0,0,0,0.5)'
-                                : '0 6px 12px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.4)',
-                            border: '1.5px solid rgba(187, 247, 208, 0.2)'
-                        }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{
-                            scale: 0.9,
-                            boxShadow: '0 0 40px rgba(74, 222, 128, 0.9), inset 0 4px 12px rgba(0,0,0,0.6)'
-                        }}
-                        title="Sync Knowledge"
+                        className="w-full py-3 rounded-xl flex items-center justify-center gap-3 bg-green-500/10 border border-green-500/30 text-green-300 font-bold text-xs hover:bg-green-500/20 transition-all shadow-lg shadow-green-900/10"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        title="Sync Memory"
                     >
                         <motion.span
-                            className="text-xl filter drop-shadow-md"
                             animate={isSyncing ? { rotate: 360 } : {}}
                             transition={{ duration: 1, repeat: isSyncing ? Infinity : 0, ease: "linear" }}
                         >
                             🔄
                         </motion.span>
+                        {isSyncing ? 'Syncing...' : 'Sync Memory'}
                     </motion.button>
 
-                    {/* Reset Button (Smaller, Intense Glow) */}
                     <motion.button
                         onClick={handleHardReset}
-                        className="w-11 h-11 rounded-full flex items-center justify-center relative group"
-                        style={{
-                            background: 'radial-gradient(circle at 35% 35%, #f87171, #dc2626, #7f1d1d)',
-                            boxShadow: '0 6px 12px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.4)',
-                            border: '1.5px solid rgba(254, 202, 202, 0.2)'
-                        }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{
-                            scale: 0.9,
-                            boxShadow: '0 0 40px rgba(248, 113, 113, 0.9), inset 0 4px 12px rgba(0,0,0,0.6)'
-                        }}
-                        title="Hard Reset Memory"
+                        className="w-full py-3 rounded-xl flex items-center justify-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300 font-bold text-xs hover:bg-red-500/20 transition-all shadow-lg shadow-red-900/10"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        title="Delete All Files"
                     >
-                        <span className="text-xl filter drop-shadow-md">⚠️</span>
+                        <span>⚠️</span>
+                        Delete All Files
                     </motion.button>
                 </div>
             </div>
