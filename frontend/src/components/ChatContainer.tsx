@@ -60,11 +60,74 @@ export function ChatContainer() {
 
                 <div>
                     <h1 className="text-xl font-bold text-white flex items-center gap-3 drop-shadow-lg">
+                        {/* Animated Neural Network Icon */}
                         <motion.div
-                            className="w-12 h-12 relative"
-                            whileHover={{ scale: 1.1, rotate: 5 }}
+                            className="w-10 h-10 relative"
+                            whileHover={{ scale: 1.1 }}
                         >
-                            <img src="/bot_red_idle.png" alt="Bot Logo" className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
+                            <svg viewBox="0 0 40 40" className="w-full h-full">
+                                {/* Connection Lines */}
+                                <motion.line
+                                    x1="10" y1="10" x2="30" y2="10"
+                                    stroke="url(#grad1)"
+                                    strokeWidth="1.5"
+                                    initial={{ pathLength: 0 }}
+                                    animate={{ pathLength: [0, 1, 0] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                />
+                                <motion.line
+                                    x1="10" y1="10" x2="20" y2="30"
+                                    stroke="url(#grad2)"
+                                    strokeWidth="1.5"
+                                    initial={{ pathLength: 0 }}
+                                    animate={{ pathLength: [0, 1, 0] }}
+                                    transition={{ duration: 2, delay: 0.3, repeat: Infinity }}
+                                />
+                                <motion.line
+                                    x1="30" y1="10" x2="20" y2="30"
+                                    stroke="url(#grad3)"
+                                    strokeWidth="1.5"
+                                    initial={{ pathLength: 0 }}
+                                    animate={{ pathLength: [0, 1, 0] }}
+                                    transition={{ duration: 2, delay: 0.6, repeat: Infinity }}
+                                />
+
+                                {/* Nodes */}
+                                <motion.circle
+                                    cx="10" cy="10" r="3"
+                                    fill="#fbbf24"
+                                    animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                />
+                                <motion.circle
+                                    cx="30" cy="10" r="3"
+                                    fill="#22d3ee"
+                                    animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                                    transition={{ duration: 2, delay: 0.3, repeat: Infinity }}
+                                />
+                                <motion.circle
+                                    cx="20" cy="30" r="3"
+                                    fill="#e879f9"
+                                    animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                                    transition={{ duration: 2, delay: 0.6, repeat: Infinity }}
+                                />
+
+                                {/* Gradients */}
+                                <defs>
+                                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" />
+                                        <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.8" />
+                                    </linearGradient>
+                                    <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.8" />
+                                        <stop offset="100%" stopColor="#e879f9" stopOpacity="0.8" />
+                                    </linearGradient>
+                                    <linearGradient id="grad3" x1="100%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.8" />
+                                        <stop offset="100%" stopColor="#e879f9" stopOpacity="0.8" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
                         </motion.div>
                         <span className="bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent transform translate-y-0.5">
                             KnowBot 3.0

@@ -28,25 +28,10 @@ export function BrainAvatar() {
             {/* Main Container */}
             <motion.div
                 className="relative w-32 h-32"
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.08 }}
                 transition={{ type: "spring", stiffness: 300 }}
             >
-                {/* POP OUT BRAIN Layer */}
-                <motion.img
-                    src="/bot_brain_gold.png"
-                    alt="Golden Brain"
-                    className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_0_25px_rgba(255,215,0,0.8)] z-0"
-                    style={{ mixBlendMode: 'screen' }}
-                    initial={{ y: 0, opacity: 0, scale: 0.8 }}
-                    animate={{
-                        y: isHovering ? -35 : 0,
-                        opacity: isHovering ? 1 : 0,
-                        scale: isHovering ? 1.1 : 0.8
-                    }}
-                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                />
-
-                {/* IDLE State */}
+                {/* IDLE State with Blink Effect */}
                 <motion.img
                     src="/bot_red_idle_black.png"
                     alt="KnowBot Idle"
@@ -55,23 +40,33 @@ export function BrainAvatar() {
                     initial={{ opacity: 1 }}
                     animate={{
                         opacity: isHovering ? 0 : 1,
-                        y: isHovering ? 0 : [0, -6, 0] // Only float when idle
+                        y: isHovering ? 0 : [0, -6, 0],
+                        filter: isHovering ? 'brightness(1)' : ['brightness(1)', 'brightness(0.7)', 'brightness(1)']
                     }}
-                    transition={{ opacity: { duration: 0.2 }, y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
+                    transition={{
+                        opacity: { duration: 0.3 },
+                        y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                        filter: { duration: 3, repeat: Infinity, repeatDelay: 4 } // Blink every 7 seconds
+                    }}
                 />
 
-                {/* WAVE State */}
+                {/* WAVE State with Enhanced Animation */}
                 <motion.img
                     src="/bot_red_wave_black.png"
                     alt="KnowBot Waving"
-                    className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,215,0,0.5)] z-10"
+                    className="absolute inset-0 w-full h-full object-contain drop-shadow-[0_0_25px_rgba(255,215,0,0.6)] z-10"
                     style={{ mixBlendMode: 'screen' }}
-                    initial={{ opacity: 0 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{
-                        opacity: isHovering ? 1 : 0, // Slight transparency to show brain pop better? No, keep solid.
-                        rotate: isHovering ? [0, -5, 5, 0] : 0
+                        opacity: isHovering ? 1 : 0,
+                        scale: isHovering ? [0.95, 1.05, 0.95] : 0.95,
+                        rotate: isHovering ? [0, -8, 8, -5, 5, 0] : 0
                     }}
-                    transition={{ opacity: { duration: 0.2 }, rotate: { duration: 0.5, repeat: Infinity, repeatDelay: 1 } }}
+                    transition={{
+                        opacity: { duration: 0.3 },
+                        scale: { duration: 1, repeat: Infinity },
+                        rotate: { duration: 1.5, repeat: Infinity, repeatDelay: 0.5 }
+                    }}
                 />
 
                 {/* Neural Golden Pulse Overlay */}
