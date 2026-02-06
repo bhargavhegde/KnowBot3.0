@@ -41,17 +41,17 @@ export function ChatContainer() {
         <div className="flex flex-col h-full bg-transparent relative z-10">
             {/* Header with Animated Border */}
             <motion.div
-                className="flex items-center justify-between px-8 py-5 border-b border-cyan-500/20 relative overflow-hidden"
+                className="flex items-center justify-between px-8 py-5 border-b border-fuchsia-500/20 relative overflow-hidden"
                 style={{
-                    background: 'linear-gradient(180deg, rgba(8, 20, 40, 0.8) 0%, rgba(8, 20, 40, 0.4) 100%)',
+                    background: 'linear-gradient(90deg, rgba(20, 0, 40, 0.9) 0%, rgba(8, 20, 60, 0.9) 100%)',
                     backdropFilter: 'blur(12px)'
                 }}
             >
                 {/* Animated gradient border */}
                 <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-[1px]"
+                    className="absolute bottom-0 left-0 right-0 h-[2px]"
                     style={{
-                        background: 'linear-gradient(90deg, transparent, #22d3ee, #8b5cf6, #22d3ee, transparent)',
+                        background: 'linear-gradient(90deg, transparent, #e879f9, #22d3ee, #e879f9, transparent)',
                         backgroundSize: '200% 100%'
                     }}
                     animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
@@ -60,18 +60,17 @@ export function ChatContainer() {
 
                 <div>
                     <h1 className="text-xl font-bold text-white flex items-center gap-3 drop-shadow-lg">
-                        <motion.span
-                            className="text-2xl filter drop-shadow-lg"
-                            animate={{ rotate: [0, 5, -5, 0] }}
-                            transition={{ duration: 4, repeat: Infinity }}
+                        <motion.div
+                            className="w-10 h-10 relative"
+                            whileHover={{ scale: 1.2, rotate: 10 }}
                         >
-                            🧠
-                        </motion.span>
-                        <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                            <img src="/logo_bot_brain.png" alt="Bot Logo" className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(232,121,249,0.5)]" />
+                        </motion.div>
+                        <span className="bg-gradient-to-r from-fuchsia-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent transform translate-y-0.5">
                             KnowBot 3.0
                         </span>
                     </h1>
-                    <p className="text-[10px] uppercase tracking-[0.25em] font-semibold bg-gradient-to-r from-cyan-400/70 to-purple-400/70 bg-clip-text text-transparent">
+                    <p className="text-[10px] uppercase tracking-[0.25em] font-semibold bg-gradient-to-r from-fuchsia-400/70 to-cyan-400/70 bg-clip-text text-transparent pl-14 -mt-1">
                         Neural Knowledge Engine
                     </p>
                 </div>
@@ -205,22 +204,21 @@ export function ChatContainer() {
                         <motion.div
                             className="absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-500"
                             style={{
-                                background: 'linear-gradient(135deg, #22d3ee, #3b82f6, #8b5cf6, #22d3ee)',
+                                background: 'linear-gradient(135deg, #38bdf8, #818cf8, #c084fc, #38bdf8)',
                                 backgroundSize: '300% 300%'
                             }}
                             animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
                             transition={{ duration: 4, repeat: Infinity }}
                         />
-                        <div className="absolute -inset-0.5 bg-[#030810] rounded-2xl" />
 
                         <textarea
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}
                             placeholder="Ask me anything about your documents..."
-                            className="relative w-full bg-[#0a1628]/90 backdrop-blur-xl border border-cyan-500/20 rounded-2xl px-6 py-4 pr-16 
-                                     text-white placeholder-gray-500 resize-none focus:outline-none focus:border-cyan-400/40
-                                     transition-all shadow-2xl"
+                            className="relative w-full bg-sky-200/95 backdrop-blur-xl border border-sky-400/30 rounded-2xl px-6 py-4 pr-16 
+                                     text-blue-900 placeholder-blue-700/50 resize-none focus:outline-none focus:border-sky-500/50
+                                     transition-all shadow-xl font-medium"
                             rows={1}
                             style={{ minHeight: '60px', maxHeight: '200px' }}
                             disabled={isLoading}

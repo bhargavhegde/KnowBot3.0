@@ -25,13 +25,30 @@ export default function Home() {
 
   return (
     <main className="flex h-screen overflow-hidden relative">
-      {/* Base Background Gradient */}
-      <div
+      {/* Vibrant Fluid Background */}
+      <motion.div
         className="fixed inset-0 z-0"
         style={{
-          background: 'linear-gradient(135deg, #030810 0%, #0a1628 40%, #0c1a2e 70%, #0a1628 100%)'
+          background: 'linear-gradient(-45deg, #2e1065, #4c1d95, #701a75, #083344)',
+          backgroundSize: '400% 400%'
         }}
+        animate={{ backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'] }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
       />
+
+      {/* Floating Particles/Orb Overlay */}
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-30 mix-blend-screen">
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-fuchsia-600 rounded-full blur-[128px]"
+          animate={{ x: [0, 100, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
+          transition={{ duration: 10, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-600 rounded-full blur-[128px]"
+          animate={{ x: [0, -100, 0], y: [0, 50, 0], scale: [1.2, 1, 1.2] }}
+          transition={{ duration: 12, repeat: Infinity }}
+        />
+      </div>
 
       {/* Animated Loader Overlay */}
       <AnimatePresence>

@@ -158,21 +158,21 @@ export function Sidebar() {
 
     return (
         <div
-            className="w-80 flex flex-col h-full shadow-2xl border-r border-cyan-500/10 relative z-10 overflow-hidden"
+            className="w-80 flex flex-col h-full shadow-2xl border-r border-fuchsia-500/20 relative z-10 overflow-hidden"
             style={{
-                background: 'linear-gradient(180deg, rgba(8, 20, 45, 0.95) 0%, rgba(5, 15, 35, 0.98) 100%)',
+                background: 'linear-gradient(180deg, rgba(40, 0, 40, 0.95) 0%, rgba(20, 0, 30, 0.98) 100%)',
                 backdropFilter: 'blur(20px)'
             }}
         >
             {/* Header */}
-            <div className="px-6 py-5 border-b border-cyan-500/10 flex flex-col items-center gap-3 relative overflow-hidden"
-                style={{ background: 'linear-gradient(180deg, rgba(34, 211, 238, 0.05) 0%, transparent 100%)' }}>
+            <div className="px-6 py-5 border-b border-fuchsia-500/20 flex flex-col items-center gap-3 relative overflow-hidden"
+                style={{ background: 'linear-gradient(180deg, rgba(232, 121, 249, 0.05) 0%, transparent 100%)' }}>
 
                 {/* Animated top border */}
                 <motion.div
                     className="absolute top-0 left-0 right-0 h-[2px]"
                     style={{
-                        background: 'linear-gradient(90deg, transparent, #22d3ee, #8b5cf6, transparent)',
+                        background: 'linear-gradient(90deg, transparent, #e879f9, #22d3ee, transparent)',
                         backgroundSize: '200% 100%'
                     }}
                     animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
@@ -186,8 +186,8 @@ export function Sidebar() {
                     disabled={isSyncing}
                     className={`mt-2 w-full py-2.5 rounded-xl text-[10px] uppercase font-bold tracking-[0.2em] transition-all flex items-center justify-center gap-2
                     ${isSyncing
-                            ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                            : 'bg-transparent text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/10 hover:border-cyan-400/50'}`}
+                            ? 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/40'
+                            : 'bg-transparent text-fuchsia-400 border-fuchsia-500/30 hover:bg-fuchsia-500/10 hover:border-fuchsia-400/50'}`}
                     style={{ border: '1px solid' }}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
