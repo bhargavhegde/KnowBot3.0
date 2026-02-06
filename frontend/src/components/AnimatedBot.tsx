@@ -9,12 +9,13 @@ import { motion } from 'framer-motion';
 
 interface AnimatedBotProps {
     mode?: 'idle' | 'hover' | 'thinking';
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'xs' | 'sm' | 'md' | 'lg';
     className?: string;
 }
 
 export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: AnimatedBotProps) {
     const sizes = {
+        xs: 40,
         sm: 80,
         md: 120,
         lg: 160

@@ -9,7 +9,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Message as ChatMessage, Citation } from '@/lib/api';
-import { CyberBrainIcon } from './CyberBrainIcon';
+import { AnimatedBot } from './AnimatedBot';
 import { useSpeech } from '@/hooks/useSpeech';
 
 interface MessageBubbleProps {
@@ -46,7 +46,7 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
                     {isUser ? (
                         <span className="text-lg">👤</span>
                     ) : (
-                        <CyberBrainIcon className="w-full h-full drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                        <AnimatedBot mode="idle" size="xs" />
                     )}
                 </motion.div>
 
