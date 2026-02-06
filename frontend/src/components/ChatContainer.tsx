@@ -39,34 +39,96 @@ export function ChatContainer() {
 
     return (
         <div className="flex flex-col h-full bg-transparent relative z-10">
-            {/* Header */}
-            <div className="flex items-center justify-between px-8 py-5 border-b border-gray-800/50 bg-gray-900/20 backdrop-blur-sm z-50">
+            {/* Header with Animated Border */}
+            <motion.div
+                className="flex items-center justify-between px-8 py-5 border-b border-cyan-500/20 relative overflow-hidden"
+                style={{
+                    background: 'linear-gradient(180deg, rgba(8, 20, 40, 0.8) 0%, rgba(8, 20, 40, 0.4) 100%)',
+                    backdropFilter: 'blur(12px)'
+                }}
+            >
+                {/* Animated gradient border */}
+                <motion.div
+                    className="absolute bottom-0 left-0 right-0 h-[1px]"
+                    style={{
+                        background: 'linear-gradient(90deg, transparent, #22d3ee, #8b5cf6, #22d3ee, transparent)',
+                        backgroundSize: '200% 100%'
+                    }}
+                    animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                />
+
                 <div>
-                    <h1 className="text-xl font-bold text-white flex items-center gap-2 drop-shadow-lg">
-                        <span className="text-2xl filter drop-shadow">🧠</span> KnowBot 2.0
+                    <h1 className="text-xl font-bold text-white flex items-center gap-3 drop-shadow-lg">
+                        <motion.span
+                            className="text-2xl filter drop-shadow-lg"
+                            animate={{ rotate: [0, 5, -5, 0] }}
+                            transition={{ duration: 4, repeat: Infinity }}
+                        >
+                            🧠
+                        </motion.span>
+                        <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                            KnowBot 3.0
+                        </span>
                     </h1>
-                    <p className="text-[10px] uppercase tracking-widest font-semibold text-cyan-400/70">Neural Knowledge Engine</p>
+                    <p className="text-[10px] uppercase tracking-[0.25em] font-semibold bg-gradient-to-r from-cyan-400/70 to-purple-400/70 bg-clip-text text-transparent">
+                        Neural Knowledge Engine
+                    </p>
                 </div>
                 <div className="flex gap-2">
-                    <button
+                    <motion.button
                         onClick={clearMessages}
-                        className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white text-xs font-semibold rounded-xl border border-white/5 transition-all flex items-center gap-2 hover:shadow-lg hover:border-white/10 group"
+                        className="px-4 py-2.5 bg-white/5 hover:bg-cyan-500/10 text-gray-400 hover:text-cyan-300 text-xs font-semibold rounded-xl 
+                                 border border-white/5 hover:border-cyan-500/30 transition-all flex items-center gap-2 group"
                         title="Clear chat history"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                     >
-                        {/* Cute Dustbin Icon */}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="group-hover:rotate-12 transition-transform">
+                        <motion.svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            className="group-hover:rotate-12 transition-transform"
+                        >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
+                        </motion.svg>
                         Clear
-                    </button>
+                    </motion.button>
+                </div>
+            </motion.div>
+
+            {/* Persistent Hologram Background */}
+            <div className="absolute inset-0 z-0 flex items-center justify-center opacity-30 pointer-events-none overflow-hidden">
+                <div className="scale-90 transform transition-transform duration-1000">
+                    <BrainHologram />
                 </div>
             </div>
 
-            {/* Persistent Hologram Background */}
-            <div className="absolute inset-0 z-0 flex items-center justify-center opacity-40 pointer-events-none overflow-hidden">
-                <div className="scale-100 transform transition-transform duration-1000 mt-20">
-                    <BrainHologram />
-                </div>
+            {/* Neural Network Floating Lines */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                {[...Array(6)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent"
+                        style={{
+                            top: `${20 + i * 15}%`,
+                            left: 0,
+                            right: 0,
+                        }}
+                        animate={{
+                            opacity: [0.1, 0.3, 0.1],
+                            scaleX: [0.8, 1, 0.8],
+                        }}
+                        transition={{
+                            duration: 4 + i,
+                            repeat: Infinity,
+                            delay: i * 0.5,
+                        }}
+                    />
+                ))}
             </div>
 
             {/* Messages Area */}
@@ -92,17 +154,40 @@ export function ChatContainer() {
                                 animate={{ opacity: 1, y: 0 }}
                                 className="flex items-start gap-4"
                             >
-                                <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-[10px] font-bold text-blue-300 shrink-0 shadow-lg shadow-blue-500/10">
+                                <motion.div
+                                    className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-cyan-300 shrink-0"
+                                    style={{
+                                        background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(139, 92, 246, 0.2))',
+                                        border: '1px solid rgba(34, 211, 238, 0.3)',
+                                        boxShadow: '0 0 15px rgba(34, 211, 238, 0.2)'
+                                    }}
+                                    animate={{ boxShadow: ['0 0 15px rgba(34, 211, 238, 0.2)', '0 0 25px rgba(34, 211, 238, 0.4)', '0 0 15px rgba(34, 211, 238, 0.2)'] }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                >
                                     AI
-                                </div>
-                                <div className="glass px-6 py-4 rounded-2xl rounded-tl-none shadow-xl">
+                                </motion.div>
+                                <div className="glass px-6 py-4 rounded-2xl rounded-tl-none shadow-xl border border-cyan-500/20">
                                     <div className="flex items-center gap-3">
                                         <div className="flex gap-1.5">
-                                            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                                            <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></span>
+                                            <motion.span
+                                                className="w-2 h-2 bg-cyan-400 rounded-full"
+                                                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+                                                transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                                            />
+                                            <motion.span
+                                                className="w-2 h-2 bg-blue-400 rounded-full"
+                                                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+                                                transition={{ duration: 0.6, repeat: Infinity, delay: 0.15 }}
+                                            />
+                                            <motion.span
+                                                className="w-2 h-2 bg-purple-400 rounded-full"
+                                                animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
+                                                transition={{ duration: 0.6, repeat: Infinity, delay: 0.3 }}
+                                            />
                                         </div>
-                                        <span className="text-xs font-bold text-blue-400 tracking-widest uppercase">Thinking</span>
+                                        <span className="text-xs font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent tracking-widest uppercase">
+                                            Processing
+                                        </span>
                                     </div>
                                 </div>
                             </motion.div>
@@ -116,32 +201,55 @@ export function ChatContainer() {
             <div className="px-8 py-8 relative z-20">
                 <div className="max-w-4xl mx-auto">
                     <form onSubmit={handleSubmit} className="relative group">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl opacity-20 group-hover:opacity-40 transition duration-500 blur"></div>
+                        {/* Animated glow border */}
+                        <motion.div
+                            className="absolute -inset-0.5 rounded-2xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-500"
+                            style={{
+                                background: 'linear-gradient(135deg, #22d3ee, #3b82f6, #8b5cf6, #22d3ee)',
+                                backgroundSize: '300% 300%'
+                            }}
+                            animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
+                            transition={{ duration: 4, repeat: Infinity }}
+                        />
+                        <div className="absolute -inset-0.5 bg-[#030810] rounded-2xl" />
+
                         <textarea
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder="Type your message..."
-                            className="relative w-full bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl px-6 py-4 pr-16 
-                                     text-white placeholder-gray-500 resize-none focus:outline-none 
+                            placeholder="Ask me anything about your documents..."
+                            className="relative w-full bg-[#0a1628]/90 backdrop-blur-xl border border-cyan-500/20 rounded-2xl px-6 py-4 pr-16 
+                                     text-white placeholder-gray-500 resize-none focus:outline-none focus:border-cyan-400/40
                                      transition-all shadow-2xl"
                             rows={1}
                             style={{ minHeight: '60px', maxHeight: '200px' }}
                             disabled={isLoading}
                         />
-                        <button
+                        <motion.button
                             type="submit"
                             disabled={isLoading || !input.trim()}
-                            className="absolute right-3 top-3 p-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:from-gray-700 disabled:to-gray-700 text-white rounded-xl transition-all shadow-lg hover:shadow-blue-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="absolute right-3 top-3 p-3 text-white rounded-xl transition-all 
+                                     disabled:opacity-30 disabled:cursor-not-allowed"
+                            style={{
+                                background: isLoading || !input.trim()
+                                    ? 'rgba(107, 114, 128, 0.5)'
+                                    : 'linear-gradient(135deg, #0ea5e9, #6366f1)',
+                            }}
+                            whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(34, 211, 238, 0.4)' }}
+                            whileTap={{ scale: 0.95 }}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                             </svg>
-                        </button>
+                        </motion.button>
                     </form>
-                    <p className="text-[10px] text-blue-300/40 mt-4 text-center font-medium uppercase tracking-[0.2em] animate-pulse-subtle">
+                    <motion.p
+                        className="text-[10px] text-cyan-400/40 mt-4 text-center font-medium uppercase tracking-[0.2em]"
+                        animate={{ opacity: [0.4, 0.7, 0.4] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                    >
                         Powered by Neural RAG Engine ● Secure Local Processing {isLoading && "● Processing..."}
-                    </p>
+                    </motion.p>
                 </div>
             </div>
         </div>

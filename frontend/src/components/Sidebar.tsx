@@ -40,11 +40,8 @@ export function Sidebar() {
     const handleSyncKnowledge = async () => {
         setIsSyncing(true);
         try {
-            // Re-fetch everything to ensure context is updated
             await fetchDocuments();
-            // In a real RAG, this would re-index if needed, but here we just refresh local state
-            // and maybe notify the LLM implicitly by refreshing the file list in prompt
-            setTimeout(() => setIsSyncing(false), 1500); // Visual feedback
+            setTimeout(() => setIsSyncing(false), 1500);
         } catch (err) {
             setIsSyncing(false);
         }
@@ -146,39 +143,71 @@ export function Sidebar() {
 
     const getStatusBadge = (status: string) => {
         const badges: Record<string, { color: string; text: string }> = {
-            pending: { color: 'bg-yellow-600', text: '⏳ Pending' },
-            processing: { color: 'bg-blue-600', text: '⚡ Processing' },
-            indexed: { color: 'bg-green-600', text: '✓ Ready' },
-            failed: { color: 'bg-red-600', text: '✗ Failed' },
+            pending: { color: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30', text: '⏳ Pending' },
+            processing: { color: 'bg-blue-500/20 text-blue-300 border-blue-500/30', text: '⚡ Processing' },
+            indexed: { color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', text: '✓ Ready' },
+            failed: { color: 'bg-red-500/20 text-red-300 border-red-500/30', text: '✗ Failed' },
         };
         const badge = badges[status] || badges.pending;
         return (
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${badge.color}`}>
+            <span className={`text-[9px] px-2 py-0.5 rounded-full font-semibold border ${badge.color}`}>
                 {badge.text}
             </span>
         );
     };
 
     return (
-        <div className="w-80 glass flex flex-col h-full shadow-2xl border-r border-white/10 relative z-10 overflow-hidden">
+        <div
+            className="w-80 flex flex-col h-full shadow-2xl border-r border-cyan-500/10 relative z-10 overflow-hidden"
+            style={{
+                background: 'linear-gradient(180deg, rgba(8, 20, 45, 0.95) 0%, rgba(5, 15, 35, 0.98) 100%)',
+                backdropFilter: 'blur(20px)'
+            }}
+        >
             {/* Header */}
-            <div className="px-6 py-4 border-b border-white/5 bg-white/5 flex flex-col items-center gap-2">
+            <div className="px-6 py-5 border-b border-cyan-500/10 flex flex-col items-center gap-3 relative overflow-hidden"
+                style={{ background: 'linear-gradient(180deg, rgba(34, 211, 238, 0.05) 0%, transparent 100%)' }}>
+
+                {/* Animated top border */}
+                <motion.div
+                    className="absolute top-0 left-0 right-0 h-[2px]"
+                    style={{
+                        background: 'linear-gradient(90deg, transparent, #22d3ee, #8b5cf6, transparent)',
+                        backgroundSize: '200% 100%'
+                    }}
+                    animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                />
+
                 <BrainAvatar />
-                <button
+
+                <motion.button
                     onClick={handleSyncKnowledge}
                     disabled={isSyncing}
-                    className={`mt-2 w-full py-2 rounded-xl border border-blue-500/30 text-[10px] uppercase font-bold tracking-[0.2em] transition-all flex items-center justify-center gap-2
-                    ${isSyncing ? 'bg-blue-500/20 text-blue-300' : 'bg-transparent text-blue-400 hover:bg-blue-500/10'}`}
+                    className={`mt-2 w-full py-2.5 rounded-xl text-[10px] uppercase font-bold tracking-[0.2em] transition-all flex items-center justify-center gap-2
+                    ${isSyncing
+                            ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                            : 'bg-transparent text-cyan-400 border-cyan-500/30 hover:bg-cyan-500/10 hover:border-cyan-400/50'}`}
+                    style={{ border: '1px solid' }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                 >
-                    <span className={isSyncing ? 'animate-spin' : ''}>🔄</span>
+                    <motion.span
+                        animate={isSyncing ? { rotate: 360 } : {}}
+                        transition={{ duration: 1, repeat: isSyncing ? Infinity : 0, ease: "linear" }}
+                    >
+                        🔄
+                    </motion.span>
                     {isSyncing ? 'Syncing Neural Memory...' : 'Sync Knowledge'}
-                </button>
-                <button
+                </motion.button>
+
+                <motion.button
                     onClick={handleHardReset}
-                    className="mt-1 text-[9px] text-gray-500 hover:text-red-400 uppercase tracking-widest font-bold transition-colors"
+                    className="text-[9px] text-gray-500 hover:text-red-400 uppercase tracking-widest font-bold transition-colors"
+                    whileHover={{ scale: 1.05 }}
                 >
                     ⚠️ Hard Reset Memory
-                </button>
+                </motion.button>
             </div>
 
             {/* Content Tabs/Sections */}
@@ -187,13 +216,16 @@ export function Sidebar() {
                 {/* Chat History Section */}
                 <div className="px-6 pt-6 pb-2">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[10px] font-bold text-cyan-400/70 uppercase tracking-widest">Chat History</h3>
-                        <button
+                        <h3 className="text-[10px] font-bold text-cyan-400/80 uppercase tracking-[0.2em]">Chat History</h3>
+                        <motion.button
                             onClick={createNewSession}
-                            className="text-xs font-bold text-white hover:text-cyan-400 transition-colors flex items-center gap-1"
+                            className="w-7 h-7 flex items-center justify-center text-lg font-bold text-white hover:text-cyan-400 
+                                     rounded-lg border border-transparent hover:border-cyan-500/30 hover:bg-cyan-500/10 transition-all"
+                            whileHover={{ scale: 1.1, rotate: 90 }}
+                            whileTap={{ scale: 0.9 }}
                         >
-                            <span className="text-lg">+</span>
-                        </button>
+                            +
+                        </motion.button>
                     </div>
 
                     <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
@@ -201,83 +233,104 @@ export function Sidebar() {
                             <p className="text-[10px] text-gray-500 italic text-center py-4">No recent chats</p>
                         ) : (
                             sessions.map((session) => (
-                                <div
+                                <motion.div
                                     key={session.id}
                                     onClick={() => selectSession(session.id)}
-                                    className={`group flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all
+                                    className={`group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all
                                         ${currentSessionId === session.id
-                                            ? 'bg-blue-500/10 border-blue-500/40 shadow-lg shadow-blue-500/5'
-                                            : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/10'}`}
+                                            ? 'bg-gradient-to-r from-cyan-500/15 to-purple-500/10 border-cyan-500/40 shadow-lg shadow-cyan-500/10'
+                                            : 'bg-white/5 border-white/5 hover:border-cyan-500/20 hover:bg-cyan-500/5'}`}
+                                    style={{ border: '1px solid' }}
+                                    whileHover={{ x: 4 }}
+                                    transition={{ type: "spring", stiffness: 400 }}
                                 >
                                     <div className="flex-1 min-w-0">
-                                        <p className={`text-[11px] font-bold truncate ${currentSessionId === session.id ? 'text-blue-300' : 'text-gray-300'}`}>
+                                        <p className={`text-[11px] font-bold truncate ${currentSessionId === session.id ? 'text-cyan-300' : 'text-gray-300'}`}>
                                             {session.title || 'Untitled Session'}
                                         </p>
                                         <p className="text-[9px] text-gray-500 mt-1 uppercase tracking-tight">
                                             {session.message_count} messages
                                         </p>
                                     </div>
-                                    <button
+                                    <motion.button
                                         onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}
-                                        className="opacity-0 group-hover:opacity-100 p-1 text-gray-500 hover:text-red-400 transition-all"
+                                        className="opacity-0 group-hover:opacity-100 p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all"
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.9 }}
                                     >
                                         ✕
-                                    </button>
-                                </div>
+                                    </motion.button>
+                                </motion.div>
                             ))
                         )}
                     </div>
                 </div>
 
-                <div className="h-px bg-white/5 mx-6 my-4 opacity-50" />
+                <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent mx-6 my-4" />
 
                 {/* Documents Section */}
                 <div className="px-6 pb-6 flex-1 min-h-0">
-                    <h3 className="text-[10px] font-bold text-blue-400/70 uppercase tracking-widest mb-4">Neural Documents</h3>
+                    <h3 className="text-[10px] font-bold text-blue-400/80 uppercase tracking-[0.2em] mb-4">Neural Documents</h3>
 
                     {/* Compact Upload */}
                     <div
                         {...getRootProps()}
                         className={`border border-dashed rounded-xl p-4 text-center cursor-pointer mb-4
-                        transition-all duration-300 group
+                        transition-all duration-300 group hover:scale-[1.02] active:scale-[0.98]
                         ${isDragActive
-                                ? 'border-blue-500 bg-blue-500/10'
-                                : 'border-white/10 hover:border-blue-400/50 hover:bg-white/5'}`}
+                                ? 'border-cyan-400 bg-cyan-500/10'
+                                : 'border-cyan-500/20 hover:border-cyan-400/50 hover:bg-cyan-500/5'}`}
                     >
                         <input {...getInputProps()} />
-                        <div className="text-gray-400 text-[10px] group-hover:text-blue-300 transition-colors uppercase font-bold tracking-widest">
-                            {isUploading ? 'Uploading...' : 'Add Knowledge'}
-                        </div>
+                        <motion.div
+                            className="text-gray-400 text-[10px] group-hover:text-cyan-300 transition-colors uppercase font-bold tracking-widest flex items-center justify-center gap-2"
+                            animate={isDragActive ? { scale: 1.1 } : {}}
+                        >
+                            <span className="text-lg">{isDragActive ? '📥' : '📄'}</span>
+                            {isUploading ? 'Uploading...' : isDragActive ? 'Drop files here!' : 'Add Knowledge'}
+                        </motion.div>
                     </div>
+
 
                     <div className="space-y-2">
                         {documents.map((doc) => (
                             <motion.div
                                 key={doc.id}
-                                className="bg-white/5 rounded-lg p-2 border border-white/5 group hover:border-blue-500/30 transition-all"
+                                className="bg-white/5 rounded-xl p-3 border border-white/5 group hover:border-cyan-500/30 transition-all"
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                whileHover={{ x: 4 }}
                             >
                                 <div className="flex items-center justify-between gap-2">
                                     <div className="min-w-0 flex-1">
                                         <p className="text-[10px] font-semibold text-gray-200 truncate" title={doc.original_filename}>
                                             {doc.original_filename}
                                         </p>
+                                        <div className="mt-1.5">
+                                            {getStatusBadge(doc.index_status)}
+                                        </div>
                                     </div>
                                     <div className="flex gap-1">
-                                        <button
+                                        <motion.button
                                             onClick={() => handlePreview(doc)}
-                                            className="text-gray-500 hover:text-cyan-400 p-1 transition-colors"
+                                            className="text-gray-500 hover:text-cyan-400 p-1.5 hover:bg-cyan-500/10 rounded-lg transition-all"
                                             title="Preview Document"
+                                            whileHover={{ scale: 1.1 }}
                                         >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
-                                        </button>
-                                        <button onClick={() => handleDeleteDocument(doc.id)} className="text-gray-600 hover:text-red-400 p-1">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        </motion.button>
+                                        <motion.button
+                                            onClick={() => handleDeleteDocument(doc.id)}
+                                            className="text-gray-600 hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded-lg transition-all"
+                                            whileHover={{ scale: 1.1 }}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
-                                        </button>
+                                        </motion.button>
                                     </div>
                                 </div>
                             </motion.div>
@@ -293,37 +346,51 @@ export function Sidebar() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 20 }}
-                        className="absolute bottom-16 left-4 right-4 bg-red-500/20 border border-red-500/40 p-3 rounded-xl text-[10px] text-red-100 backdrop-blur-md z-50 shadow-2xl"
+                        className="absolute bottom-20 left-4 right-4 bg-red-500/20 border border-red-500/40 p-3 rounded-xl text-[10px] text-red-100 backdrop-blur-md z-50 shadow-2xl"
                     >
                         <div className="flex justify-between items-center">
                             <span>{error}</span>
-                            <button onClick={() => setError(null)}>✕</button>
+                            <motion.button
+                                onClick={() => setError(null)}
+                                whileHover={{ scale: 1.2 }}
+                            >
+                                ✕
+                            </motion.button>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
             {/* User Profile / Logout */}
-            <div className="border-t border-white/5 py-4 px-6 bg-black/20">
+            <div className="border-t border-cyan-500/10 py-4 px-6" style={{ background: 'rgba(5, 15, 30, 0.8)' }}>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold shrink-0">
+                        <motion.div
+                            className="w-9 h-9 rounded-full flex items-center justify-center text-cyan-300 font-bold shrink-0"
+                            style={{
+                                background: 'linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(139, 92, 246, 0.2))',
+                                border: '1px solid rgba(34, 211, 238, 0.3)'
+                            }}
+                            whileHover={{ scale: 1.1 }}
+                        >
                             {user?.username?.[0]?.toUpperCase() || 'U'}
-                        </div>
+                        </motion.div>
                         <div className="min-w-0">
-                            <p className="text-[10px] font-bold text-white truncate">{user?.username || 'User'}</p>
+                            <p className="text-[11px] font-bold text-white truncate">{user?.username || 'User'}</p>
                             <p className="text-[9px] text-gray-500 truncate">{user?.email || 'Authenticated'}</p>
                         </div>
                     </div>
-                    <button
+                    <motion.button
                         onClick={logout}
-                        className="text-gray-500 hover:text-white p-2 rounded-lg transition-colors"
+                        className="text-gray-500 hover:text-red-400 p-2.5 rounded-lg hover:bg-red-500/10 transition-all"
                         title="Logout"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
-                    </button>
+                    </motion.button>
                 </div>
             </div>
         </div>

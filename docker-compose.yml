@@ -22,15 +22,22 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    # Django Backend
+
+  # Django Backend
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    # In production, we don't mount local volumes
     volumes:
       - data_volume:/app/data
       - chroma_data:/app/chroma_db
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-knowbot}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-knowbot}
+      - REDIS_URL=redis://redis:6379/0
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+    env_file:
+      - .env
     depends_on:
       db:
         condition: service_healthy
@@ -41,6 +48,8 @@ services:
     command: >
       sh -c "python manage.py migrate &&
              gunicorn knowbot.wsgi:application --bind 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
 
   # Celery Worker
   celery:
@@ -50,6 +59,13 @@ services:
     volumes:
       - data_volume:/app/data
       - chroma_data:/app/chroma_db
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-knowbot}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-knowbot}
+      - REDIS_URL=redis://redis:6379/0
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
     depends_on:
       db:
         condition: service_healthy
@@ -66,6 +82,32 @@ services:
       - chroma_data:/chroma/chroma
     environment:
       - IS_PERSISTENT=TRUE
+    ports:
+      - "8005:8000"
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+
+  # Ollama for Local LLM
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ~/.ollama:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
 
 volumes:
   postgres_data:

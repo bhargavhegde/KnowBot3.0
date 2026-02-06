@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
+import { BrainLogo3 } from '@/components/BrainLogo3';
 
 export default function RegisterPage() {
     const { register } = useAuth();
@@ -29,7 +30,6 @@ export default function RegisterPage() {
         } catch (err: any) {
             const data = err.response?.data;
             if (data) {
-                // Handle common DRF field errors
                 const firstError = Object.values(data)[0];
                 setError(Array.isArray(firstError) ? firstError[0] : String(firstError));
             } else {
@@ -41,83 +41,141 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-[#0e1117] px-4">
+        <div className="flex min-h-screen items-center justify-center px-4 overflow-hidden relative">
+            {/* Background Effect */}
+            <div className="aurora-bg"></div>
+
+            {/* Floating Particles */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {[...Array(20)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute w-1 h-1 rounded-full bg-purple-400/30"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                        }}
+                        animate={{
+                            y: [0, -30, 0],
+                            opacity: [0.2, 0.6, 0.2],
+                        }}
+                        transition={{
+                            duration: 3 + Math.random() * 2,
+                            repeat: Infinity,
+                            delay: Math.random() * 2,
+                        }}
+                    />
+                ))}
+            </div>
+
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl shadow-2xl"
+                className="w-full max-w-md space-y-6 rounded-3xl border border-purple-500/20 bg-[#0a1628]/80 p-8 backdrop-blur-2xl shadow-2xl relative z-10"
+                style={{
+                    boxShadow: '0 0 60px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255,255,255,0.05)'
+                }}
             >
-                <div className="text-center">
-                    <h1 className="text-3xl font-bold tracking-tight text-white">Join KnowBot</h1>
-                    <p className="mt-2 text-sm text-gray-400">Create your private knowledge assistant.</p>
+                {/* Logo */}
+                <div className="flex justify-center -mt-4 mb-2">
+                    <BrainLogo3 size="md" showText={true} />
                 </div>
 
-                <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+                <div className="text-center">
+                    <p className="text-sm text-purple-300/70">Create your private knowledge assistant.</p>
+                </div>
+
+                <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
                     {error && (
-                        <div className="rounded-md bg-red-400/10 p-3 text-sm text-red-400 border border-red-400/20">
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="rounded-xl bg-red-500/10 p-3 text-sm text-red-400 border border-red-500/30 backdrop-blur"
+                        >
                             {error}
-                        </div>
+                        </motion.div>
                     )}
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         <div>
-                            <label className="block text-sm font-medium text-gray-300">Username</label>
+                            <label className="block text-sm font-medium text-cyan-300/80 mb-1">Username</label>
                             <input
                                 type="text"
                                 required
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="mt-1 block w-full rounded-lg border border-white/10 bg-black/20 p-2.5 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-2.5 text-white placeholder-gray-500 
+                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
+                                         transition-all duration-300 backdrop-blur text-sm"
                                 placeholder="Choose a username"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-300">Email (Optional)</label>
+                            <label className="block text-sm font-medium text-cyan-300/80 mb-1">Email (Optional)</label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="mt-1 block w-full rounded-lg border border-white/10 bg-black/20 p-2.5 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-2.5 text-white placeholder-gray-500 
+                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
+                                         transition-all duration-300 backdrop-blur text-sm"
                                 placeholder="you@example.com"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-300">Password</label>
+                            <label className="block text-sm font-medium text-cyan-300/80 mb-1">Password</label>
                             <input
                                 type="password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="mt-1 block w-full rounded-lg border border-white/10 bg-black/20 p-2.5 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-2.5 text-white placeholder-gray-500 
+                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
+                                         transition-all duration-300 backdrop-blur text-sm"
                                 placeholder="Create a password"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-300">Confirm Password</label>
+                            <label className="block text-sm font-medium text-cyan-300/80 mb-1">Confirm Password</label>
                             <input
                                 type="password"
                                 required
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="mt-1 block w-full rounded-lg border border-white/10 bg-black/20 p-2.5 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-2.5 text-white placeholder-gray-500 
+                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
+                                         transition-all duration-300 backdrop-blur text-sm"
                                 placeholder="Repeat password"
                             />
                         </div>
                     </div>
 
-                    <button
+                    <motion.button
                         type="submit"
                         disabled={loading}
-                        className="flex w-full justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all mt-6"
+                        className="relative flex w-full justify-center rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg mt-6
+                                 disabled:opacity-50 disabled:cursor-not-allowed transition-all overflow-hidden group"
+                        style={{
+                            background: 'linear-gradient(135deg, #8b5cf6, #6366f1, #3b82f6)',
+                            backgroundSize: '200% 200%',
+                        }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                     >
-                        {loading ? 'Creating account...' : 'Create account'}
-                    </button>
+                        <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                            initial={{ x: '-100%' }}
+                            whileHover={{ x: '100%' }}
+                            transition={{ duration: 0.6 }}
+                        />
+                        <span className="relative z-10">{loading ? 'Creating account...' : 'Create account'}</span>
+                    </motion.button>
                 </form>
 
                 <div className="text-center">
                     <p className="text-sm text-gray-400">
                         Already have an account?{' '}
-                        <Link href="/login" className="font-semibold text-indigo-400 hover:text-indigo-300">
+                        <Link href="/login" className="font-semibold text-cyan-400 hover:text-cyan-300 transition-colors">
                             Sign in
                         </Link>
                     </p>

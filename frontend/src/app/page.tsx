@@ -24,7 +24,16 @@ export default function Home() {
   if (!user) return null;
 
   return (
-    <main className="flex h-screen overflow-hidden bg-gradient-to-br from-[#0f172a] via-[#1e1b4b] to-[#0f172a]">
+    <main className="flex h-screen overflow-hidden relative">
+      {/* Base Background Gradient */}
+      <div
+        className="fixed inset-0 z-0"
+        style={{
+          background: 'linear-gradient(135deg, #030810 0%, #0a1628 40%, #0c1a2e 70%, #0a1628 100%)'
+        }}
+      />
+
+      {/* Animated Loader Overlay */}
       <AnimatePresence>
         {showLoader && (
           <motion.div
@@ -44,6 +53,10 @@ export default function Home() {
       <div className="flex-1 flex flex-col relative z-0">
         {/* Aurora Nebula Background */}
         <div className="aurora-bg"></div>
+
+        {/* Hex Grid Pattern Overlay */}
+        <div className="hex-grid fixed inset-0 pointer-events-none z-0" />
+
         <ChatContainer />
       </div>
     </main>
