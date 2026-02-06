@@ -68,7 +68,25 @@ export default function LoginPage() {
                 </div>
 
                 <div className="text-center relative z-20">
-                    <p className="text-sm text-cyan-300/70">Welcome back! Please login to your account.</p>
+                    <p className="text-sm text-cyan-300/70 mb-6">Welcome back! Please login to your account.</p>
+
+                    <div className="flex flex-col items-center gap-4 mb-2">
+                        <motion.div
+                            className="w-24 h-24 relative"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1, rotate: [0, -5, 5, 0] }}
+                            transition={{ type: "spring", duration: 1.5, rotate: { repeat: Infinity, duration: 4 } }}
+                        >
+                            <img
+                                src="/bot_red_idle.png"
+                                alt="KnowBot Login"
+                                className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,215,0,0.6)]"
+                            />
+                        </motion.div>
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent">
+                            Welcome Back
+                        </h1>
+                    </div>
                 </div>
 
                 <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
@@ -90,8 +108,8 @@ export default function LoginPage() {
                                 required
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-3 text-white placeholder-gray-500 
-                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20 
+                                className="block w-full rounded-xl border border-cyan-500/20 bg-[#0c1a2e]/80 p-3 text-white placeholder-gray-500
+                                         focus:border-cyan-400/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/20
                                          transition-all duration-300 backdrop-blur"
                                 placeholder="Enter username"
                             />

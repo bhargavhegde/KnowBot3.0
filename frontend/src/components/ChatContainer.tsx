@@ -61,16 +61,16 @@ export function ChatContainer() {
                 <div>
                     <h1 className="text-xl font-bold text-white flex items-center gap-3 drop-shadow-lg">
                         <motion.div
-                            className="w-10 h-10 relative"
-                            whileHover={{ scale: 1.2, rotate: 10 }}
+                            className="w-12 h-12 relative"
+                            whileHover={{ scale: 1.1, rotate: 5 }}
                         >
-                            <img src="/logo_bot_brain.png" alt="Bot Logo" className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(232,121,249,0.5)]" />
+                            <img src="/bot_red_idle.png" alt="Bot Logo" className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]" />
                         </motion.div>
-                        <span className="bg-gradient-to-r from-fuchsia-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent transform translate-y-0.5">
+                        <span className="bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 bg-clip-text text-transparent transform translate-y-0.5">
                             KnowBot 3.0
                         </span>
                     </h1>
-                    <p className="text-[10px] uppercase tracking-[0.25em] font-semibold bg-gradient-to-r from-fuchsia-400/70 to-cyan-400/70 bg-clip-text text-transparent pl-14 -mt-1">
+                    <p className="text-[10px] uppercase tracking-[0.25em] font-semibold bg-gradient-to-r from-red-400/70 to-yellow-400/70 bg-clip-text text-transparent pl-16 -mt-1">
                         Neural Knowledge Engine
                     </p>
                 </div>
