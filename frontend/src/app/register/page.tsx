@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { motion } from 'framer-motion';
 import { NeuralBackground } from '@/components/NeuralBackground';
+import { AnimatedBot } from '@/components/AnimatedBot';
 
 export default function RegisterPage() {
     const { register } = useAuth();
@@ -51,19 +52,7 @@ export default function RegisterPage() {
 
                 {/* Floating Bot Icon (Small version for register) */}
                 <div className="flex justify-center mb-6">
-                    <motion.div
-                        className="w-20 h-20 relative"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                    >
-                        <img
-                            src="/bot_red_idle_black.png"
-                            alt="KnowBot Register"
-                            className="w-full h-full object-contain drop-shadow-[0_0_20px_rgba(255,215,0,0.5)]"
-                            style={{ mixBlendMode: 'screen' }}
-                        />
-                    </motion.div>
+                    <AnimatedBot mode="idle" size="md" />
                 </div>
 
                 <motion.div
@@ -73,10 +62,10 @@ export default function RegisterPage() {
                     transition={{ delay: 0.1 }}
                 >
                     {/* Glow Effects behind card */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/20 via-cyan-500/20 to-blue-500/20 rounded-3xl blur-xl -z-10" />
+                    <div className="absolute -inset-1 bg-gradient-to-r from-red-500/20 via-orange-500/20 to-yellow-500/20 rounded-3xl blur-xl -z-10" />
 
                     <div className="text-center mb-6">
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-cyan-300 to-blue-400 bg-clip-text text-transparent">
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-red-400 via-orange-300 to-yellow-400 bg-clip-text text-transparent">
                             Initialize Identity
                         </h1>
                         <p className="text-slate-400 text-[10px] uppercase tracking-[0.2em] mt-2">
@@ -101,14 +90,14 @@ export default function RegisterPage() {
                                 required
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/20 transition-all text-sm"
+                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-400/50 focus:ring-1 focus:ring-orange-400/20 transition-all text-sm"
                                 placeholder="Username"
                             />
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-blue-400/50 focus:ring-1 focus:ring-blue-400/20 transition-all text-sm"
+                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-orange-400/50 focus:ring-1 focus:ring-orange-400/20 transition-all text-sm"
                                 placeholder="Email (Optional)"
                             />
                             <input
@@ -116,7 +105,7 @@ export default function RegisterPage() {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all text-sm"
+                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-red-400/50 focus:ring-1 focus:ring-red-400/20 transition-all text-sm"
                                 placeholder="Create Passphrase"
                             />
                             <input
@@ -124,7 +113,7 @@ export default function RegisterPage() {
                                 required
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-400/50 focus:ring-1 focus:ring-purple-400/20 transition-all text-sm"
+                                className="w-full bg-slate-950/50 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-red-400/50 focus:ring-1 focus:ring-red-400/20 transition-all text-sm"
                                 placeholder="Confirm Passphrase"
                             />
                         </div>
@@ -136,7 +125,7 @@ export default function RegisterPage() {
                             whileTap={{ scale: 0.98 }}
                             className="w-full py-3.5 rounded-xl font-bold text-sm tracking-wide text-white shadow-lg relative overflow-hidden group mt-2"
                             style={{
-                                background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)' // Purple to Blue
+                                background: 'linear-gradient(135deg, #fbbf24, #f87171)' // Amber to Red
                             }}
                         >
                             <span className="relative z-10 flex items-center justify-center gap-2">
@@ -149,7 +138,7 @@ export default function RegisterPage() {
 
                     <div className="mt-6 text-center">
                         <p className="text-slate-500 text-xs">
-                            Already have an account? <Link href="/login" className="text-cyan-400 hover:text-cyan-300 transition-colors">Sign In</Link>
+                            Already have an account? <Link href="/login" className="text-orange-400 hover:text-orange-300 transition-colors">Sign In</Link>
                         </p>
                     </div>
                 </motion.div>

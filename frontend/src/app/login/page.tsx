@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { NeuralBackground } from '@/components/NeuralBackground';
+import { AnimatedBot } from '@/components/AnimatedBot';
 
 export default function LoginPage() {
     const { login, loading } = useAuth();
@@ -35,29 +36,7 @@ export default function LoginPage() {
 
                 {/* Floating Bot */}
                 <div className="flex justify-center mb-8">
-                    <motion.div
-                        className="w-32 h-32 relative"
-                        initial={{ y: -50, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ type: "spring", duration: 1.5 }}
-                    >
-                        <img
-                            src="/bot_red_idle_black.png"
-                            alt="KnowBot Login"
-                            className="w-full h-full object-contain drop-shadow-[0_0_25px_rgba(255,215,0,0.6)]"
-                            style={{ mixBlendMode: 'screen' }}
-                        />
-                        {/* Waving Hand Overlay Animation on Load */}
-                        <motion.img
-                            src="/bot_red_wave_black.png"
-                            alt="Waving"
-                            className="absolute inset-0 w-full h-full object-contain"
-                            style={{ mixBlendMode: 'screen' }}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: [0, 1, 1, 0] }}
-                            transition={{ duration: 2, delay: 1, repeat: 0 }}
-                        />
-                    </motion.div>
+                    <AnimatedBot mode="hover" size="lg" />
                 </div>
 
                 {/* Glass Card */}
