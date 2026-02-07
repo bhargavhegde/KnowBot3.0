@@ -662,11 +662,35 @@ Answer:"""
         if not tavily_key:
             return self.general_query(question, chat_history)
 
-        thinking_steps = ["Analyzing request...", "Searching the web..."]
+        thinking_steps = ["Analyzing request..."]
+        
+        # 1. Reformulate Query if History Exists (Contextualize)
+        search_query = question
+        if chat_history and len(chat_history) > 0:
+            thinking_steps.append("Contextualizing search query...")
+            try:
+                reform_template = """Given the following conversation history and a follow-up question, rephrase the follow-up question to be a standalone search query.
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone Question:"""
+                reform_prompt = ChatPromptTemplate.from_template(reform_template)
+                reform_chain = reform_prompt | self.llm | StrOutputParser()
+                # We need to serialize history to string for this specific prompt
+                history_str = "\n".join([f"{msg.type}: {msg.content}" for msg in chat_history])
+                
+                search_query = reform_chain.invoke({"chat_history": history_str, "question": question})
+                print(f"Reformulated '{question}' to '{search_query}'")
+                thinking_steps.append(f"Refined Query: {search_query}")
+            except Exception as e:
+                print(f"Query reformulation failed: {e}")
+
+        thinking_steps.append("Searching the web...")
         
         try:
             tavily = TavilyClient(api_key=tavily_key)
-            search_result = tavily.search(query=question, search_depth="advanced")
+            # Use the REFORMULATED query for the search
+            search_result = tavily.search(query=search_query, search_depth="advanced")
             thinking_steps.append("Reading search results...")
             
             # Format context from web results
