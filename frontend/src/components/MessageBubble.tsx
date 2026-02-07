@@ -176,17 +176,17 @@ export function MessageBubble({ message, isLatest, onSuggestionClick }: MessageB
                         >
                             <motion.button
                                 onClick={() => onSuggestionClick && onSuggestionClick('web_search')}
-                                className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-white shadow-lg transition-all w-full md:w-auto justify-center"
+                                className="flex items-center gap-3 px-6 py-3.5 rounded-xl text-sm font-bold text-white shadow-2xl transition-all w-full md:w-auto justify-center group/btn"
                                 style={{
-                                    background: 'linear-gradient(135deg, #f59e0b, #ea580c)', // Amber to Orange
-                                    border: '1px solid rgba(251, 191, 36, 0.4)',
-                                    boxShadow: '0 4px 15px rgba(234, 88, 12, 0.3)'
+                                    background: 'linear-gradient(135deg, #10b981, #3b82f6)', // Emerald to Blue
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    boxShadow: '0 8px 32px rgba(59, 130, 246, 0.3)'
                                 }}
-                                whileHover={{ scale: 1.02, boxShadow: '0 6px 20px rgba(234, 88, 12, 0.5)' }}
+                                whileHover={{ scale: 1.05, boxShadow: '0 12px 40px rgba(59, 130, 246, 0.5)' }}
                                 whileTap={{ scale: 0.98 }}
                             >
-                                <span className="text-xl">🌍</span>
-                                <span>I'm not sure. Search the Web?</span>
+                                <span className="text-xl group-hover/btn:rotate-12 transition-transform">🌍</span>
+                                <span>Deepen context with Web Search</span>
                             </motion.button>
                         </motion.div>
                     )}
@@ -221,7 +221,6 @@ function CitationCard({ citation, index }: CitationCardProps) {
         >
             <div className="flex items-center gap-2 mb-1.5">
                 <span className="font-bold text-amber-400">Source {index}</span>
-                <span className="text-gray-500">({citation.metadata?.source || 'Unknown'})</span>
                 {citation.metadata?.page && <span className="text-gray-500">Page {citation.metadata.page}</span>}
             </div>
             <p className="text-gray-400 leading-relaxed">

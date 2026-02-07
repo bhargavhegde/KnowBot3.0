@@ -9,7 +9,7 @@ interface ThinkingStreamProps {
 }
 
 export function ThinkingStream({ isVisible, steps }: ThinkingStreamProps) {
-    const [isExpanded, setIsExpanded] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     if (!isVisible || steps.length === 0) return null;
 

@@ -15,11 +15,23 @@ export function ChatContainer() {
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const { messages, isLoading, sendMessage, clearMessages } = useChat();
+    const [initialSuggestions, setInitialSuggestions] = useState<string[]>([]);
 
     // Auto-scroll to bottom when new messages arrive
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+    }, [messages, isLoading]);
+
+    // Fetch initial suggestions for empty state
+    useEffect(() => {
+        if (messages.length === 0) {
+            import('@/lib/api').then(({ apiService }) => {
+                apiService.getInitialSuggestions()
+                    .then(resp => setInitialSuggestions(resp.data.suggestions))
+                    .catch(() => setInitialSuggestions(["What can you do?", "Summarize my docs.", "Help me start."]));
+            });
+        }
+    }, [messages.length]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,6 +52,9 @@ export function ChatContainer() {
     const handleSuggestionClick = (action: string) => {
         if (action === 'web_search') {
             sendMessage("Search the web for more details about this.");
+        } else {
+            // It's a follow-up question
+            sendMessage(action);
         }
     };
 
@@ -198,19 +213,83 @@ export function ChatContainer() {
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto px-8 py-8 space-y-6 custom-scrollbar relative z-10">
                 {messages.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
-                        {/* Empty Spacer to let Background Hologram Shine */}
-                        <div className="h-96"></div>
+                    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-12">
+                        <div className="space-y-4 max-w-2xl px-4">
+                            <motion.h2
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="text-3xl font-bold text-white bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent"
+                            >
+                                How can I help you today?
+                            </motion.h2>
+                            <motion.p
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.1 }}
+                                className="text-gray-400 text-sm leading-relaxed"
+                            >
+                                Ask questions about your uploaded documents or search the web for real-time information.
+                            </motion.p>
+                        </div>
+
+                        {initialSuggestions.length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.3 }}
+                                className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl px-4"
+                            >
+                                {initialSuggestions.map((suggestion, i) => (
+                                    <motion.button
+                                        key={i}
+                                        whileHover={{ scale: 1.02, backgroundColor: 'rgba(34, 211, 238, 0.1)' }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => handleSuggestionClick(suggestion)}
+                                        className="p-6 rounded-2xl border border-white/10 glass text-left space-y-3 group transition-all"
+                                    >
+                                        <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500/30 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <p className="text-sm font-semibold text-white group-hover:text-cyan-400 transition-colors">{suggestion}</p>
+                                    </motion.button>
+                                ))}
+                            </motion.div>
+                        )}
+
+                        <div className="h-24"></div>
                     </div>
                 ) : (
                     <>
                         {messages.map((message, idx) => (
-                            <MessageBubble
-                                key={message.id || idx}
-                                message={message}
-                                isLatest={idx === messages.length - 1}
-                                onSuggestionClick={handleSuggestionClick}
-                            />
+                            <div key={message.id || idx} className="space-y-4">
+                                <MessageBubble
+                                    message={message}
+                                    isLatest={idx === messages.length - 1}
+                                    onSuggestionClick={handleSuggestionClick}
+                                />
+
+                                {/* AI Follow-up Suggestions */}
+                                {idx === messages.length - 1 && message.role === 'assistant' && message.suggestions && message.suggestions.length > 0 && !isLoading && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="flex flex-wrap gap-2 ml-14 pb-2"
+                                    >
+                                        {message.suggestions.map((q, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => handleSuggestionClick(q)}
+                                                className="px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 hover:border-cyan-500/40 
+                                                         rounded-full text-xs font-semibold text-cyan-300 transition-all hover:scale-105 active:scale-95"
+                                            >
+                                                {q}
+                                            </button>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </div>
                         ))}
 
                         {isLoading && (

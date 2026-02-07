@@ -109,6 +109,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                 citations: response.citations,
                 steps: response.steps, // Extract thinking steps from response
                 suggested_action: response.suggested_action, // Pass the suggestion flag
+                suggestions: response.suggestions, // New: Follow-up questions
                 created_at: new Date().toISOString()
             };
             setMessages(prev => [...prev, assistantMsg]);

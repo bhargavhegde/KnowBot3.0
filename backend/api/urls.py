@@ -22,7 +22,8 @@ from rest_framework_simplejwt.views import (
 
 from .views import (
     DocumentViewSet, ChatSessionViewSet, SystemPromptViewSet,
-    chat, health_check, RegisterView, get_user_profile, preview_document
+    chat, health_check, RegisterView, get_user_profile, preview_document,
+    get_initial_suggestions
 )
 
 # Use DefaultRouter for automated ViewSet routing (provides /list, /create, etc.)
@@ -37,6 +38,7 @@ urlpatterns = [
     
     # Core RAG interaction
     path('chat/', chat, name='chat'),
+    path('chat/suggestions/', get_initial_suggestions, name='initial_suggestions'),
     
     # Protected preview
     path('documents/<int:pk>/preview/', preview_document, name='preview_document'),

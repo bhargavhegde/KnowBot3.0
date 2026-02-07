@@ -341,6 +341,7 @@ def chat(request):
         citations = result['citations']
         steps = result.get('steps', []) # Get thinking steps if available
         suggested_action = result.get('suggested_action') # Forward suggestion (e.g., 'web_search')
+        suggestions = result.get('suggestions', []) # Forward follow-up questions
 
     except Exception as e:
         # Fallback for errors (e.g. Ollama down)
@@ -348,6 +349,7 @@ def chat(request):
         citations = []
         steps = []
         suggested_action = None
+        suggestions = []
 
     # Save LLM response to DB
     ChatMessage.objects.create(
@@ -371,8 +373,22 @@ def chat(request):
         'citations': citations,
         'steps': steps, # Send thinking steps to frontend
         'session_id': session.id,
-        'suggested_action': suggested_action
+        'suggested_action': suggested_action,
+        'suggestions': suggestions
     })
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_initial_suggestions(request):
+    """Returns a list of starting questions based on the user's documents."""
+    try:
+        engine = RAGEngine(user_id=request.user.id)
+        suggestions = engine.get_initial_suggestions()
+        return Response({'suggestions': suggestions})
+    except Exception as e:
+        print(f"Error fetching initial suggestions: {e}")
+        return Response({'suggestions': ["What can you do?", "Summarize my documents.", "Help me get started."]})
 
 
 @api_view(['GET'])
