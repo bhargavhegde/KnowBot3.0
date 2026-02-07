@@ -136,7 +136,7 @@ export const apiService = {
     clearMessages: (sessionId: number) => api.delete(`/sessions/${sessionId}/clear/`),
 
     sendMessage: (messageText: string, sessionId?: number) =>
-        api.post<{ response: string; session_id: number; citations: Citation[] }>('/chat/', {
+        api.post<{ response: string; session_id: number; citations: Citation[]; steps?: string[] }>('/chat/', {
             message: messageText,
             session_id: sessionId,
         }),

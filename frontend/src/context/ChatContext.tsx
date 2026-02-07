@@ -107,6 +107,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                 role: 'assistant',
                 content: response.response,
                 citations: response.citations,
+                steps: response.steps, // Extract thinking steps from response
                 created_at: new Date().toISOString()
             };
             setMessages(prev => [...prev, assistantMsg]);
