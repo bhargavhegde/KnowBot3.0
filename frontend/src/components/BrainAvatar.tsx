@@ -15,7 +15,7 @@ export function BrainAvatar() {
         >
             {/* Outer Glow Ring */}
             <motion.div
-                className="absolute w-48 h-48 rounded-full"
+                className="absolute w-64 h-64 rounded-full"
                 style={{
                     background: 'radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%)'
                 }}
@@ -26,19 +26,7 @@ export function BrainAvatar() {
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             />
 
-            <AnimatedBot mode={isHovering ? 'hover' : 'idle'} size="xl" />
-
-            {/* Hover Label */}
-            <motion.div
-                className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap"
-                initial={{ opacity: 0, y: -5 }}
-                whileHover={{ opacity: 1, y: 0 }}
-                animate={{ opacity: isHovering ? 1 : 0, y: isHovering ? 0 : -5 }}
-            >
-                <span className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest">
-                    KnowBot 3.0
-                </span>
-            </motion.div>
+            <AnimatedBot mode={isHovering ? 'hover' : 'idle'} size="huge" />
         </div>
     );
 }

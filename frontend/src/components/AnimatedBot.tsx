@@ -14,7 +14,7 @@ import { useEffect, useState, useRef } from 'react';
 
 interface AnimatedBotProps {
     mode?: 'idle' | 'hover' | 'thinking';
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'huge';
     className?: string;
 }
 
@@ -24,7 +24,8 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
         sm: 80,
         md: 120,
         lg: 160,
-        xl: 220
+        xl: 220,
+        huge: 320
     };
 
     const dimension = sizes[size];

@@ -155,14 +155,13 @@ export function Sidebar() {
             }}
         >
             {/* Header */}
-            <div className="px-6 pt-12 pb-8 border-b border-amber-500/10 flex flex-col items-center gap-4 relative overflow-hidden"
+            <div className="px-6 pt-20 pb-12 border-b border-amber-500/10 flex flex-col items-center gap-4 relative overflow-hidden"
                 style={{ background: 'linear-gradient(180deg, rgba(234, 88, 12, 0.05) 0%, transparent 100%)' }}>
 
                 <BrainAvatar />
 
-                <div className="mt-4 text-center">
-                    <p className="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.3em]">Knowledge Engine</p>
-                    <p className="text-[9px] text-gray-500 mt-1 uppercase tracking-tight">Version 3.0 Stable</p>
+                <div className="mt-8 text-center">
+                    <p className="text-[11px] font-bold text-cyan-400 uppercase tracking-[0.4em]">Neural Engine</p>
                 </div>
             </div>
 
@@ -246,48 +245,43 @@ export function Sidebar() {
 
                 {/* Documents Section */}
                 <div className="px-6 pb-6 flex-1 min-h-0">
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-6">
                         <h3 className="text-[10px] font-bold text-amber-500/80 uppercase tracking-[0.2em]">Neural Documents</h3>
-                        <motion.button
-                            onClick={handleHardReset}
-                            className="w-7 h-7 flex items-center justify-center text-xs text-slate-500 hover:text-red-400 
-                                     rounded-lg border border-transparent hover:border-red-500/30 hover:bg-red-500/10 transition-all"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            title="Delete ALL Documents"
-                        >
-                            🗑️
-                        </motion.button>
+                        <div className="flex items-center gap-1">
+                            {/* Upload Button */}
+                            <div {...getRootProps()}>
+                                <input {...getInputProps()} />
+                                <motion.button
+                                    className={`w-7 h-7 flex items-center justify-center text-lg font-bold text-white 
+                                             rounded-lg border border-transparent hover:border-amber-500/30 hover:bg-amber-500/10 transition-all
+                                             ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    whileHover={!isUploading ? { scale: 1.1, rotate: 90 } : {}}
+                                    whileTap={!isUploading ? { scale: 0.9 } : {}}
+                                    title="Add Knowledge"
+                                    disabled={isUploading}
+                                >
+                                    {isUploading ? '⏳' : '+'}
+                                </motion.button>
+                            </div>
+
+                            <motion.button
+                                onClick={handleHardReset}
+                                className="w-7 h-7 flex items-center justify-center text-xs text-slate-500 hover:text-red-400 
+                                         rounded-lg border border-transparent hover:border-red-500/30 hover:bg-red-500/10 transition-all"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                title="Delete ALL Documents"
+                            >
+                                🗑️
+                            </motion.button>
+                        </div>
                     </div>
 
-                    {/* Compact Upload */}
-                    <div
-                        {...getRootProps()}
-                        className={`border border-dashed rounded-xl p-4 text-center cursor-pointer mb-4
-                        transition-all duration-300 group hover:scale-[1.02] active:scale-[0.98]
-                        ${isDragActive
-                                ? 'border-amber-500 bg-amber-500/10'
-                                : 'border-slate-800 bg-slate-900/40 hover:border-amber-500/30 hover:bg-slate-800'}`}
-                    >
-                        <input {...getInputProps()} />
-                        <motion.div
-                            className="text-slate-500 text-[10px] group-hover:text-amber-300 transition-colors uppercase font-bold tracking-widest flex items-center justify-center gap-2"
-                            animate={isDragActive ? { scale: 1.1 } : {}}
-                        >
-                            <span className="text-lg">
-                                {isUploading ? (
-                                    <motion.span
-                                        animate={{ rotate: 360 }}
-                                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                                        className="inline-block"
-                                    >
-                                        ⏳
-                                    </motion.span>
-                                ) : isDragActive ? '📥' : '📄'}
-                            </span>
-                            {isUploading ? 'Uploading Neural Data...' : isDragActive ? 'Drop files here!' : 'Add Knowledge'}
-                        </motion.div>
-                    </div>
+                    {isUploading && (
+                        <div className="mb-4 p-3 rounded-lg bg-amber-500/5 border border-amber-500/20 text-center animate-pulse">
+                            <p className="text-[9px] text-amber-500 font-bold uppercase tracking-widest">Uploading Neural Data...</p>
+                        </div>
+                    )}
 
 
                     <div className="space-y-2">
