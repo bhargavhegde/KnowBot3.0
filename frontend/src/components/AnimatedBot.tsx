@@ -14,7 +14,7 @@ import { useEffect, useState, useRef } from 'react';
 
 interface AnimatedBotProps {
     mode?: 'idle' | 'hover' | 'thinking';
-    size?: 'xs' | 'sm' | 'md' | 'lg';
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     className?: string;
 }
 
@@ -23,7 +23,8 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
         xs: 40,
         sm: 80,
         md: 120,
-        lg: 160
+        lg: 160,
+        xl: 220
     };
 
     const dimension = sizes[size];
@@ -34,18 +35,18 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
     const [eyePosition, setEyePosition] = useState({ x: 0, y: 0 });
     const botRef = useRef<HTMLDivElement>(null);
 
-    // Expression State
-    const [idleExpression, setIdleExpression] = useState<'neutral' | 'blink' | 'happy'>('neutral');
-    const [hoverExpression, setHoverExpression] = useState<'happy' | 'sad' | 'surprised' | 'skeptical'>('happy');
+    // Expressions: happy (smile), sad (cry/frown), surprised, skeptical
+    const expressions: ('happy' | 'sad' | 'surprised' | 'skeptical')[] = ['happy', 'sad', 'surprised', 'skeptical'];
+    const [expressionIndex, setExpressionIndex] = useState(0);
 
-    // Randomize expression on hover enter
+    // Cycle expression on hover enter
     useEffect(() => {
         if (isHovering) {
-            const expressions: ('happy' | 'sad' | 'surprised' | 'skeptical')[] = ['happy', 'happy', 'surprised', 'skeptical', 'sad']; // Weighted towards happy
-            const random = expressions[Math.floor(Math.random() * expressions.length)];
-            setHoverExpression(random);
+            setExpressionIndex((prev) => (prev + 1) % expressions.length);
         }
     }, [isHovering]);
+
+    const currentExpression = expressions[expressionIndex];
 
     // Mouse Tracking Logic (Aggressive)
     useEffect(() => {
@@ -68,38 +69,32 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
         return () => window.removeEventListener('mousemove', handleMouseMove);
     }, []);
 
-    // Random Idle Animations (Blinking & Expressions)
+    // Random Blinking (Expressions are now persistent/manual)
+    const [isBlinking, setIsBlinking] = useState(false);
     useEffect(() => {
-        if (isHovering || isThinking) return;
+        if (isThinking) return;
 
         const interval = setInterval(() => {
-            const random = Math.random();
-            if (random > 0.7) {
-                setIdleExpression('blink');
-                setTimeout(() => setIdleExpression('neutral'), 150);
-            } else if (random > 0.9) {
-                setIdleExpression('happy');
-                setTimeout(() => setIdleExpression('neutral'), 2000);
+            if (Math.random() > 0.7) {
+                setIsBlinking(true);
+                setTimeout(() => setIsBlinking(false), 150);
             }
-        }, 3000);
+        }, 4000);
 
         return () => clearInterval(interval);
-    }, [isHovering, isThinking]);
+    }, [isThinking]);
 
     // Get mouth path based on current state
     const getMouthPath = () => {
-        if (isThinking) return "M 40 62 L 45 58 L 50 62 L 55 58 L 60 62"; // Zig Zag
-        if (isHovering) {
-            switch (hoverExpression) {
-                case 'happy': return "M 38 60 Q 50 70 62 60"; // Smile
-                case 'sad': return "M 38 65 Q 50 55 62 65"; // Frown
-                case 'surprised': return "M 45 60 Q 50 68 55 60 Q 50 52 45 60"; // Open O (Bezier approx)
-                case 'skeptical': return "M 40 65 L 60 55"; // Slant
-                default: return "M 38 60 Q 50 70 62 60";
-            }
+        if (isThinking) return "M 40 62 L 45 58 L 50 62 L 55 58 L 60 62"; // Thinking Zig Zag
+
+        switch (currentExpression) {
+            case 'happy': return "M 38 60 Q 50 70 62 60"; // Smile
+            case 'sad': return "M 38 68 Q 50 58 62 68";  // Frown/Cry (drawn lower)
+            case 'surprised': return "M 45 60 Q 50 68 55 60 Q 50 52 45 60"; // Open O
+            case 'skeptical': return "M 40 65 L 60 60"; // Slanted flat line
+            default: return "M 40 60 Q 50 60 60 60"; // Neutral flat
         }
-        if (idleExpression === 'happy') return "M 40 60 Q 50 65 60 60"; // Small Smile
-        return "M 40 60 Q 50 60 60 60"; // Neutral
     };
 
     return (
@@ -209,7 +204,7 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                             rx="6" ry="6"
                             fill="url(#eyeGlow)"
                             animate={{
-                                ry: idleExpression === 'blink' ? 0.5 : (isHovering && hoverExpression === 'surprised' ? 7 : 6),
+                                ry: isBlinking ? 0.5 : (currentExpression === 'surprised' ? 7 : 6),
                                 scale: isHovering ? 1.1 : 1
                             }}
                             transition={{ duration: 0.1 }}
@@ -222,7 +217,7 @@ export function AnimatedBot({ mode = 'idle', size = 'md', className = '' }: Anim
                             rx="6" ry="6"
                             fill="url(#eyeGlow)"
                             animate={{
-                                ry: idleExpression === 'blink' ? 0.5 : (isHovering && hoverExpression === 'surprised' ? 7 : 6),
+                                ry: isBlinking ? 0.5 : (currentExpression === 'surprised' ? 7 : 6),
                                 scale: isHovering ? 1.1 : 1
                             }}
                             transition={{ duration: 0.1 }}

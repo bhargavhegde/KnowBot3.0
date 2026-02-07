@@ -37,16 +37,6 @@ export function Sidebar() {
         }
     };
 
-    const handleSyncKnowledge = async () => {
-        setIsSyncing(true);
-        try {
-            await fetchDocuments();
-            setTimeout(() => setIsSyncing(false), 1500);
-        } catch (err) {
-            setIsSyncing(false);
-        }
-    };
-
     const handleHardReset = async () => {
         if (!window.confirm('WARNING: This will permanently wipe all uploaded documents and neural memory for your account. Continue?')) {
             return;
@@ -165,40 +155,14 @@ export function Sidebar() {
             }}
         >
             {/* Header */}
-            <div className="px-6 pt-10 pb-6 border-b border-amber-500/10 flex flex-col items-center gap-6 relative overflow-hidden"
+            <div className="px-6 pt-12 pb-8 border-b border-amber-500/10 flex flex-col items-center gap-4 relative overflow-hidden"
                 style={{ background: 'linear-gradient(180deg, rgba(234, 88, 12, 0.05) 0%, transparent 100%)' }}>
 
                 <BrainAvatar />
 
-                {/* Control Tabs (Translucent Rectangle Style) */}
-                <div className="flex flex-col gap-3 w-full mt-2">
-                    <motion.button
-                        onClick={handleSyncKnowledge}
-                        disabled={isSyncing}
-                        className="w-full py-3 rounded-xl flex items-center justify-center gap-3 bg-green-500/10 border border-green-500/30 text-green-300 font-bold text-xs hover:bg-green-500/20 transition-all shadow-lg shadow-green-900/10"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        title="Sync Memory"
-                    >
-                        <motion.span
-                            animate={isSyncing ? { rotate: 360 } : {}}
-                            transition={{ duration: 1, repeat: isSyncing ? Infinity : 0, ease: "linear" }}
-                        >
-                            🔄
-                        </motion.span>
-                        {isSyncing ? 'Syncing...' : 'Sync Memory'}
-                    </motion.button>
-
-                    <motion.button
-                        onClick={handleHardReset}
-                        className="w-full py-3 rounded-xl flex items-center justify-center gap-3 bg-red-500/10 border border-red-500/30 text-red-300 font-bold text-xs hover:bg-red-500/20 transition-all shadow-lg shadow-red-900/10"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        title="Delete All Files"
-                    >
-                        <span>⚠️</span>
-                        Delete All Files
-                    </motion.button>
+                <div className="mt-4 text-center">
+                    <p className="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.3em]">Knowledge Engine</p>
+                    <p className="text-[9px] text-gray-500 mt-1 uppercase tracking-tight">Version 3.0 Stable</p>
                 </div>
             </div>
 
@@ -282,7 +246,19 @@ export function Sidebar() {
 
                 {/* Documents Section */}
                 <div className="px-6 pb-6 flex-1 min-h-0">
-                    <h3 className="text-[10px] font-bold text-amber-500/80 uppercase tracking-[0.2em] mb-4">Neural Documents</h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-[10px] font-bold text-amber-500/80 uppercase tracking-[0.2em]">Neural Documents</h3>
+                        <motion.button
+                            onClick={handleHardReset}
+                            className="w-7 h-7 flex items-center justify-center text-xs text-slate-500 hover:text-red-400 
+                                     rounded-lg border border-transparent hover:border-red-500/30 hover:bg-red-500/10 transition-all"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title="Delete ALL Documents"
+                        >
+                            🗑️
+                        </motion.button>
+                    </div>
 
                     {/* Compact Upload */}
                     <div

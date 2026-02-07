@@ -15,7 +15,7 @@ export function BrainAvatar() {
         >
             {/* Outer Glow Ring */}
             <motion.div
-                className="absolute w-32 h-32 rounded-full"
+                className="absolute w-48 h-48 rounded-full"
                 style={{
                     background: 'radial-gradient(circle, rgba(255, 215, 0, 0.15) 0%, transparent 70%)'
                 }}
@@ -26,7 +26,7 @@ export function BrainAvatar() {
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             />
 
-            <AnimatedBot mode={isHovering ? 'hover' : 'idle'} size="lg" />
+            <AnimatedBot mode={isHovering ? 'hover' : 'idle'} size="xl" />
 
             {/* Hover Label */}
             <motion.div
