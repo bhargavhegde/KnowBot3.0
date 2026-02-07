@@ -541,14 +541,14 @@ Answer:"""
             docs_with_scores = vector_store.similarity_search_with_score(question, **search_kwargs)
             
             # CHROMA DISTANCE METRIC: Lower is better (0 = identical)
-            # Threshold: > 1.6 means very poor match (likely irrelevant)
-            # Inverted logic: We want to fallback if distance is HIGH
+            # Threshold: > 3.0 means extremely poor match.
+            # We are setting this very high to prioritize local documents.
             
             best_score = docs_with_scores[0][1] if docs_with_scores else float('inf')
             steps = ["Retrieving relevant documents..."]
             
-            # Auto-Trigger Web Search if poor matches
-            if not docs_with_scores or best_score > 1.6:
+            # Auto-Trigger Web Search ONLY if truly zero or garbage matches
+            if not docs_with_scores or best_score > 3.0:
                 steps.append(f"Low relevance detected (Score: {best_score:.2f})...")
                 steps.append("Switching to Web Search for better answer...")
                 
