@@ -548,8 +548,7 @@ Answer:"""
     
     def query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
         """Execute a RAG query and return response with citations."""
-        rag_result = self.build_chain(chat_history=chat_history)
-        chain = rag_result["chain"]
+        # Removed redundant build_chain call that was triggering extra retrievals/memory usage
         # Get source documents with scores for confidence check
         try:
             # We need the vector store directly to get scores
@@ -725,8 +724,8 @@ Standalone Question:"""
         
         try:
             tavily = TavilyClient(api_key=tavily_key)
-            # Use the REFORMULATED query for the search
-            search_result = tavily.search(query=search_query, search_depth="advanced")
+            # Use 'basic' search depth to save memory in hosted environments
+            search_result = tavily.search(query=search_query, search_depth="basic")
             thinking_steps.append("Reading search results...")
             
             # Format context from web results
