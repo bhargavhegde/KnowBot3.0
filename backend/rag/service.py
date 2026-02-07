@@ -384,15 +384,20 @@ class RAGEngine:
     It ensures that when a user asks a question, we only retrieve their documents.
     """
     
-    DEFAULT_TEMPLATE = """You are a helpful, accurate assistant that answers questions based ONLY on the provided context.
-You have access to a neural knowledge base containing the documents listed below. 
-Use markdown formatting when appropriate.
-If the answer is not in the context, politely mention that you couldn't find it in the specific documents provided.
+    DEFAULT_TEMPLATE = """You are KnowBot, a professional AI Knowledge Engine.
+You answer questions based ONLY on the provided Context and the list of Files in your collection.
 
-Documents currently in your neural memory:
+CRITICAL INSTRUCTION:
+- If asked "What files do I have?", refer ONLY to the [FILES_IN_COLLECTION] list below.
+- Do NOT list files, datasets, or technologies mentioned INSIDE the text of these documents as files actually uploaded to this system.
+- For example, if a resume mentions "worked with 10k images", you do NOT have those image files in your collection. You only have the resume.
+
+[FILES_IN_COLLECTION]:
 {file_list}
 
-Context: {context}
+[CONTEXT]:
+{context}
+
 Question: {question}
 
 Answer:"""
@@ -614,10 +619,19 @@ Answer:"""
         has_history = chat_history is not None and len(chat_history) > 0
         history_placeholder = "{chat_history}\n" if has_history else ""
         
-        template = f"""You are a helpful, accurate assistant that answers questions based ONLY on the provided context.
-If the answer is not in the context, politely mention that you couldn't find it in the specific documents provided.
+        file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
+        
+        template = f"""You are KnowBot, a professional AI Knowledge Engine.
+You answer questions based ONLY on the provided Context and the list of Files in your collection.
 
-Context:
+CRITICAL INSTRUCTION:
+- If asked "What files do I have?", refer ONLY to the [FILES_IN_COLLECTION] list below.
+- Do NOT list files mentioned INSIDE the text as files actually in the collection.
+
+[FILES_IN_COLLECTION]:
+{file_list_str}
+
+[CONTEXT]:
 {context_str}
 
 {history_placeholder}Question: {{question}}
