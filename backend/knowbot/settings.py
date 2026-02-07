@@ -30,6 +30,8 @@ ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.
 # Add Railway and Vercel wildcard or specific domains if provided
 if os.environ.get('RAILWAY_STATIC_URL'):
     ALLOWED_HOSTS.append(os.environ.get('RAILWAY_STATIC_URL'))
+if 'knowbot30-production.up.railway.app' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('knowbot30-production.up.railway.app')
 
 # Apps installed in this project
 INSTALLED_APPS = [
@@ -159,6 +161,10 @@ CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', "http://localhost:
 # Fix for '*' in CSRF_TRUSTED_ORIGINS if needed (Django requires schemes usually)
 if '*' in CSRF_TRUSTED_ORIGINS:
     CSRF_TRUSTED_ORIGINS = [o for o in CSRF_TRUSTED_ORIGINS if o != '*']
+
+# Add production domain
+if 'https://knowbot30-production.up.railway.app' not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append('https://knowbot30-production.up.railway.app')
 
 
 # --- 5. CELERY CONFIGURATION (REDIS) ---
