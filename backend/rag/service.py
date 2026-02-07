@@ -528,10 +528,46 @@ Answer:"""
         """Execute a RAG query and return response with citations."""
         rag_result = self.build_chain(chat_history=chat_history)
         chain = rag_result["chain"]
-        retriever = rag_result["retriever"]
+        # Get source documents with scores for confidence check
+        try:
+            # We need the vector store directly to get scores
+            vector_store = self.vector_store_manager.load_vector_store()
+            
+            # Using same k and filter as get_retriever
+            search_kwargs = {"k": 5}
+            if self.user_id:
+                search_kwargs["filter"] = {"user_id": str(self.user_id)}
+                
+            docs_with_scores = vector_store.similarity_search_with_score(question, **search_kwargs)
+            
+            # CHROMA DISTANCE METRIC: Lower is better (0 = identical)
+            # Threshold: > 1.2 means very poor match (likely irrelevant)
+            # Inverted logic: We want to fallback if distance is HIGH
+            
+            best_score = docs_with_scores[0][1] if docs_with_scores else float('inf')
+            steps = ["Retrieving relevant documents..."]
+            
+            # Auto-Trigger Web Search if poor matches
+            if not docs_with_scores or best_score > 1.2:
+                steps.append(f"Low relevance detected (Score: {best_score:.2f})...")
+                steps.append("Switching to Web Search for better answer...")
+                
+                web_result = self.web_search_query(question, chat_history)
+                # Merge steps
+                web_result['steps'] = steps + web_result.get('steps', [])
+                return web_result
+                
+            steps.append(f"High relevance found (Score: {best_score:.2f})...")
+            steps.append("Synthesizing answer from documents...")
+            
+            # Unpack docs for the chain
+            docs = [doc for doc, _ in docs_with_scores]
+            
+        except Exception as e:
+            print(f"⚠️ Retrieval error (caught): {e}")
+            docs = []
+            steps = ["Retrieval error, falling back to general knowledge..."]
         
-        # Get source documents for citations
-        docs = retriever.invoke(question)
         citations = []
         
         for doc in docs:
@@ -544,16 +580,50 @@ Answer:"""
                 "page": doc.metadata.get("page", None)
             })
         
-        # Generate answer
-        response = chain.invoke(question)
+        # Generator answer using the chain (re-using build_chain logic logic but manually feeding docs)
+        # We need to re-construct the chain input manually since we bypassed the retriever
         
+        rag_chain = self.build_chain(chat_history)["chain"]
+        
+        # We need to override the retriever in the chain OR just format docs manually
+        # Easier to use the prompts directly since we already have the docs
+        
+        context_str = "\n\n".join([f"[Source: {d.metadata.get('source', 'unknown')}]\n{d.page_content}" for d in docs])
+        
+        has_history = chat_history is not None and len(chat_history) > 0
+        history_placeholder = "{chat_history}\n" if has_history else ""
+        
+        template = f"""You are a helpful, accurate assistant that answers questions based ONLY on the provided context.
+If the answer is not in the context, politely mention that you couldn't find it in the specific documents provided.
+
+Context:
+{context_str}
+
+{history_placeholder}Question: {{question}}
+
+Answer:"""
+        
+        from langchain_core.prompts import ChatPromptTemplate
+        prompt = ChatPromptTemplate.from_template(template)
+        chain = prompt | self.llm | StrOutputParser()
+        
+        input_data = {"question": question}
+        if has_history:
+            input_data["chat_history"] = chat_history
+            
+        response = chain.invoke(input_data)
+        
+
         return {
             "response": response,
-            "citations": citations
+            "citations": citations,
+            "steps": steps
         }
 
     def general_query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
         """Execute a general LLM query without RAG context."""
+        thinking_steps = ["Analyzing request...", "Checking knowledge base...", "No documents found, using general knowledge..."]
+        
         has_history = chat_history is not None and len(chat_history) > 0
         history_placeholder = "{chat_history}\n" if has_history else ""
         
@@ -574,7 +644,8 @@ Answer:"""
 
         return {
             "response": response,
-            "citations": []
+            "citations": [],
+            "steps": thinking_steps
         }
 
     def web_search_query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
