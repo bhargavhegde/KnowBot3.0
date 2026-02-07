@@ -16,3 +16,23 @@ I re-architected the storage layer to decouple "Compute" from "Storage":
 
 **Key Takeaway:**
 "In production cloud architecture, never rely on the local filesystem for user data. Always use managed services for state (Databases, Object Stores, Queues) to allow the application tier to scale horizontally and restart without data loss."
+
+## 2. Advanced RAG: Contextual Query Reformulation (Overcoming Lazy User Input)
+
+**The Problem:**
+Users often speak in shorthand, especially in follow-up questions.
+- User: "What is the latest YOLO version?"
+- Bot: "YOLO v10 is..."
+- User: **"Search for it."** (or "Check Google for more")
+
+A naive implementation takes "Search for it" literally and sends it to the search API (e.g., Tavily or Google). The search results for "search for it" are garbage (meta-instructions on how to use search engines), leading to a hallucinated or unhelpful response.
+
+**The Solution:**
+I implemented an **Intermediate Reasoning Step** (Query Transformation) before the search tool execution.
+1.  **Intercept:** The backend detects a search request.
+2.  **Reformulate:** Instead of searching immediately, it passes the *Chat History* and the *User's Follow-up* to a small, fast LLM call.
+3.  **Prompt:** "Given the history [YOLO conversation] and input [Search for it], rephrase the input to be a standalone search query."
+4.  **Execute:** The LLM outputs "Latest YOLO object detection version features", which is then sent to the Search API.
+
+**Key Takeaway:**
+"Effective Agentic RAG isn't just about retrieving data; it's about **pre-processing user intent**. By transforming conversational shorthand into explicit, semantic queries, we dramatically improve the system's robustness and usability without the user ever knowing the query was rewritten."
