@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Message as ChatMessage, Citation } from '@/lib/api';
 import { AnimatedBot } from './AnimatedBot';
+import { ThinkingStream } from './ThinkingStream';
 import { useSpeech } from '@/hooks/useSpeech';
 
 interface MessageBubbleProps {
@@ -57,6 +58,11 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
                     whileHover={{ x: isUser ? -2 : 2 }}
                     transition={{ type: "spring", stiffness: 400 }}
                 >
+                    {/* Thinking Process Stream */}
+                    {message.steps && message.steps.length > 0 && (
+                        <ThinkingStream isVisible={true} steps={message.steps} />
+                    )}
+
                     <div
                         className={`px-5 py-4 relative overflow-hidden transition-all duration-300
                             ${isUser

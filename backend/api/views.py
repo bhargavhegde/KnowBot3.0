@@ -314,7 +314,10 @@ def chat(request):
             else:
                 chat_history.append(AIMessage(content=msg.content))
 
-        if has_indexed:
+        if message.lower().startswith('search') or message.lower().startswith('web search'):
+            # Trigger safe web search
+            result = engine.web_search_query(message, chat_history=chat_history)
+        elif has_indexed:
             # Standard RAG Query (Retrieval Augmented Generation)
             result = engine.query(message, chat_history=chat_history)
         else:
@@ -327,11 +330,13 @@ def chat(request):
                 
         response_text = result['response']
         citations = result['citations']
+        steps = result.get('steps', []) # Get thinking steps if available
 
     except Exception as e:
         # Fallback for errors (e.g. Ollama down)
         response_text = f"I encountered an error: {str(e)}"
         citations = []
+        steps = []
 
     # Save LLM response to DB
     ChatMessage.objects.create(
@@ -353,6 +358,7 @@ def chat(request):
     return Response({
         'response': response_text,
         'citations': citations,
+        'steps': steps, # Send thinking steps to frontend
         'session_id': session.id
     })
 

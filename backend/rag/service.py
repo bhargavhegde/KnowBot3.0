@@ -571,10 +571,71 @@ Answer:"""
             
         response = chain.invoke(input_data)
         
+
         return {
             "response": response,
             "citations": []
         }
+
+    def web_search_query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
+        """Execute a WEB SEARCH query using Tavily API."""
+        import os
+        from tavily import TavilyClient
+        
+        tavily_key = os.environ.get("TAVILY_API_KEY")
+        if not tavily_key:
+            return self.general_query(question, chat_history)
+
+        thinking_steps = ["Analyzing request...", "Searching the web..."]
+        
+        try:
+            tavily = TavilyClient(api_key=tavily_key)
+            search_result = tavily.search(query=question, search_depth="advanced")
+            thinking_steps.append("Reading search results...")
+            
+            # Format context from web results
+            web_context = "\n\n".join([
+                f"Source: {res['url']}\nTitle: {res['title']}\nContent: {res['content']}" 
+                for res in search_result.get('results', [])[:3]
+            ])
+            
+            thinking_steps.append("Synthesizing answer...")
+            
+            # Build prompt with web context
+            has_history = chat_history is not None and len(chat_history) > 0
+            history_placeholder = "{chat_history}\n" if has_history else ""
+            
+            template = f"""You are KnowBot, a helpful AI assistant with live web access.
+            
+Use the following search results to answer the user's question accurately.
+Always cite your sources using the URLs provided.
+
+Web Search Results:
+{web_context}
+
+{history_placeholder}Question: {{question}}
+
+Answer:"""
+            
+            prompt = ChatPromptTemplate.from_template(template)
+            chain = prompt | self.llm | StrOutputParser()
+            
+            input_data = {"question": question}
+            if has_history:
+                input_data["chat_history"] = chat_history
+                
+            response = chain.invoke(input_data)
+            
+            return {
+                "response": response,
+                "citations": [{"source": res['url'], "content": res['content']} for res in search_result.get('results', [])[:3]],
+                "steps": thinking_steps
+            }
+            
+        except Exception as e:
+            print(f"Web search failed: {e}")
+            thinking_steps.append("Web search failed, falling back to internal knowledge.")
+            return self.general_query(question, chat_history)
 
 
 # Convenience functions for backward compatibility

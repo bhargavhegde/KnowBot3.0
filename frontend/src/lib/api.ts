@@ -75,6 +75,7 @@ export interface Message {
     role: 'user' | 'assistant' | 'system';
     content: string;
     citations: Citation[];
+    steps?: string[]; // Optional: For displaying thinking process
     created_at: string;
 }
 
