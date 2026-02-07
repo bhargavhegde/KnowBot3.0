@@ -155,13 +155,13 @@ export function Sidebar() {
             }}
         >
             {/* Header */}
-            <div className="px-6 pt-20 pb-12 border-b border-amber-500/10 flex flex-col items-center gap-4 relative overflow-hidden"
-                style={{ background: 'linear-gradient(180deg, rgba(234, 88, 12, 0.05) 0%, transparent 100%)' }}>
+            <div className="px-6 pt-0 pb-0 flex flex-col items-center gap-0 relative overflow-hidden"
+                style={{ marginTop: '-40px' }}>
 
                 <BrainAvatar />
 
-                <div className="mt-8 text-center">
-                    <p className="text-[11px] font-bold text-cyan-400 uppercase tracking-[0.4em]">Neural Engine</p>
+                <div className="mt-[-60px] mb-4 text-center relative z-20">
+                    <p className="text-[10px] font-bold text-cyan-400 uppercase tracking-[0.4em]">Neural Engine</p>
                 </div>
             </div>
 
@@ -169,9 +169,9 @@ export function Sidebar() {
             <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
 
                 {/* Chat History Section */}
-                <div className="px-6 pt-6 pb-2">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[10px] font-bold text-cyan-400/80 uppercase tracking-[0.2em]">Chat History</h3>
+                <div className="px-6 pt-2 pb-2">
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-[10px] font-bold text-cyan-400/80 uppercase tracking-[0.2em]">Recents</h3>
                         <motion.button
                             onClick={createNewSession}
                             className="w-7 h-7 flex items-center justify-center text-lg font-bold text-white hover:text-cyan-400 
@@ -241,15 +241,14 @@ export function Sidebar() {
                     </div>
                 </div>
 
-                <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent mx-6 my-4" />
 
                 {/* Documents Section */}
-                <div className="px-6 pb-6 flex-1 min-h-0">
-                    <div className="flex items-center justify-between mb-6">
+                <div className="px-6 pt-2 pb-6 flex-1 min-h-0">
+                    <div className="flex items-center justify-between mb-3">
                         <h3 className="text-[10px] font-bold text-amber-500/80 uppercase tracking-[0.2em]">Neural Documents</h3>
                         <div className="flex items-center gap-1">
                             {/* Upload Button */}
-                            <div {...getRootProps()}>
+                            <div {...getRootProps()} className="flex items-center">
                                 <input {...getInputProps()} />
                                 <motion.button
                                     className={`w-7 h-7 flex items-center justify-center text-lg font-bold text-white 
