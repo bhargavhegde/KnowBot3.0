@@ -340,12 +340,14 @@ def chat(request):
         response_text = result['response']
         citations = result['citations']
         steps = result.get('steps', []) # Get thinking steps if available
+        suggested_action = result.get('suggested_action') # Forward suggestion (e.g., 'web_search')
 
     except Exception as e:
         # Fallback for errors (e.g. Ollama down)
         response_text = f"I encountered an error: {str(e)}"
         citations = []
         steps = []
+        suggested_action = None
 
     # Save LLM response to DB
     ChatMessage.objects.create(
@@ -368,7 +370,8 @@ def chat(request):
         'response': response_text,
         'citations': citations,
         'steps': steps, # Send thinking steps to frontend
-        'session_id': session.id
+        'session_id': session.id,
+        'suggested_action': suggested_action
     })
 
 
