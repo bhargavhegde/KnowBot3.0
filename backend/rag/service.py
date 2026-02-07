@@ -549,7 +549,12 @@ Answer:"""
             
             # Auto-Trigger Web Search ONLY if truly zero or garbage matches
             if not docs_with_scores or best_score > 3.0:
-                steps.append(f"Low relevance detected (Score: {best_score:.2f})...")
+                if not docs_with_scores:
+                    steps.append("⚠️ No relevant documents found (Score: inf)...")
+                    steps.append("Hint: Did you switch embedding models? Consider re-uploading files.")
+                else:
+                    steps.append(f"Low relevance detected (Score: {best_score:.2f})...")
+                
                 steps.append("Switching to Web Search for better answer...")
                 
                 web_result = self.web_search_query(question, chat_history)
