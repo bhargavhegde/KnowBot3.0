@@ -156,7 +156,7 @@ export function Sidebar() {
         >
             {/* Header */}
             <div className="px-6 pt-0 pb-0 flex flex-col items-center gap-0 relative overflow-hidden"
-                style={{ marginTop: '-40px' }}>
+                style={{ marginTop: '-20px' }}>
 
                 <BrainAvatar />
 
@@ -172,35 +172,37 @@ export function Sidebar() {
                 <div className="px-6 pt-2 pb-2">
                     <div className="flex items-center justify-between mb-2">
                         <h3 className="text-[10px] font-bold text-cyan-400/80 uppercase tracking-[0.2em]">Recents</h3>
-                        <motion.button
-                            onClick={createNewSession}
-                            className="w-7 h-7 flex items-center justify-center text-lg font-bold text-white hover:text-cyan-400 
-                                     rounded-lg border border-transparent hover:border-cyan-500/30 hover:bg-cyan-500/10 transition-all"
-                            whileHover={{ scale: 1.1, rotate: 90 }}
-                            whileTap={{ scale: 0.9 }}
-                        >
-                            +
-                        </motion.button>
-                        <motion.button
-                            onClick={async () => {
-                                if (window.confirm('Clear ALL chat history?')) {
-                                    try {
-                                        await apiService.deleteAllSessions();
-                                        // Force refresh from context if available, otherwise manual reload
-                                        window.location.reload();
-                                    } catch (e) {
-                                        console.error(e);
+                        <div className="flex items-center gap-1">
+                            <motion.button
+                                onClick={createNewSession}
+                                className="w-7 h-7 flex items-center justify-center text-lg font-bold text-white hover:text-cyan-400 
+                                         rounded-lg border border-transparent hover:border-cyan-500/30 hover:bg-cyan-500/10 transition-all"
+                                whileHover={{ scale: 1.1, rotate: 90 }}
+                                whileTap={{ scale: 0.9 }}
+                                title="New Chat"
+                            >
+                                +
+                            </motion.button>
+                            <motion.button
+                                onClick={async () => {
+                                    if (window.confirm('Clear ALL chat history?')) {
+                                        try {
+                                            await apiService.deleteAllSessions();
+                                            window.location.reload();
+                                        } catch (e) {
+                                            console.error(e);
+                                        }
                                     }
-                                }
-                            }}
-                            className="w-7 h-7 flex items-center justify-center text-xs ml-2 text-gray-500 hover:text-red-400 
-                                     rounded-lg border border-transparent hover:border-red-500/30 hover:bg-red-500/10 transition-all"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            title="Delete ALL Chats"
-                        >
-                            🗑️
-                        </motion.button>
+                                }}
+                                className="w-7 h-7 flex items-center justify-center text-xs text-slate-500 hover:text-red-400 
+                                         rounded-lg border border-transparent hover:border-red-500/30 hover:bg-red-500/10 transition-all"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                title="Delete ALL Chats"
+                            >
+                                🗑️
+                            </motion.button>
+                        </div>
                     </div>
 
                     <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
