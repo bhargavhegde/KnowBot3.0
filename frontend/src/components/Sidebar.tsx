@@ -15,7 +15,7 @@ import { BrainAvatar } from './BrainAvatar';
 
 export function Sidebar() {
     const { user, logout } = useAuth();
-    const { sessions, currentSessionId, createNewSession, selectSession, deleteSession } = useChat();
+    const { sessions, currentSessionId, createNewSession, selectSession, deleteSession, fetchInitialSuggestions } = useChat();
     const [documents, setDocuments] = useState<Document[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
@@ -70,6 +70,10 @@ export function Sidebar() {
                     const status = resp.data;
                     if (status.index_status !== doc.index_status) {
                         fetchDocuments();
+                        // Also refresh suggestions if something was indexed
+                        if (status.index_status === 'indexed') {
+                            fetchInitialSuggestions();
+                        }
                         break;
                     }
                 } catch (err) {

@@ -14,24 +14,12 @@ import { useChat } from '@/context/ChatContext';
 export function ChatContainer() {
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const { messages, isLoading, sendMessage, clearMessages } = useChat();
-    const [initialSuggestions, setInitialSuggestions] = useState<string[]>([]);
+    const { messages, isLoading, sendMessage, clearMessages, initialSuggestions } = useChat();
 
     // Auto-scroll to bottom when new messages arrive
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages, isLoading]);
-
-    // Fetch initial suggestions for empty state
-    useEffect(() => {
-        if (messages.length === 0) {
-            import('@/lib/api').then(({ apiService }) => {
-                apiService.getInitialSuggestions()
-                    .then(resp => setInitialSuggestions(resp.data.suggestions))
-                    .catch(() => setInitialSuggestions(["What can you do?", "Summarize my docs.", "Help me start."]));
-            });
-        }
-    }, [messages.length]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

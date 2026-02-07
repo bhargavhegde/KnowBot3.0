@@ -778,28 +778,36 @@ Answer:"""
             return self.general_query(question, chat_history)
 
     def generate_suggestions(self, last_response: str, last_question: str) -> List[str]:
-        """Generate 3 relevant follow-up questions based on the last interaction."""
+        """Generate EXACTLY 3 relevant follow-up questions based on the last interaction."""
         try:
             template = """You are KnowBot. Based on the following AI response and the original question, 
-            generate 3 short, engaging follow-up questions that the user might want to ask next.
+            generate EXACTLY 3 short, engaging follow-up questions that the user might want to ask next.
             Make them specific and curious.
             
             Original Question: {question}
             AI Response: {response}
             
-            Return ONLY a comma-separated list of 3 questions. No numbering.
-            Example: What are the requirements?, How does it compare to others?, Can you explain the first point?
+            Return ONLY a comma-separated list of exactly 3 questions. No numbering.
+            Example: Question 1?, Question 2?, Question 3?
             """
             
             prompt = ChatPromptTemplate.from_template(template)
             chain = prompt | self.llm | StrOutputParser()
             
             suggestions_raw = chain.invoke({"question": last_question, "response": last_response})
-            suggestions = [s.strip() for s in suggestions_raw.split(',') if '?' in s][:3]
+            # Split by comma or newline to be safe
+            raw_list = suggestions_raw.replace('\n', ',').split(',')
+            suggestions = [s.strip() for s in raw_list if '?' in s][:3]
+            
+            # Pad with defaults if less than 3
+            if len(suggestions) < 3:
+                defaults = ["Can you tell me more?", "What are the next steps?", "Explain this further."]
+                suggestions.extend(defaults[:(3 - len(suggestions))])
+                
             return suggestions
         except Exception as e:
             print(f"Error generating suggestions: {e}")
-            return []
+            return ["Can you tell me more?", "What are the next steps?", "Explain this further."]
 
     def get_initial_suggestions(self) -> List[str]:
         """Generate starting questions based on the user's uploaded documents."""
@@ -817,20 +825,26 @@ Answer:"""
             
             context = "\n".join([doc.page_content[:500] for doc in docs])
             
-            template = """Based on these document snippets, suggest 3 interesting questions an owner of these docs might ask.
+            template = """Based on these document snippets, suggest EXACTLY 3 interesting questions an owner of these docs might ask.
             Make them professional and insightful.
             
             Snippets:
             {context}
             
-            Return ONLY a comma-separated list of 3 questions. No numbering.
+            Return ONLY a comma-separated list of exactly 3 questions. No numbering.
             """
             
             prompt = ChatPromptTemplate.from_template(template)
             chain = prompt | self.llm | StrOutputParser()
             
             suggestions_raw = chain.invoke({"context": context})
-            suggestions = [s.strip() for s in suggestions_raw.split(',') if '?' in s][:3]
+            raw_list = suggestions_raw.replace('\n', ',').split(',')
+            suggestions = [s.strip() for s in raw_list if '?' in s][:3]
+            
+            if len(suggestions) < 3:
+                defaults = ["Summarize my documents.", "What are the key takeaways?", "Tell me about Bhargav."]
+                suggestions.extend(defaults[:(3 - len(suggestions))])
+                
             return suggestions
         except Exception as e:
             print(f"Error generating initial suggestions: {e}")

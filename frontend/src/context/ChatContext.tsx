@@ -11,12 +11,14 @@ interface ChatContextType {
     currentSessionId: number | null;
     isLoading: boolean;
     error: string | null;
+    initialSuggestions: string[];
     fetchSessions: () => Promise<void>;
     selectSession: (sessionId: number) => Promise<void>;
     createNewSession: () => Promise<void>;
     deleteSession: (sessionId: number) => Promise<void>;
     sendMessage: (content: string) => Promise<void>;
     clearMessages: () => Promise<void>;
+    fetchInitialSuggestions: () => Promise<void>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -28,6 +30,17 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const [initialSuggestions, setInitialSuggestions] = useState<string[]>([]);
+
+    const fetchInitialSuggestions = useCallback(async () => {
+        try {
+            const resp = await apiService.getInitialSuggestions();
+            setInitialSuggestions(resp.data.suggestions || []);
+        } catch (err) {
+            console.error('Failed to fetch initial suggestions:', err);
+        }
+    }, []);
 
     const fetchSessions = useCallback(async () => {
         try {
@@ -134,19 +147,21 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (user) {
             fetchSessions();
+            fetchInitialSuggestions();
         } else {
             // User logged out - clear state
             setMessages([]);
             setSessions([]);
+            setInitialSuggestions([]);
             setCurrentSessionId(null);
         }
-    }, [user, fetchSessions]);
+    }, [user, fetchSessions, fetchInitialSuggestions]);
 
     return (
         <ChatContext.Provider value={{
-            messages, sessions, currentSessionId, isLoading, error,
+            messages, sessions, currentSessionId, isLoading, error, initialSuggestions,
             fetchSessions, selectSession, createNewSession, deleteSession,
-            sendMessage, clearMessages
+            sendMessage, clearMessages, fetchInitialSuggestions
         }}>
             {children}
         </ChatContext.Provider>
