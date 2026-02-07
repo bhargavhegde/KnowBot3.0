@@ -132,6 +132,7 @@ export const apiService = {
     getSession: (id: number) => api.get<ChatSession>(`/sessions/${id}/`),
     createSession: (title: string = 'New Chat') => api.post<ChatSession>('/sessions/', { title }),
     deleteSession: (id: number) => api.delete(`/sessions/${id}/`),
+    deleteAllSessions: () => api.delete('/sessions/delete_all/'),
     getMessages: (sessionId: number) => api.get<Message[]>(`/sessions/${sessionId}/messages/`),
     clearMessages: (sessionId: number) => api.delete(`/sessions/${sessionId}/clear/`),
 

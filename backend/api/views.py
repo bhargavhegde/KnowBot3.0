@@ -249,6 +249,15 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
         session.messages.all().delete()
         return Response({'message': 'Messages cleared'})
 
+    @action(detail=False, methods=['delete'], url_path='delete_all')
+    def delete_all(self, request):
+        """Wipes ALL sessions for the user."""
+        try:
+            ChatSession.objects.filter(user=request.user).delete()
+            return Response({'message': 'All chat sessions deleted'})
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])

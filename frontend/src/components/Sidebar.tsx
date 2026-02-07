@@ -218,6 +218,26 @@ export function Sidebar() {
                         >
                             +
                         </motion.button>
+                        <motion.button
+                            onClick={async () => {
+                                if (window.confirm('Clear ALL chat history?')) {
+                                    try {
+                                        await apiService.deleteAllSessions();
+                                        // Force refresh from context if available, otherwise manual reload
+                                        window.location.reload();
+                                    } catch (e) {
+                                        console.error(e);
+                                    }
+                                }
+                            }}
+                            className="w-7 h-7 flex items-center justify-center text-xs ml-2 text-gray-500 hover:text-red-400 
+                                     rounded-lg border border-transparent hover:border-red-500/30 hover:bg-red-500/10 transition-all"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title="Delete ALL Chats"
+                        >
+                            🗑️
+                        </motion.button>
                     </div>
 
                     <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
