@@ -341,15 +341,32 @@ class VectorStoreManager:
         except Exception as e:
             print(f"Error resetting vector store: {e}")
     
-    def load_vector_store(self) -> Chroma:
-        """Load existing vector store."""
-        vector_store = Chroma(
-            client=self.client,
-            collection_name=self.collection_name,
-            embedding_function=self.embeddings,
-        )
-        print(f"Loaded vector store for user {self.user_id}")
-        return vector_store
+    def load_vector_store(self) -> Optional[Chroma]:
+        """Load existing vector store with health check to handle disk corruption."""
+        try:
+            vector_store = Chroma(
+                client=self.client,
+                collection_name=self.collection_name,
+                embedding_function=self.embeddings,
+            )
+            
+            # CRITICAL: Verify the HNSW index on disk is readable
+            # This catches 'Nothing found on disk' errors before they crash the flow
+            try:
+                # We use .get(limit=1) to touch the index without heavy retrieval
+                vector_store.get(limit=1)
+            except Exception as e:
+                err_msg = str(e).lower()
+                if "nothing found on disk" in err_msg or "hnsw" in err_msg:
+                    print(f"🚨 CORRUPTED INDEX detected for user {self.user_id}. Please RESET knowledge.")
+                    return None
+                raise e # Re-throw other genuine errors
+                
+            print(f"Loaded vector store for user {self.user_id}")
+            return vector_store
+        except Exception as e:
+            print(f"⚠️ Vector store load failed or directory missing: {e}")
+            return None
     
     def get_or_create_vector_store(self, chunks: List = None) -> Chroma:
         """Get existing vector store or create new one if chunks provided."""
@@ -533,16 +550,15 @@ Answer:"""
             # We need the vector store directly to get scores
             vector_store = self.vector_store_manager.load_vector_store()
             
+            if not vector_store:
+                raise ValueError("Vector store not initialized. No documents uploaded.")
+
             # Using same k and filter as get_retriever
             search_kwargs = {"k": 5}
             if self.user_id:
                 search_kwargs["filter"] = {"user_id": str(self.user_id)}
                 
             docs_with_scores = vector_store.similarity_search_with_score(question, **search_kwargs)
-            
-            # CHROMA DISTANCE METRIC: Lower is better (0 = identical)
-            # Threshold: > 3.0 means extremely poor match.
-            # We are setting this very high to prioritize local documents.
             
             best_score = docs_with_scores[0][1] if docs_with_scores else float('inf')
             steps = ["Retrieving relevant documents..."]
@@ -551,11 +567,9 @@ Answer:"""
             suggested_action = None
             
             # Use 1.2 threshold for "Low Confidence" warning to be more proactive
-            # Scores > 1.2 (but < 3.0) often mean partial or weak matches
             if not docs_with_scores or best_score > 1.2:
                 if not docs_with_scores:
                     steps.append("⚠️ No relevant documents found (Score: inf)...")
-                    steps.append("Using general knowledge/LLM only.")
                 else:
                     steps.append(f"Low relevance detected (Score: {best_score:.2f})...")
                     steps.append("Answering based on weak matches as requested.")
@@ -570,11 +584,10 @@ Answer:"""
             docs = [doc for doc, _ in docs_with_scores]
             
         except Exception as e:
-            print(f"⚠️ Retrieval error (caught): {e}")
+            print(f"⚠️ Retrieval note: {e}")
             docs = []
-            steps = ["Retrieval error, falling back to general knowledge..."]
-            if 'suggested_action' not in locals():
-                suggested_action = "web_search"
+            steps = ["Notice: Using general knowledge (no documents matching your query)."]
+            suggested_action = "web_search"
         
         citations = []
         
