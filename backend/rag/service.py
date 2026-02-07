@@ -550,8 +550,9 @@ Answer:"""
             # Auto-Trigger Web Search ONLY if truly zero or garbage matches
             suggested_action = None
             
-            # Use 1.6 threshold for "Low Confidence" warning (but still try to answer)
-            if not docs_with_scores or best_score > 1.6:
+            # Use 1.2 threshold for "Low Confidence" warning to be more proactive
+            # Scores > 1.2 (but < 3.0) often mean partial or weak matches
+            if not docs_with_scores or best_score > 1.2:
                 if not docs_with_scores:
                     steps.append("⚠️ No relevant documents found (Score: inf)...")
                     steps.append("Using general knowledge/LLM only.")
@@ -564,9 +565,6 @@ Answer:"""
             else:
                 steps.append(f"High relevance found (Score: {best_score:.2f})...")
                 steps.append("Synthesizing answer from documents...")
-                
-            steps.append(f"High relevance found (Score: {best_score:.2f})...")
-            steps.append("Synthesizing answer from documents...")
             
             # Unpack docs for the chain
             docs = [doc for doc, _ in docs_with_scores]
@@ -575,6 +573,8 @@ Answer:"""
             print(f"⚠️ Retrieval error (caught): {e}")
             docs = []
             steps = ["Retrieval error, falling back to general knowledge..."]
+            if 'suggested_action' not in locals():
+                suggested_action = "web_search"
         
         citations = []
         
