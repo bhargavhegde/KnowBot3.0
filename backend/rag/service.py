@@ -548,19 +548,22 @@ Answer:"""
             steps = ["Retrieving relevant documents..."]
             
             # Auto-Trigger Web Search ONLY if truly zero or garbage matches
-            if not docs_with_scores or best_score > 3.0:
+            suggested_action = None
+            
+            # Use 1.6 threshold for "Low Confidence" warning (but still try to answer)
+            if not docs_with_scores or best_score > 1.6:
                 if not docs_with_scores:
                     steps.append("⚠️ No relevant documents found (Score: inf)...")
-                    steps.append("Hint: Did you switch embedding models? Consider re-uploading files.")
+                    steps.append("Using general knowledge/LLM only.")
                 else:
                     steps.append(f"Low relevance detected (Score: {best_score:.2f})...")
+                    steps.append("Answering based on weak matches as requested.")
                 
-                steps.append("Switching to Web Search for better answer...")
-                
-                web_result = self.web_search_query(question, chat_history)
-                # Merge steps
-                web_result['steps'] = steps + web_result.get('steps', [])
-                return web_result
+                steps.append("Suggesting Web Search fallback to user...")
+                suggested_action = "web_search"
+            else:
+                steps.append(f"High relevance found (Score: {best_score:.2f})...")
+                steps.append("Synthesizing answer from documents...")
                 
             steps.append(f"High relevance found (Score: {best_score:.2f})...")
             steps.append("Synthesizing answer from documents...")
@@ -619,10 +622,14 @@ Answer:"""
         response = chain.invoke(input_data)
         
 
+        if 'suggested_action' not in locals():
+            suggested_action = None
+
         return {
             "response": response,
             "citations": citations,
-            "steps": steps
+            "steps": steps,
+            "suggested_action": suggested_action
         }
 
     def general_query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
@@ -650,7 +657,8 @@ Answer:"""
         return {
             "response": response,
             "citations": [],
-            "steps": thinking_steps
+            "steps": thinking_steps,
+            "suggested_action": "web_search"
         }
 
     def web_search_query(self, question: str, chat_history: List = None) -> Dict[str, Any]:

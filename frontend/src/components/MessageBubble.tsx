@@ -16,9 +16,10 @@ import { useSpeech } from '@/hooks/useSpeech';
 interface MessageBubbleProps {
     message: ChatMessage;
     isLatest?: boolean;
+    onSuggestionClick?: (action: string) => void;
 }
 
-export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
+export function MessageBubble({ message, isLatest, onSuggestionClick }: MessageBubbleProps) {
     const [showCitations, setShowCitations] = useState(false);
     const bubbleRef = useRef<HTMLDivElement>(null);
     const isUser = message.role === 'user';
@@ -53,7 +54,7 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
 
                 {/* Message Content */}
                 <motion.div
-                    className="flex flex-col relative z-10"
+                    className="flex flex-col relative z-10 w-full"
                     ref={bubbleRef}
                     whileHover={{ x: isUser ? -2 : 2 }}
                     transition={{ type: "spring", stiffness: 400 }}
@@ -164,6 +165,30 @@ export function MessageBubble({ message, isLatest }: MessageBubbleProps) {
                                 </motion.div>
                             )}
                         </div>
+                    )}
+
+                    {/* Suggested Action: Web Search */}
+                    {message.suggested_action === 'web_search' && !isUser && (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="mt-4"
+                        >
+                            <motion.button
+                                onClick={() => onSuggestionClick && onSuggestionClick('web_search')}
+                                className="flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold text-white shadow-lg transition-all w-full md:w-auto justify-center"
+                                style={{
+                                    background: 'linear-gradient(135deg, #f59e0b, #ea580c)', // Amber to Orange
+                                    border: '1px solid rgba(251, 191, 36, 0.4)',
+                                    boxShadow: '0 4px 15px rgba(234, 88, 12, 0.3)'
+                                }}
+                                whileHover={{ scale: 1.02, boxShadow: '0 6px 20px rgba(234, 88, 12, 0.5)' }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <span className="text-xl">🌍</span>
+                                <span>I'm not sure. Search the Web?</span>
+                            </motion.button>
+                        </motion.div>
                     )}
                 </motion.div>
             </div>

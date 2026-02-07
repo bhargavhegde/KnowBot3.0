@@ -108,6 +108,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
                 content: response.response,
                 citations: response.citations,
                 steps: response.steps, // Extract thinking steps from response
+                suggested_action: response.suggested_action, // Pass the suggestion flag
                 created_at: new Date().toISOString()
             };
             setMessages(prev => [...prev, assistantMsg]);

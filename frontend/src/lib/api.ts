@@ -76,6 +76,7 @@ export interface Message {
     content: string;
     citations: Citation[];
     steps?: string[]; // Optional: For displaying thinking process
+    suggested_action?: 'web_search'; // Optional: Trigger UI buttons
     created_at: string;
 }
 
@@ -137,7 +138,7 @@ export const apiService = {
     clearMessages: (sessionId: number) => api.delete(`/sessions/${sessionId}/clear/`),
 
     sendMessage: (messageText: string, sessionId?: number) =>
-        api.post<{ response: string; session_id: number; citations: Citation[]; steps?: string[] }>('/chat/', {
+        api.post<{ response: string; session_id: number; citations: Citation[]; steps?: string[]; suggested_action?: 'web_search' }>('/chat/', {
             message: messageText,
             session_id: sessionId,
         }),

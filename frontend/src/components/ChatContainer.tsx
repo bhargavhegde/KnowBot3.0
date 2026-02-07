@@ -37,6 +37,12 @@ export function ChatContainer() {
         }
     };
 
+    const handleSuggestionClick = (action: string) => {
+        if (action === 'web_search') {
+            sendMessage("Search the web for more details about this.");
+        }
+    };
+
     return (
         <div className="flex flex-col h-full bg-transparent relative z-10">
             {/* Header with Animated Border */}
@@ -203,6 +209,7 @@ export function ChatContainer() {
                                 key={message.id || idx}
                                 message={message}
                                 isLatest={idx === messages.length - 1}
+                                onSuggestionClick={handleSuggestionClick}
                             />
                         ))}
 
