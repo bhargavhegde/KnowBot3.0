@@ -25,6 +25,7 @@ from .views import (
     chat, health_check, RegisterView, get_user_profile, preview_document,
     get_initial_suggestions
 )
+from .admin_guide_view import admin_setup_guide
 
 # Use DefaultRouter for automated ViewSet routing (provides /list, /create, etc.)
 router = DefaultRouter()
@@ -53,4 +54,7 @@ urlpatterns = [
     # JWT Security Tokens
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # Internal Ops
+    path('ops/setup-guide/', admin_setup_guide, name='setup_guide'),
 ]
