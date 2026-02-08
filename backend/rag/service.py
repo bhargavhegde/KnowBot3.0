@@ -113,13 +113,21 @@ class DocumentProcessor:
     """
     
     def __init__(self, chunk_size: int = CHUNK_SIZE, chunk_overlap: int = CHUNK_OVERLAP):
+        """
+        Initialize the processor with specific chunking parameters.
+        
+        Args:
+            chunk_size (int): Max characters per chunk. 800 is a 'sweet spot' for Llama3.
+            chunk_overlap (int): How many characters to repeat from the previous chunk.
+                               This prevents losing context if a sentence is split exactly at the limit.
+        """
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
             length_function=len,
-            add_start_index=True,
+            add_start_index=True, # Useful for mapping back to original file location
         )
     
     def load_single_document(self, file_path: str, user_id: int = None, original_filename: str = None) -> List:
@@ -290,7 +298,16 @@ class VectorStoreManager:
         return self._embeddings
     
     def create_vector_store(self, chunks: List) -> Chroma:
-        """Create or add to vector store from document chunks."""
+        """
+        CONVERSION PHASE: Text Chunks -> Semantic Vectors -> Storage.
+        
+        HOW IT WORKS:
+        1. It iterates through every chunk of text.
+        2. It tags each chunk with the 'user_id' (This is the CORE of our Data Privacy).
+        3. It sends text to the Embedding Model (Ollama or Groq).
+        4. It stores the resulting vector and metadata in ChromaDB.
+        5. It updates the BM25 index to allow for Keyword Search (Hybrid Search).
+        """
         if not chunks:
             raise ValueError("No chunks provided to create vector store")
         
@@ -439,13 +456,20 @@ Answer:"""
             return []
 
     def build_prompt(self, has_history: bool = False) -> ChatPromptTemplate:
-        """Build the prompt template with history support."""
+        """
+        PROMPT ENGINEERING: Assembles the final instruction set for the AI.
+        
+        This method combines the static System Instructions with dynamic components:
+        1. The list of current user's files.
+        2. The chat history (if any).
+        3. The retrieved document context.
+        """
         file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
         
         history_placeholder = "{chat_history}\n" if has_history else ""
         template = self.DEFAULT_TEMPLATE.replace("{file_list}", file_list_str)
         if has_history:
-            # Insert history before the question in the default template
+            # We inject the history directly into the template so the AI remembers previous turns.
             template = template.replace("Question: {question}", f"{history_placeholder}\nQuestion: {{question}}")
         
         return ChatPromptTemplate.from_template(template)
@@ -494,17 +518,24 @@ Answer:"""
         return vector_retriever
     
     def build_chain(self, chat_history: List = None):
-        """Build the complete RAG chain with optional history."""
+        """
+        LCEL (LangChain Expression Language) Pipeline.
+        
+        This 'Chain' defines the data flow:
+        Input -> Format Docs -> Prompt -> LLM -> String Output
+        """
         retriever = self.get_retriever()
         has_history = chat_history is not None and len(chat_history) > 0
         prompt = self.build_prompt(has_history=has_history)
         
         def format_docs(docs):
+            """Combines multiple document objects into one readable text block."""
             return "\n\n".join(
                 f"[Source: {doc.metadata.get('source', 'unknown')}]\n{doc.page_content}"
                 for doc in docs
             )
         
+        # The Pipe (|) operator is used to 'chain' runnable components together.
         if has_history:
             chain = (
                 {
@@ -530,31 +561,43 @@ Answer:"""
         }
     
     def query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
-        """Execute a RAG query and return response with citations."""
-        # Removed redundant build_chain call that was triggering extra retrievals/memory usage
-        # Get source documents with scores for confidence check
+        """
+        THE HEART OF THE ENGINE: Executes the complete RAG lifecycle.
+        
+        This method is the primary 'Brain' function. It orchestrates the flow from 
+        receiving a question to producing a cited, context-aware answer.
+        
+        LIFECYCLE STEPS:
+        1.  RETRIEVAL: Fetch Top-5 most semantically similar chunks from ChromaDB.
+        2.  CONFIDENCE CHECK: Analyze the 'distance' score. If the best match is too far (>1.2),
+            we flag it as 'Low Confidence' and suggest a Web Search.
+        3.  CONTEXT AUGMENTATION: Flatten the retrieved documents into a single text block.
+        4.  CHAIN EXECUTION: Pass [History + Context + Question] to the LLM.
+        5.  POST-PROCESSING: Extract citations and generate follow-up questions.
+        """
+        # --- PHASE 1: RETRIEVAL & ANALYSIS ---
         try:
-            # We need the vector store directly to get scores
             vector_store = self.vector_store_manager.load_vector_store()
             
             if not vector_store:
                 raise ValueError("Vector store not initialized. No documents uploaded.")
 
-            # Using same k and filter as get_retriever
+            # Apply Security Filter: 'user_id' check happens inside this call
             search_kwargs = {"k": 5}
             if self.user_id:
                 search_kwargs["filter"] = {"user_id": str(self.user_id)}
                 
+            # fetch docs with distance scores (L2 distance)
             docs_with_scores = vector_store.similarity_search_with_score(question, **search_kwargs)
             
+            # 0.0 is perfect match. Anything > 1.2 is usually 'filler' or unrelated.
             best_score = docs_with_scores[0][1] if docs_with_scores else float('inf')
             steps = ["Retrieving relevant documents..."]
             
-            # Auto-Trigger Web Search ONLY if truly zero or garbage matches
             suggested_action = None
             
-            # Use 1.2 threshold for "Low Confidence" warning to be more proactive
             if not docs_with_scores or best_score > 1.2:
+                # If the AI isn't sure, it won't lie. It suggests a Web Search.
                 if not docs_with_scores:
                     steps.append("⚠️ No relevant documents found (Score: inf)...")
                 else:
@@ -567,19 +610,19 @@ Answer:"""
                 steps.append(f"High relevance found (Score: {best_score:.2f})...")
                 steps.append("Synthesizing answer from documents...")
             
-            # Unpack docs for the chain
             docs = [doc for doc, _ in docs_with_scores]
             
         except Exception as e:
+            # Graceful Degradation: If ChromaDB fails, we still answer using general knowledge.
             print(f"⚠️ Retrieval note: {e}")
             docs = []
             steps = ["Notice: Using general knowledge (no documents matching your query)."]
             suggested_action = "web_search"
         
+        # --- PHASE 2: CITATION PREPARATION ---
+        # We store exactly where each chunk came from for the 'Source' list in the UI.
         citations = []
-        
         for doc in docs:
-            # metadata 'source' should be the original filename
             source = doc.metadata.get("source", "unknown")
             content = doc.page_content.strip()
             citations.append({
@@ -588,19 +631,14 @@ Answer:"""
                 "page": doc.metadata.get("page", None)
             })
         
-        # Generator answer using the chain (re-using build_chain logic logic but manually feeding docs)
-        # We need to re-construct the chain input manually since we bypassed the retriever
-        
-        rag_chain = self.build_chain(chat_history)["chain"]
-        
-        # We need to override the retriever in the chain OR just format docs manually
-        # Easier to use the prompts directly since we already have the docs
-        
+        # --- PHASE 3: LLM GENERATION ---
+        # We manually construct the context string to fit the LLM's prompt.
         context_str = "\n\n".join([f"[Source: {d.metadata.get('source', 'unknown')}]\n{d.page_content}" for d in docs])
         
         has_history = chat_history is not None and len(chat_history) > 0
         history_placeholder = "{chat_history}\n" if has_history else ""
         
+        # Pull the list of actually indexed files (from the database) for the system prompt
         file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
         
         template = f"""You are KnowBot, a professional AI Knowledge Engine.
@@ -622,29 +660,35 @@ Answer:"""
         
         from langchain_core.prompts import ChatPromptTemplate
         prompt = ChatPromptTemplate.from_template(template)
-        chain = prompt | self.llm | StrOutputParser()
+        chain = prompt | self.llm | StrOutputParser() # The standard LCEL 'Chain'
         
         input_data = {"question": question}
         if has_history:
             input_data["chat_history"] = chat_history
             
+        # The actual inference call to the LLM (Groq or Ollama)
         response = chain.invoke(input_data)
         
-
         if 'suggested_action' not in locals():
             suggested_action = None
 
         return {
             "response": response,
             "citations": citations,
-            "steps": steps,
+            "steps": steps, # Detailed thinking steps for the UI
             "suggested_action": suggested_action,
             "suggestions": self.generate_suggestions(response, question)
         }
 
     def general_query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
-        """Execute a general LLM query without RAG context."""
+        """
+        FALLBACK: Used when no documents are found.
+        The system acts as a standard ChatGPT-style assistant.
+        """
         thinking_steps = ["Analyzing request...", "Checking knowledge base...", "No documents found, using general knowledge..."]
+        
+        has_history = chat_history is not None and len(chat_history) > 0
+        history_placeholder = "{chat_history}\n" if has_history else ""
         
         if has_history:
             template = f"""You are KnowBot, a helpful AI assistant.
@@ -677,7 +721,14 @@ Answer:"""
         }
 
     def web_search_query(self, question: str, chat_history: List = None) -> Dict[str, Any]:
-        """Execute a WEB SEARCH query using Tavily API."""
+        """
+        ADVANCED FEATURE: Live Web Search via Tavily API.
+        
+        HOW IT WORKS:
+        1. Contextualize: It uses the LLM to 'rewrite' the user's question into a better search query.
+        2. Search: Hits Tavily API to get real-time facts.
+        3. RAG 2.0: Feeds the web search results as the context to the LLM.
+        """
         import os
         from tavily import TavilyClient
         
@@ -687,7 +738,7 @@ Answer:"""
 
         thinking_steps = ["Analyzing request..."]
         
-        # 1. Reformulate Query if History Exists (Contextualize)
+        # 1. Reformulate Query (Make it a standalone search term)
         search_query = question
         if chat_history and len(chat_history) > 0:
             thinking_steps.append("Contextualizing search query...")
@@ -699,11 +750,9 @@ Follow Up Input: {question}
 Standalone Question:"""
                 reform_prompt = ChatPromptTemplate.from_template(reform_template)
                 reform_chain = reform_prompt | self.llm | StrOutputParser()
-                # We need to serialize history to string for this specific prompt
                 history_str = "\n".join([f"{msg.type}: {msg.content}" for msg in chat_history])
                 
                 search_query = reform_chain.invoke({"chat_history": history_str, "question": question})
-                print(f"Reformulated '{question}' to '{search_query}'")
                 thinking_steps.append(f"Refined Query: {search_query}")
             except Exception as e:
                 print(f"Query reformulation failed: {e}")
@@ -712,11 +761,9 @@ Standalone Question:"""
         
         try:
             tavily = TavilyClient(api_key=tavily_key)
-            # Use 'basic' search depth to save memory in hosted environments
             search_result = tavily.search(query=search_query, search_depth="basic")
             thinking_steps.append("Reading search results...")
             
-            # Format context from web results
             web_context = "\n\n".join([
                 f"Source: {res['url']}\nTitle: {res['title']}\nContent: {res['content']}" 
                 for res in search_result.get('results', [])[:3]
@@ -724,7 +771,10 @@ Standalone Question:"""
             
             thinking_steps.append("Synthesizing answer...")
             
-            # Build prompt with web context
+            # Step 2: Build prompt with web context
+            has_history = chat_history is not None and len(chat_history) > 0
+            history_placeholder = "{chat_history}\n" if has_history else ""
+            
             if has_history:
                 template = f"""You are KnowBot, a helpful AI assistant with live web access.
             
