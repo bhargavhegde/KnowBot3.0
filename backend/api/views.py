@@ -436,6 +436,10 @@ class SystemPromptViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='activate')
     def activate(self, request, pk=None):
         """Set a specific prompt as the current persona."""
+        # First, deactivate ALL prompts for this user
+        SystemPrompt.objects.filter(user=request.user, is_active=True).update(is_active=False)
+        
+        # Then activate the selected prompt
         prompt = self.get_object()
         prompt.is_active = True
         prompt.save()
