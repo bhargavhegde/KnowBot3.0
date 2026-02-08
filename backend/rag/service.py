@@ -664,11 +664,20 @@ Answer:"""
         has_history = chat_history is not None and len(chat_history) > 0
         history_placeholder = "{chat_history}\n" if has_history else ""
         
-        template = f"""You are KnowBot, a helpful AI assistant.
+        # Use custom prompt if available, otherwise use default
+        if self.custom_prompt and self.custom_prompt.strip():
+            template = f"""{self.custom_prompt.strip()}
+
+{history_placeholder}Question: {{question}}
+
+Answer:"""
+        else:
+            template = f"""You are KnowBot, a helpful AI assistant.
         
 {history_placeholder}Question: {{question}}
 
 Answer:"""
+        
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | self.llm | StrOutputParser()
         
@@ -738,7 +747,21 @@ Standalone Question:"""
             has_history = chat_history is not None and len(chat_history) > 0
             history_placeholder = "{chat_history}\n" if has_history else ""
             
-            template = f"""You are KnowBot, a helpful AI assistant with live web access.
+            # Use custom prompt if available, otherwise use default
+            if self.custom_prompt and self.custom_prompt.strip():
+                template = f"""{self.custom_prompt.strip()}
+
+Use the following search results to answer the user's question.
+Always cite your sources using the URLs provided.
+
+Web Search Results:
+{web_context}
+
+{history_placeholder}Question: {{question}}
+
+Answer:"""
+            else:
+                template = f"""You are KnowBot, a helpful AI assistant with live web access.
             
 Use the following search results to answer the user's question accurately.
 Always cite your sources using the URLs provided.
