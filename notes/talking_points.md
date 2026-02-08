@@ -36,3 +36,35 @@ I implemented an **Intermediate Reasoning Step** (Query Transformation) before t
 
 **Key Takeaway:**
 "Effective Agentic RAG isn't just about retrieving data; it's about **pre-processing user intent**. By transforming conversational shorthand into explicit, semantic queries, we dramatically improve the system's robustness and usability without the user ever knowing the query was rewritten."
+## 3. Storage Strategy: Decoupled Vector Store vs. pgvector
+
+**The Question:** "Why use a separate tool like ChromaDB instead of just adding the `pgvector` extension to your existing PostgreSQL database?"
+
+**The Rationale (The "Decoupled" mindset):**
+"While `pgvector` is a robust and valid choice for many production apps, I intentionally chose a **Decoupled Vector Architecture** for several strategic reasons:
+
+*   **1. Rapid Prototyping & Iteration:** ChromaDB is 'AI-native'. It allowed me to iterate on embedding dimensions and distance metrics (Cosine vs. L2) in minutes without migrating database schemas or altering production table structures.
+*   **2. Abstraction & Flexibility:** By decoupling the Vector Store, the application logic is **DB-Agnostic**. I can swap Chroma for high-performance managed services like **Pinecone** or **Weaviate** for millions of documents just by changing an environment variable, leaving the Postgres relational layer untouched.
+*   **3. Performance Isolation:** Vector search (especially HNSW indexing) is CPU and Memory intensive. By separating them, a heavy search spike won't bottleneck our critical relational transactions (like user login or payments) in a multi-tenant environment."
+
+### 🔬 The Theory: Comparing Options
+
+*   📂 **Embedded (e.g., ChromaDB - *Our Choice*):**
+    *   **Best For:** Fast prototyping, local-first apps, and demos.
+    *   **Pros:** Zero-latency (local disk), no extra billing for separate clusters.
+    *   **Cons:** Hard to scale across multiple servers (the 'Local Disk' problem).
+
+*   🐘 **Relational Hybrid (e.g., Postgres + `pgvector`):**
+    *   **Best For:** Small to medium datasets where 'all-in-one' simplicity is key.
+    *   **Pros:** Same backup/security policy for structured and vector data.
+    *   **Cons:** Scaling search can affect database performance; can be rigid.
+
+*   ☁️ **Managed / Serverless (e.g., Pinecone, Weaviate Cloud):**
+    *   **Best For:** Large scale (millions of docs) and production environments.
+    *   **Pros:** Auto-scaling, metadata filtering at scale, handled for you.
+    *   **Cons:** Higher cost, latency (network call), vendor lock-in.
+
+---
+
+**Key Takeaway:**
+"Architecture is a set of trade-offs. I chose Chroma for its **speed-to-market** and **decoupled modularity**, demonstrating an architecture that is ready to be 'promoted' to a cloud-managed vector store without a major rewrite of the backend logic."

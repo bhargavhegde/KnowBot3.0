@@ -8,7 +8,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
-import { apiService, Document, ChatSession } from '@/lib/api';
+import { apiService, Document, ChatSession, SystemPrompt } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
 import { BrainAvatar } from './BrainAvatar';
@@ -17,6 +17,10 @@ export function Sidebar() {
     const { user, logout } = useAuth();
     const { sessions, currentSessionId, createNewSession, selectSession, deleteSession, fetchInitialSuggestions } = useChat();
     const [documents, setDocuments] = useState<Document[]>([]);
+    const [prompts, setPrompts] = useState<SystemPrompt[]>([]);
+    const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
+    const [newPromptName, setNewPromptName] = useState('');
+    const [newPromptContent, setNewPromptContent] = useState('');
     const [isUploading, setIsUploading] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -25,8 +29,18 @@ export function Sidebar() {
     useEffect(() => {
         if (user) {
             fetchDocuments();
+            fetchPrompts();
         }
     }, [user]);
+
+    const fetchPrompts = async () => {
+        try {
+            const resp = await apiService.getPrompts();
+            setPrompts(resp.data);
+        } catch (err) {
+            console.error('Failed to fetch prompts:', err);
+        }
+    };
 
     const fetchDocuments = async () => {
         try {
@@ -150,6 +164,48 @@ export function Sidebar() {
         );
     };
 
+    const handleCreatePrompt = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newPromptName.trim() || !newPromptContent.trim()) return;
+
+        try {
+            await apiService.createPrompt({ name: newPromptName, content: newPromptContent });
+            setNewPromptName('');
+            setNewPromptContent('');
+            setIsPromptModalOpen(false);
+            fetchPrompts();
+        } catch (err) {
+            setError('Failed to create persona');
+        }
+    };
+
+    const handleActivatePrompt = async (id: number) => {
+        try {
+            await apiService.activatePrompt(id);
+            fetchPrompts();
+        } catch (err) {
+            setError('Failed to activate persona');
+        }
+    };
+
+    const handleResetPrompt = async () => {
+        try {
+            await apiService.resetPrompt();
+            fetchPrompts();
+        } catch (err) {
+            setError('Failed to reset persona');
+        }
+    };
+
+    const handleDeletePrompt = async (id: number) => {
+        try {
+            await apiService.deletePrompt(id);
+            fetchPrompts();
+        } catch (err) {
+            setError('Failed to delete persona');
+        }
+    };
+
     return (
         <div
             className="w-80 flex flex-col h-full shadow-2xl border-r border-fuchsia-500/20 relative z-10 overflow-hidden"
@@ -169,7 +225,7 @@ export function Sidebar() {
                 </div>
             </div>
 
-            {/* Content Tabs/Sections */}
+            {/* Main Content Area (Scrollable) */}
             <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col">
 
                 {/* Chat History Section */}
@@ -247,13 +303,11 @@ export function Sidebar() {
                     </div>
                 </div>
 
-
                 {/* Documents Section */}
-                <div className="px-6 pt-2 pb-6 flex-1 min-h-0">
+                <div className="px-6 pt-2 pb-4">
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="text-[10px] font-bold text-amber-500/80 uppercase tracking-[0.2em]">Neural Documents</h3>
                         <div className="flex items-center gap-1">
-                            {/* Upload Button */}
                             <div {...getRootProps()} className="flex items-center">
                                 <input {...getInputProps()} />
                                 <motion.button
@@ -287,7 +341,6 @@ export function Sidebar() {
                             <p className="text-[9px] text-amber-500 font-bold uppercase tracking-widest">Uploading Neural Data...</p>
                         </div>
                     )}
-
 
                     <div className="space-y-2">
                         {documents.map((doc) => (
@@ -334,6 +387,67 @@ export function Sidebar() {
                         ))}
                     </div>
                 </div>
+
+                {/* System Persona Section */}
+                <div className="px-6 pt-2 pb-6 border-t border-fuchsia-500/10">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-[10px] font-bold text-fuchsia-400/80 uppercase tracking-[0.2em]">Neural Personas</h3>
+                        <div className="flex items-center gap-1">
+                            <motion.button
+                                onClick={() => setIsPromptModalOpen(true)}
+                                className="w-7 h-7 flex items-center justify-center text-lg font-bold text-white 
+                                         rounded-lg border border-transparent hover:border-fuchsia-500/30 hover:bg-fuchsia-500/10 transition-all"
+                                whileHover={{ scale: 1.1, rotate: 90 }}
+                                whileTap={{ scale: 0.9 }}
+                                title="Add Prototype Persona"
+                            >
+                                +
+                            </motion.button>
+                            <motion.button
+                                onClick={handleResetPrompt}
+                                className="w-7 h-7 flex items-center justify-center text-xs text-slate-500 hover:text-cyan-400 
+                                         rounded-lg border border-transparent hover:border-cyan-500/30 hover:bg-cyan-500/10 transition-all"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                title="Restore Default Persona"
+                            >
+                                🔄
+                            </motion.button>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        {prompts.length === 0 ? (
+                            <p className="text-[9px] text-slate-500 italic text-center py-2">Using default KnowBot system instructions.</p>
+                        ) : (
+                            prompts.map((prompt) => (
+                                <motion.div
+                                    key={prompt.id}
+                                    className={`rounded-xl p-3 border transition-all cursor-pointer relative group
+                                        ${prompt.is_active
+                                            ? 'bg-fuchsia-500/10 border-fuchsia-500/30 shadow-lg shadow-fuchsia-500/10'
+                                            : 'bg-slate-900/40 border-slate-800 hover:border-fuchsia-500/20'}`}
+                                    onClick={() => handleActivatePrompt(prompt.id)}
+                                    whileHover={{ x: 4 }}
+                                >
+                                    <div className="pr-6">
+                                        <p className={`text-[10px] font-bold ${prompt.is_active ? 'text-fuchsia-300' : 'text-gray-400'}`}>
+                                            {prompt.is_active && '⭐ '}{prompt.name}
+                                        </p>
+                                        <p className="text-[8px] text-gray-500 mt-1 line-clamp-1">{prompt.content}</p>
+                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleDeletePrompt(prompt.id); }}
+                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-gray-600 hover:text-red-400 transition-opacity"
+                                    >
+                                        ✕
+                                    </button>
+                                </motion.div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
             </div>
 
             {/* Error Display */}
@@ -390,6 +504,69 @@ export function Sidebar() {
                     </motion.button>
                 </div>
             </div>
+
+            {/* Prompt Creation Modal */}
+            <AnimatePresence>
+                {isPromptModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="w-full max-w-md bg-slate-900 border border-fuchsia-500/30 rounded-2xl shadow-2xl p-6 overflow-hidden relative"
+                        >
+                            {/* Decorative background accent */}
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-fuchsia-500/10 blur-3xl -mr-16 -mt-16 rounded-full" />
+
+                            <h2 className="text-xl font-bold text-white mb-1">New Neural Persona</h2>
+                            <p className="text-xs text-fuchsia-400/60 mb-6 uppercase tracking-[0.2em] font-semibold">Override System Logic</p>
+
+                            <form onSubmit={handleCreatePrompt} className="space-y-4">
+                                <div>
+                                    <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1.5 ml-1">Persona Name</label>
+                                    <input
+                                        type="text"
+                                        value={newPromptName}
+                                        onChange={(e) => setNewPromptName(e.target.value)}
+                                        placeholder="e.g. Supreme Guardian"
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-fuchsia-500/50 transition-all"
+                                        autoFocus
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1.5 ml-1">Core Instructions</label>
+                                    <textarea
+                                        value={newPromptContent}
+                                        onChange={(e) => setNewPromptContent(e.target.value)}
+                                        placeholder="Enter the system prompt instructions..."
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-fuchsia-500/50 h-32 resize-none transition-all"
+                                    />
+                                </div>
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsPromptModalOpen(false)}
+                                        className="flex-1 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-bold rounded-xl transition-all"
+                                    >
+                                        CANCEL
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 px-4 py-3 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-fuchsia-500/20 transition-all"
+                                    >
+                                        ACTIVATE PROTOTYPE
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

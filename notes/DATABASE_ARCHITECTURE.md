@@ -10,10 +10,15 @@ This document explains the "Dual-Brain" architecture of KnowBot 3.0. We use a **
 
 We do not store everything in one place. We split data based on its **access pattern**.
 
-| Feature | Database | Why? |
-| :--- | :--- | :--- |
-| **Structured Data** (Users, Auth, File Metadata) | **PostgreSQL** | ACID compliance, strict schemas, Foreign Keys. |
-| **Unstructured Data** (Document Content, Meaning) | **ChromaDB** | Vector similarity search (HNSW), fuzzy matching. |
+### Access Patterns
+
+*   📊 **PostgreSQL (Structured Data)**
+    *   **Stores:** Users, Auth, File Metadata.
+    *   **Why:** ACID compliance, strict schemas, Foreign Keys.
+
+*   🧠 **ChromaDB (Unstructured Data)**
+    *   **Stores:** Document Content, Semantic Meaning.
+    *   **Why:** Vector similarity search (HNSW), fuzzy matching.
 
 ### The "Golden Thread"
 The link between these two worlds is the **`file_path`** and **`user_id`**.
@@ -99,8 +104,14 @@ Chroma uses **Hierarchical Navigable Small World (HNSW)** graphs.
 
 ## 5. Architectural Trade-offs
 
-| Decision | Pro | Con |
-| :--- | :--- | :--- |
-| **Shared Database (Multi-tenancy)** | Easy to manage, cheap (1 RDS instance). | "Noisy Neighbor" problem (one heavy user slows down everyone). |
-| **Local File Storage** | Zero latency, free. | **Data Loss on Deploy** (The Ephemeral Storage issue). |
-| **Async Indexing (Celery)** | User UI never freezes. | Complexity (requires Redis + Worker container). |
+*   🏢 **Shared Database (Multi-tenancy)**
+    *   **Pro:** Easy to manage, cheap (1 RDS instance).
+    *   **Con:** "Noisy Neighbor" problem (one heavy user slows down everyone).
+
+*   💾 **Local File Storage**
+    *   **Pro:** Zero latency, free.
+    *   **Con:** Data Loss on Deploy (The Ephemeral Storage issue).
+
+*   ⚡ **Async Indexing (Celery)**
+    *   **Pro:** User UI never freezes.
+    *   **Con:** Complexity (requires Redis + Worker container).

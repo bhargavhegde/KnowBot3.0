@@ -16,7 +16,7 @@ railway login
 ### 2. Enter Production Shell
 Use this to run management commands directly on the server:
 ```bash
-railway ssh --project=af06bd05-337a-443c-af31-41ed631d5649 --environment=fd755d40-b6b2-4111-8061-9820e9e178ad --service=f281100c-b1b3-4a1e-9cbc-1b7fd46cdf5c
+railway ssh --project=af06bd05-337a-443c-af31-41ed631d5649 --environment=fd755d40-b6b2-4111-8061-9820e9e178ad --service=e16766f7-1092-4864-bd5d-ed976cf8c816
 ```
 
 ### 3. Initialize Admin User
@@ -30,6 +30,19 @@ Run this **inside** the `railway ssh` shell if you change models:
 ```bash
 python manage.py migrate
 ```
+
+## 💣 Total Reset (PostgreSQL)
+If you want to wipe all users and data from the database, follow these steps in the **Railway Dashboard**:
+1.  Click on your **Postgres** service card in the project view.
+2.  Click on the **Data** tab in the top navigation bar of the service.
+3.  Click the **"Query"** button (or similar icon) to open the SQL editor.
+4.  Run these commands to drop and recreate the schema:
+
+```sql
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+```
+*(Note: Railway will automatically rebuild the tables on the next backend start/restart)*
 
 ## 🧠 Memory Stability
 If you encounter `SIGKILL` or OOM errors in production:

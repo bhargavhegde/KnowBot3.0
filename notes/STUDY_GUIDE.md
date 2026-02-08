@@ -39,6 +39,28 @@ Open these files in order. Look for the `ARCHITECTURAL NOTE` comments I added.
 
 ---
 
+## 📂 Directory Structure: The High-Level Map
+
+*   📂 **`backend/knowbot/`** (**Project Core**)
+    The "Management Office." Contains `settings.py` (configuration), `wsgi.py` (web server entry), and `celery.py` (background task engine).
+
+*   📂 **`backend/api/`** (**The Heart**)
+    The main Django App. Contains high-level business logic: `models.py` (user data), `views.py` (API endpoints), and `tasks.py` (background jobs).
+
+*   📂 **`backend/rag/`** (**The Intelligence**)
+    The core AI logic. This is where the Python-only AI services live (`service.py`). It handles embeddings, vector search, and custom LLM prompts.
+
+*   📂 **`frontend/`** (**The Face**)
+    The Next.js 14 application. Everything the user sees and touches is managed here using React, Tailwind, and Framer Motion.
+
+*   📂 **`data/`** & **`chroma_db/`** (**The Memory**)
+    The physical storage. `data/` holds your raw PDFs; `chroma_db/` holds the mathematical "vectors" the bot uses to search.
+
+*   📂 **`notes/`** (**The Playbook**)
+    Strategy guides, interview talking points, and system design documents.
+
+---
+
 ## Bonus: System Design Topics
 If they ask "How would you scale this to 100k users?", use the **Ephemeral Storage** notes in `notes/talking_points.md`.
 *   Move files to S3.
