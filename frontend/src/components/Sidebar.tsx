@@ -169,40 +169,49 @@ export function Sidebar() {
         if (!newPromptName.trim() || !newPromptContent.trim()) return;
 
         try {
+            console.log('Creating super prompt:', { name: newPromptName, content: newPromptContent });
             await apiService.createPrompt({ name: newPromptName, content: newPromptContent });
             setNewPromptName('');
             setNewPromptContent('');
             setIsPromptModalOpen(false);
             fetchPrompts();
         } catch (err) {
-            setError('Failed to create persona');
+            console.error('Failed to create super prompt:', err);
+            setError('Failed to create super prompt. Please try again.');
         }
     };
 
     const handleActivatePrompt = async (id: number) => {
         try {
+            console.log('Activating super prompt:', id);
             await apiService.activatePrompt(id);
             fetchPrompts();
         } catch (err) {
-            setError('Failed to activate persona');
+            console.error('Failed to activate super prompt:', err);
+            setError('Failed to activate super prompt. Please try again.');
         }
     };
 
     const handleResetPrompt = async () => {
         try {
+            console.log('Resetting to default prompt');
             await apiService.resetPrompt();
             fetchPrompts();
         } catch (err) {
-            setError('Failed to reset persona');
+            console.error('Failed to reset prompt:', err);
+            setError('Failed to reset to default. Please try again.');
         }
     };
 
     const handleDeletePrompt = async (id: number) => {
+        if (!window.confirm('Delete this super prompt?')) return;
         try {
+            console.log('Deleting super prompt:', id);
             await apiService.deletePrompt(id);
             fetchPrompts();
         } catch (err) {
-            setError('Failed to delete persona');
+            console.error('Failed to delete super prompt:', err);
+            setError('Failed to delete super prompt. Please try again.');
         }
     };
 
@@ -388,10 +397,21 @@ export function Sidebar() {
                     </div>
                 </div>
 
-                {/* System Persona Section */}
+                {/* Super Prompts Section */}
                 <div className="px-6 pt-2 pb-6 border-t border-fuchsia-500/10">
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-[10px] font-bold text-fuchsia-400/80 uppercase tracking-[0.2em]">Neural Personas</h3>
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-[10px] font-bold text-fuchsia-400/80 uppercase tracking-[0.2em]">Super Prompts</h3>
+                            <div className="group relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-fuchsia-400/60 hover:text-fuchsia-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div className="absolute left-0 top-6 w-64 p-3 bg-slate-900 border border-fuchsia-500/30 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50 text-[10px] text-gray-300 leading-relaxed">
+                                    <p className="font-bold text-fuchsia-300 mb-1">What are Super Prompts?</p>
+                                    <p>Override the bot's default behavior with custom instructions. Create different AI personalities for different tasks!</p>
+                                </div>
+                            </div>
+                        </div>
                         <div className="flex items-center gap-1">
                             <motion.button
                                 onClick={() => setIsPromptModalOpen(true)}
@@ -399,7 +419,7 @@ export function Sidebar() {
                                          rounded-lg border border-transparent hover:border-fuchsia-500/30 hover:bg-fuchsia-500/10 transition-all"
                                 whileHover={{ scale: 1.1, rotate: 90 }}
                                 whileTap={{ scale: 0.9 }}
-                                title="Add Prototype Persona"
+                                title="Create New Super Prompt"
                             >
                                 +
                             </motion.button>
@@ -409,7 +429,7 @@ export function Sidebar() {
                                          rounded-lg border border-transparent hover:border-cyan-500/30 hover:bg-cyan-500/10 transition-all"
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                title="Restore Default Persona"
+                                title="Reset to Default"
                             >
                                 🔄
                             </motion.button>
@@ -523,27 +543,27 @@ export function Sidebar() {
                             {/* Decorative background accent */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-fuchsia-500/10 blur-3xl -mr-16 -mt-16 rounded-full" />
 
-                            <h2 className="text-xl font-bold text-white mb-1">New Neural Persona</h2>
-                            <p className="text-xs text-fuchsia-400/60 mb-6 uppercase tracking-[0.2em] font-semibold">Override System Logic</p>
+                            <h2 className="text-xl font-bold text-white mb-1">Create Super Prompt</h2>
+                            <p className="text-xs text-fuchsia-400/60 mb-6 uppercase tracking-[0.2em] font-semibold">Custom AI Instructions</p>
 
                             <form onSubmit={handleCreatePrompt} className="space-y-4">
                                 <div>
-                                    <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1.5 ml-1">Persona Name</label>
+                                    <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1.5 ml-1">Prompt Name</label>
                                     <input
                                         type="text"
                                         value={newPromptName}
                                         onChange={(e) => setNewPromptName(e.target.value)}
-                                        placeholder="e.g. Supreme Guardian"
+                                        placeholder="e.g. Code Expert, Creative Writer"
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-fuchsia-500/50 transition-all"
                                         autoFocus
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1.5 ml-1">Core Instructions</label>
+                                    <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1.5 ml-1">Super Prompt</label>
                                     <textarea
                                         value={newPromptContent}
                                         onChange={(e) => setNewPromptContent(e.target.value)}
-                                        placeholder="Enter the system prompt instructions..."
+                                        placeholder="You are a helpful coding assistant specialized in Python..."
                                         className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-fuchsia-500/50 h-32 resize-none transition-all"
                                     />
                                 </div>
@@ -559,7 +579,7 @@ export function Sidebar() {
                                         type="submit"
                                         className="flex-1 px-4 py-3 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-fuchsia-500/20 transition-all"
                                     >
-                                        ACTIVATE PROTOTYPE
+                                        ACTIVATE PROMPT
                                     </button>
                                 </div>
                             </form>
