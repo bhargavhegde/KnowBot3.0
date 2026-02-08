@@ -5,9 +5,9 @@
         "dockerfilePath": "backend/Dockerfile"
     },
     "deploy": {
-        "startCommand": "sh -c 'python manage.py migrate && celery -A knowbot worker --loglevel=info --concurrency=1 --detach && gunicorn knowbot.wsgi:application --bind 0.0.0.0:${PORT:-8000} --timeout 120 --workers 1'",
+        "startCommand": "sh -c 'python manage.py migrate && gunicorn knowbot.wsgi:application --bind 0.0.0.0:${PORT:-8000} --timeout 120 --workers 1'",
         "healthcheckPath": "/api/health/",
-        "healthcheckTimeout": 120,
+        "healthcheckTimeout": 100,
         "restartPolicyType": "ON_FAILURE"
     }
 }
