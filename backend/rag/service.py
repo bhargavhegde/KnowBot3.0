@@ -402,12 +402,8 @@ Question: {question}
 
 Answer:"""
     
-    def __init__(self, custom_prompt: Optional[str] = None, user_id: int = None):
-        self.custom_prompt = custom_prompt
+    def __init__(self, user_id: int = None):
         self.user_id = user_id
-        print(f"[DEBUG RAGEngine] Initialized with custom_prompt={'YES' if custom_prompt else 'NO'}, user_id={user_id}")
-        if custom_prompt:
-            print(f"[DEBUG RAGEngine] Custom prompt preview: {custom_prompt[:100]}...")
         if LLM_PROVIDER == 'groq':
             if not GROQ_API_KEY:
                 print("Warning: GROQ_API_KEY not found. Falling back to Ollama.")
@@ -443,35 +439,14 @@ Answer:"""
             return []
 
     def build_prompt(self, has_history: bool = False) -> ChatPromptTemplate:
-        """Build the prompt template with optional custom instructions and history support."""
+        """Build the prompt template with history support."""
         file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
         
         history_placeholder = "{chat_history}\n" if has_history else ""
-        
-        if self.custom_prompt and self.custom_prompt.strip():
-            print(f"[DEBUG build_prompt] Using CUSTOM prompt")
-            # Use custom prompt as the PRIMARY template - make it VERY prominent
-            template = f"""CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:
-{self.custom_prompt.strip()}
-
-{history_placeholder}
-Available Documents:
-{file_list_str}
-
-Retrieved Context:
-{{context}}
-
-User Question: {{question}}
-
-REMEMBER: {self.custom_prompt.strip()}
-
-Answer:"""
-        else:
-            print(f"[DEBUG build_prompt] Using DEFAULT prompt")
-            template = self.DEFAULT_TEMPLATE.replace("{file_list}", file_list_str)
-            if has_history:
-                # Insert history before the question in the default template
-                template = template.replace("Question: {question}", f"{history_placeholder}\nQuestion: {{question}}")
+        template = self.DEFAULT_TEMPLATE.replace("{file_list}", file_list_str)
+        if has_history:
+            # Insert history before the question in the default template
+            template = template.replace("Question: {question}", f"{history_placeholder}\nQuestion: {{question}}")
         
         return ChatPromptTemplate.from_template(template)
     
@@ -671,23 +646,16 @@ Answer:"""
         """Execute a general LLM query without RAG context."""
         thinking_steps = ["Analyzing request...", "Checking knowledge base...", "No documents found, using general knowledge..."]
         
-        has_history = chat_history is not None and len(chat_history) > 0
-        history_placeholder = "{chat_history}\n" if has_history else ""
+        if has_history:
+            template = f"""You are KnowBot, a helpful AI assistant.
         
-        # Use custom prompt if available, otherwise use default
-        if self.custom_prompt and self.custom_prompt.strip():
-            template = f"""CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:
-{self.custom_prompt.strip()}
-
-{history_placeholder}User Question: {{question}}
-
-REMEMBER: {self.custom_prompt.strip()}
+{history_placeholder}Question: {{question}}
 
 Answer:"""
         else:
             template = f"""You are KnowBot, a helpful AI assistant.
         
-{history_placeholder}Question: {{question}}
+Question: {{question}}
 
 Answer:"""
         
@@ -757,23 +725,16 @@ Standalone Question:"""
             thinking_steps.append("Synthesizing answer...")
             
             # Build prompt with web context
-            has_history = chat_history is not None and len(chat_history) > 0
-            history_placeholder = "{chat_history}\n" if has_history else ""
+            if has_history:
+                template = f"""You are KnowBot, a helpful AI assistant with live web access.
             
-            # Use custom prompt if available, otherwise use default
-            if self.custom_prompt and self.custom_prompt.strip():
-                template = f"""CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:
-{self.custom_prompt.strip()}
-
-Use the following search results to answer the user's question.
+Use the following search results to answer the user's question accurately.
 Always cite your sources using the URLs provided.
 
 Web Search Results:
 {web_context}
 
-{history_placeholder}User Question: {{question}}
-
-REMEMBER: {self.custom_prompt.strip()}
+{history_placeholder}Question: {{question}}
 
 Answer:"""
             else:
@@ -785,7 +746,7 @@ Always cite your sources using the URLs provided.
 Web Search Results:
 {web_context}
 
-{history_placeholder}Question: {{question}}
+Question: {{question}}
 
 Answer:"""
             
@@ -900,7 +861,7 @@ def get_vector_store(chunks: List = None, user_id: int = None) -> Chroma:
     return manager.get_or_create_vector_store(chunks)
 
 
-def build_rag_chain(custom_prompt: Optional[str] = None, user_id: int = None) -> Dict[str, Any]:
-    """Build RAG chain with optional custom prompt."""
-    engine = RAGEngine(custom_prompt=custom_prompt, user_id=user_id)
+def build_rag_chain(user_id: int = None) -> Dict[str, Any]:
+    """Build RAG chain."""
+    engine = RAGEngine(user_id=user_id)
     return engine.build_chain()

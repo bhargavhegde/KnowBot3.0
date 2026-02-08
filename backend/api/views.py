@@ -295,16 +295,7 @@ def chat(request):
         content=message
     )
     
-    # Load custom prompt if active
-    custom_prompt = None
-    try:
-        active_prompt = SystemPrompt.objects.get(is_active=True, user=request.user)
-        custom_prompt = active_prompt.content
-        print(f"[DEBUG] Found active prompt for user {request.user.id}: '{active_prompt.name}'")
-        print(f"[DEBUG] Prompt content: {custom_prompt[:100]}...")
-    except SystemPrompt.DoesNotExist:
-        print(f"[DEBUG] No active prompt found for user {request.user.id}")
-        pass
+
     
     # Check document status for better context
     user_docs = Document.objects.filter(user=request.user)
@@ -312,8 +303,7 @@ def chat(request):
     has_pending = user_docs.filter(index_status__in=[Document.IndexStatus.PENDING, Document.IndexStatus.PROCESSING]).exists()
 
     try:
-        print(f"[DEBUG] Initializing RAGEngine with custom_prompt={'YES' if custom_prompt else 'NO'}")
-        engine = RAGEngine(custom_prompt=custom_prompt, user_id=request.user.id)
+        engine = RAGEngine(user_id=request.user.id)
         
         # Fetch previous messages for context
         history_messages = ChatMessage.objects.filter(session=session).order_by('-created_at')[1:6] # Skip current, take last 5
@@ -415,45 +405,7 @@ def preview_document(request, pk):
         return Response({'error': 'Document not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
-class SystemPromptViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for managing system prompts (Personas).
-    Ensures that only ONE prompt is active at a time per user.
-    """
-    serializer_class = SystemPromptSerializer
 
-    def get_queryset(self):
-        return SystemPrompt.objects.filter(user=self.request.user)
-    
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-    
-    @action(detail=False, methods=['get'], url_path='active')
-    def get_active(self, request):
-        """Returns the currently selected persona."""
-        try:
-            prompt = SystemPrompt.objects.get(is_active=True, user=request.user)
-            return Response(SystemPromptSerializer(prompt).data)
-        except SystemPrompt.DoesNotExist:
-            return Response({'message': 'No active prompt. Using default.'})
-    
-    @action(detail=True, methods=['post'], url_path='activate')
-    def activate(self, request, pk=None):
-        """Set a specific prompt as the current persona."""
-        # First, deactivate ALL prompts for this user
-        SystemPrompt.objects.filter(user=request.user, is_active=True).update(is_active=False)
-        
-        # Then activate the selected prompt
-        prompt = self.get_object()
-        prompt.is_active = True
-        prompt.save()
-        return Response(SystemPromptSerializer(prompt).data)
-    
-    @action(detail=False, methods=['post'], url_path='reset')
-    def reset_to_default(self, request):
-        """Deactivates all custom prompts, falling back to System default."""
-        SystemPrompt.objects.filter(is_active=True, user=request.user).update(is_active=False)
-        return Response({'message': 'Reset to default prompt'})
 
 
 @api_view(['GET'])

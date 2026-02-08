@@ -37,6 +37,18 @@ Open these files in order. Look for the `ARCHITECTURAL NOTE` comments I added.
 
 *   **What to say:** "I use Celery to manage background jobs. I configured `max_retries=3` because LLM APIs are flaky. If OpenAI times out, the task automatically backs off and retries without the user noticing."
 
+## 6. The Ego: Neural Personas
+**File:** `backend/api/models.py` & `backend/api/views.py`
+**Concept:** "Dynamic Prompt Injection"
+
+*   **What to say:** "We don't hardcode the bot's behavior. The user selects a 'Persona' from the UI, and the backend dynamically injects those instructions into the LLM prompt. It's a middleware approach to prompt engineering."
+
+## 7. The Memory: Context Windowing
+**File:** `backend/api/views.py` (Lines 312-325)
+**Concept:** "Stateful RAG"
+
+*   **What to say:** "Standard LLM calls are stateless. To provide continuity, I query the database for the last 5 messages, convert them into HumanMessage/AIMessage objects, and feed them back into the LLM. This is why the bot can answer follow-up questions like 'Tell me more about *that*'."
+
 ---
 
 ## 📂 Directory Structure: The High-Level Map

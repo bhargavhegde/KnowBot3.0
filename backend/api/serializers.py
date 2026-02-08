@@ -13,7 +13,7 @@ CONCEPTS:
 
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Document, ChatSession, ChatMessage, SystemPrompt
+from .models import Document, ChatSession, ChatMessage
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -165,12 +165,5 @@ class ChatResponseSerializer(serializers.Serializer):
     citations = serializers.ListField(child=serializers.DictField())
 
 
-class SystemPromptSerializer(serializers.ModelSerializer):
-    """Handles CRUD and activation for Bot Personas."""
-    user = UserSerializer(read_only=True)
-    
-    class Meta:
-        model = SystemPrompt
-        fields = ['id', 'user', 'name', 'content', 'is_active', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+
 

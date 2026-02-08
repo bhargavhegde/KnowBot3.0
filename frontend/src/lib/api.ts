@@ -99,14 +99,7 @@ export interface ChatSession {
     messages?: Message[];
 }
 
-export interface SystemPrompt {
-    id: number;
-    name: string;
-    content: string;
-    is_active: boolean;
-    created_at: string;
-    updated_at: string;
-}
+
 
 // API Methods
 export const apiService = {
@@ -153,13 +146,7 @@ export const apiService = {
 
     getInitialSuggestions: () => api.get<{ suggestions: string[] }>('/chat/suggestions/'),
 
-    // Prompts
-    getPrompts: () => api.get<SystemPrompt[]>('/prompts/'),
-    getActivePrompt: () => api.get<SystemPrompt>('/prompts/active/'),
-    createPrompt: (data: Partial<SystemPrompt>) => api.post<SystemPrompt>('/prompts/', data),
-    activatePrompt: (id: number) => api.post<SystemPrompt>(`/prompts/${id}/activate/`),
-    resetPrompt: () => api.post('/prompts/reset/'),
-    deletePrompt: (id: number) => api.delete(`/prompts/${id}/`),
+
 };
 
 export default api;

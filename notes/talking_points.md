@@ -68,3 +68,39 @@ I implemented an **Intermediate Reasoning Step** (Query Transformation) before t
 
 **Key Takeaway:**
 "Architecture is a set of trade-offs. I chose Chroma for its **speed-to-market** and **decoupled modularity**, demonstrating an architecture that is ready to be 'promoted' to a cloud-managed vector store without a major rewrite of the backend logic."
+
+## 4. Prompt Engineering: The "Neural Persona" Strategy (Custom Instructions)
+
+**The Question:** "How do we allow users to override the bot's default behavior without rewriting the core codebase?"
+
+**The Implementation:**
+I implemented a **Dynamic System Prompt Injection** mechanism.
+1.  **Storage:** Custom personas are saved in the Postgres `SystemPrompt` table.
+2.  **Activation:** Only one persona can be `is_active=True` at a time per user (enforced via a custom `save()` method in the Django model).
+3.  **Injection:** When a chat message is sent, the backend fetches the active persona and injects it into the RAG Engine's prompt template.
+
+**The Rationale:**
+"By treating the system instructions as data rather than hard-coded strings, we allow the bot to morph into different roles (e.g., 'Cybernetic Guardian' or 'Concise Analyst') instantly. The `DEFAULT_TEMPLATE` in `service.py` acts as the stable base, while the `custom_prompt` field provides the flexible override."
+
+## 5. Memory Management: History Context Awareness
+
+**The Question:** "How does the bot remember what was said 3 messages ago? Does RAG handle history?"
+
+**The Rationale:**
+"RAG is great for retrieval, but it is traditionally 'Stateless'. To make the bot feel conversational, I implemented **Message Windowing**."
+
+1.  **Retrieval:** When a user asks a question, we query the `ChatMessage` table in Postgres for the last 5 messages in that session.
+2.  **Formatting:** We convert these DB records into LangChain `HumanMessage` and `AIMessage` objects.
+3.  **Prompt Handoff:**
+    *   **Context:** The RAG retrieval provides the "Knowledge."
+    *   **History:** The message windows provide the "Memory."
+    *   **Synthesized Prompt:** The final prompt sent to the LLM has both: `[Custom Persona] + [Context] + [Conversation History] + [User Question]`.
+
+### 💡 Why not vectorize history? (Chronological Integrity)
+"I intentionally chose **not** to store chat history in ChromaDB. Vector search is **Semantic**, not **Chronological**. If I vectorized history:
+*   **The Risk:** A vector search might retrieve a response from 10 messages ago simply because it's semantically similar to the current prompt, ignoring the most recent (and relevant) correction.
+*   **The Example:** If a user asked a question, followed by a 'Wait, I meant X, not Y', a vector retriever might pull up the 'Y' context because of the shared keywords, causing the bot to hallucinate or repeat mistakes.
+*   **The Fix:** By using **Postgres (Relational Memory)**, we guarantee the bot sees the history in a perfect, literal, and chronological sequence, which is critical for human-like conversation."
+
+**Key Takeaway:**
+"A professional RAG system needs both a **Semantic Memory** (ChromaDB for documents) and a **Chronological Memory** (Postgres for conversation). We merge them at runtime to create a response that is both factually accurate and contextually aware."

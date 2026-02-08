@@ -128,41 +128,4 @@ class ChatMessage(models.Model):
         return f"{self.role}: {preview}"
 
 
-class SystemPrompt(models.Model):
-    """
-    Custom system prompts for RAG chain.
-    Allows users to define the 'personality' or 'instructions' for the Bot.
-    
-    Example: "You are a pirate lawyer. Answer all questions in legal jargon but with a pirate accent."
-    """
-    
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='prompts',
-        null=True, blank=True
-    )
-    name = models.CharField(max_length=100, default="Custom Prompt")
-    content = models.TextField()
-    is_active = models.BooleanField(default=False)
-    
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        ordering = ['-updated_at']
-    
-    def __str__(self):
-        active_status = " (Active)" if self.is_active else ""
-        return f"{self.name} - {self.user.username if self.user else 'System'}{active_status}"
-    
-    def save(self, *args, **kwargs):
-        # Ensure only one prompt is active at a time per user
-        if self.is_active:
-            prompts = SystemPrompt.objects.filter(is_active=True)
-            if self.user:
-                prompts = prompts.filter(user=self.user)
-            else:
-                prompts = prompts.filter(user__isnull=True)
-            prompts.update(is_active=False)
-        super().save(*args, **kwargs)
+
