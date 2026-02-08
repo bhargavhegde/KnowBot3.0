@@ -450,15 +450,20 @@ Answer:"""
         
         if self.custom_prompt and self.custom_prompt.strip():
             print(f"[DEBUG build_prompt] Using CUSTOM prompt")
-            # Use custom prompt as the PRIMARY template
-            template = f"""{self.custom_prompt.strip()}
+            # Use custom prompt as the PRIMARY template - make it VERY prominent
+            template = f"""CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:
+{self.custom_prompt.strip()}
 
 {history_placeholder}
-Documents currently in your neural memory:
+Available Documents:
 {file_list_str}
 
-Context: {{context}}
-Question: {{question}}
+Retrieved Context:
+{{context}}
+
+User Question: {{question}}
+
+REMEMBER: {self.custom_prompt.strip()}
 
 Answer:"""
         else:
@@ -671,9 +676,12 @@ Answer:"""
         
         # Use custom prompt if available, otherwise use default
         if self.custom_prompt and self.custom_prompt.strip():
-            template = f"""{self.custom_prompt.strip()}
+            template = f"""CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:
+{self.custom_prompt.strip()}
 
-{history_placeholder}Question: {{question}}
+{history_placeholder}User Question: {{question}}
+
+REMEMBER: {self.custom_prompt.strip()}
 
 Answer:"""
         else:
@@ -754,7 +762,8 @@ Standalone Question:"""
             
             # Use custom prompt if available, otherwise use default
             if self.custom_prompt and self.custom_prompt.strip():
-                template = f"""{self.custom_prompt.strip()}
+                template = f"""CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:
+{self.custom_prompt.strip()}
 
 Use the following search results to answer the user's question.
 Always cite your sources using the URLs provided.
@@ -762,7 +771,9 @@ Always cite your sources using the URLs provided.
 Web Search Results:
 {web_context}
 
-{history_placeholder}Question: {{question}}
+{history_placeholder}User Question: {{question}}
+
+REMEMBER: {self.custom_prompt.strip()}
 
 Answer:"""
             else:
