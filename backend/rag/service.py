@@ -446,12 +446,10 @@ Answer:"""
         history_placeholder = "{chat_history}\n" if has_history else ""
         
         if self.custom_prompt and self.custom_prompt.strip():
-            template = f"""{self.DEFAULT_TEMPLATE.rstrip()}
+            # Use custom prompt as the PRIMARY template
+            template = f"""{self.custom_prompt.strip()}
 
 {history_placeholder}
-Additional instructions from manager:
-{self.custom_prompt.strip()}
-
 Documents currently in your neural memory:
 {file_list_str}
 
