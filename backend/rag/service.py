@@ -405,6 +405,9 @@ Answer:"""
     def __init__(self, custom_prompt: Optional[str] = None, user_id: int = None):
         self.custom_prompt = custom_prompt
         self.user_id = user_id
+        print(f"[DEBUG RAGEngine] Initialized with custom_prompt={'YES' if custom_prompt else 'NO'}, user_id={user_id}")
+        if custom_prompt:
+            print(f"[DEBUG RAGEngine] Custom prompt preview: {custom_prompt[:100]}...")
         if LLM_PROVIDER == 'groq':
             if not GROQ_API_KEY:
                 print("Warning: GROQ_API_KEY not found. Falling back to Ollama.")
@@ -446,6 +449,7 @@ Answer:"""
         history_placeholder = "{chat_history}\n" if has_history else ""
         
         if self.custom_prompt and self.custom_prompt.strip():
+            print(f"[DEBUG build_prompt] Using CUSTOM prompt")
             # Use custom prompt as the PRIMARY template
             template = f"""{self.custom_prompt.strip()}
 
@@ -458,6 +462,7 @@ Question: {{question}}
 
 Answer:"""
         else:
+            print(f"[DEBUG build_prompt] Using DEFAULT prompt")
             template = self.DEFAULT_TEMPLATE.replace("{file_list}", file_list_str)
             if has_history:
                 # Insert history before the question in the default template

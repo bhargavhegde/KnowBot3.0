@@ -300,7 +300,10 @@ def chat(request):
     try:
         active_prompt = SystemPrompt.objects.get(is_active=True, user=request.user)
         custom_prompt = active_prompt.content
+        print(f"[DEBUG] Found active prompt for user {request.user.id}: '{active_prompt.name}'")
+        print(f"[DEBUG] Prompt content: {custom_prompt[:100]}...")
     except SystemPrompt.DoesNotExist:
+        print(f"[DEBUG] No active prompt found for user {request.user.id}")
         pass
     
     # Check document status for better context
@@ -309,6 +312,7 @@ def chat(request):
     has_pending = user_docs.filter(index_status__in=[Document.IndexStatus.PENDING, Document.IndexStatus.PROCESSING]).exists()
 
     try:
+        print(f"[DEBUG] Initializing RAGEngine with custom_prompt={'YES' if custom_prompt else 'NO'}")
         engine = RAGEngine(custom_prompt=custom_prompt, user_id=request.user.id)
         
         # Fetch previous messages for context
