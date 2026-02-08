@@ -170,7 +170,12 @@ export function Sidebar() {
 
         try {
             console.log('Creating super prompt:', { name: newPromptName, content: newPromptContent });
-            await apiService.createPrompt({ name: newPromptName, content: newPromptContent });
+            const response = await apiService.createPrompt({ name: newPromptName, content: newPromptContent });
+
+            // Immediately activate the newly created prompt
+            console.log('Activating newly created prompt:', response.data.id);
+            await apiService.activatePrompt(response.data.id);
+
             setNewPromptName('');
             setNewPromptContent('');
             setIsPromptModalOpen(false);
