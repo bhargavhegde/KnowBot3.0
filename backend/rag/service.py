@@ -630,7 +630,16 @@ Answer:"""
         file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
         
         # Build template without f-strings to avoid curly brace issues
-        template = """You are KnowBot, a professional AI Knowledge Engine.
+        if self.custom_prompt and self.custom_prompt.strip():
+            template = "CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:\n" + self.custom_prompt.strip() + "\n\n"
+            template += "You answer questions based ONLY on the provided Context and the list of Files in your collection.\n\n"
+            template += "[FILES_IN_COLLECTION]:\n" + file_list_str + "\n\n"
+            template += "[CONTEXT]:\n" + context_str + "\n\n"
+            if has_history:
+                template += "{chat_history}\n"
+            template += "User Question: {question}\n\nREMEMBER: " + self.custom_prompt.strip() + "\n\nAnswer:"
+        else:
+            template = """You are KnowBot, a professional AI Knowledge Engine.
 You answer questions based ONLY on the provided Context and the list of Files in your collection.
 
 CRITICAL INSTRUCTION:
