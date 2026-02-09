@@ -627,11 +627,10 @@ Answer:"""
         context_str = "\n\n".join([f"[Source: {d.metadata.get('source', 'unknown')}]\n{d.page_content}" for d in docs])
         
         has_history = chat_history is not None and len(chat_history) > 0
-        history_placeholder = "{chat_history}\n" if has_history else ""
-        
         file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
         
-        template = f"""You are KnowBot, a professional AI Knowledge Engine.
+        # Build template without f-strings to avoid curly brace issues
+        template = """You are KnowBot, a professional AI Knowledge Engine.
 You answer questions based ONLY on the provided Context and the list of Files in your collection.
 
 CRITICAL INSTRUCTION:
@@ -639,12 +638,12 @@ CRITICAL INSTRUCTION:
 - Do NOT list files mentioned INSIDE the text as files actually in the collection.
 
 [FILES_IN_COLLECTION]:
-{file_list_str}
+""" + file_list_str + """
 
 [CONTEXT]:
-{context_str}
+""" + context_str + """
 
-{history_placeholder}Question: {{question}}
+""" + ("{chat_history}\n" if has_history else "") + """Question: {question}
 
 Answer:"""
         
@@ -675,24 +674,18 @@ Answer:"""
         thinking_steps = ["Analyzing request...", "Checking knowledge base...", "No documents found, using general knowledge..."]
         
         has_history = chat_history is not None and len(chat_history) > 0
-        history_placeholder = "{chat_history}\n" if has_history else ""
         
         # Use custom prompt if available, otherwise use default
         if self.custom_prompt and self.custom_prompt.strip():
-            template = f"""CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:
-{self.custom_prompt.strip()}
-
-{history_placeholder}User Question: {{question}}
-
-REMEMBER: {self.custom_prompt.strip()}
-
-Answer:"""
+            template = "CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:\n" + self.custom_prompt.strip() + "\n\n"
+            if has_history:
+                template += "{chat_history}\n"
+            template += "User Question: {question}\n\nREMEMBER: " + self.custom_prompt.strip() + "\n\nAnswer:"
         else:
-            template = f"""You are KnowBot, a helpful AI assistant.
-        
-{history_placeholder}Question: {{question}}
-
-Answer:"""
+            template = "You are KnowBot, a helpful AI assistant.\n        \n"
+            if has_history:
+                template += "{chat_history}\n"
+            template += "Question: {question}\n\nAnswer:"
         
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | self.llm | StrOutputParser()
@@ -761,36 +754,24 @@ Standalone Question:"""
             
             # Build prompt with web context
             has_history = chat_history is not None and len(chat_history) > 0
-            history_placeholder = "{chat_history}\n" if has_history else ""
             
             # Use custom prompt if available, otherwise use default
             if self.custom_prompt and self.custom_prompt.strip():
-                template = f"""CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:
-{self.custom_prompt.strip()}
-
-Use the following search results to answer the user's question.
-Always cite your sources using the URLs provided.
-
-Web Search Results:
-{web_context}
-
-{history_placeholder}User Question: {{question}}
-
-REMEMBER: {self.custom_prompt.strip()}
-
-Answer:"""
+                template = "CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:\n" + self.custom_prompt.strip() + "\n\n"
+                template += "Use the following search results to answer the user's question.\n"
+                template += "Always cite your sources using the URLs provided.\n\n"
+                template += "Web Search Results:\n" + web_context + "\n\n"
+                if has_history:
+                    template += "{chat_history}\n"
+                template += "User Question: {question}\n\nREMEMBER: " + self.custom_prompt.strip() + "\n\nAnswer:"
             else:
-                template = f"""You are KnowBot, a helpful AI assistant with live web access.
-            
-Use the following search results to answer the user's question accurately.
-Always cite your sources using the URLs provided.
-
-Web Search Results:
-{web_context}
-
-{history_placeholder}Question: {{question}}
-
-Answer:"""
+                template = "You are KnowBot, a helpful AI assistant with live web access.\n            \n"
+                template += "Use the following search results to answer the user's question accurately.\n"
+                template += "Always cite your sources using the URLs provided.\n\n"
+                template += "Web Search Results:\n" + web_context + "\n\n"
+                if has_history:
+                    template += "{chat_history}\n"
+                template += "Question: {question}\n\nAnswer:"
             
             prompt = ChatPromptTemplate.from_template(template)
             chain = prompt | self.llm | StrOutputParser()
