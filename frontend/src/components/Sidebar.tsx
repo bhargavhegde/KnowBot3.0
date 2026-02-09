@@ -8,7 +8,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
-import { apiService, Document, ChatSession } from '@/lib/api';
+import { apiService, Document, ChatSession, SystemPrompt } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
 import { BrainAvatar } from './BrainAvatar';
@@ -20,11 +20,16 @@ export function Sidebar() {
     const [isUploading, setIsUploading] = useState(false);
     const [isSyncing, setIsSyncing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [prompts, setPrompts] = useState<SystemPrompt[]>([]);
+    const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
+    const [newPromptName, setNewPromptName] = useState('');
+    const [newPromptContent, setNewPromptContent] = useState('');
 
     // Fetch documents on mount
     useEffect(() => {
         if (user) {
             fetchDocuments();
+            fetchPrompts();
         }
     }, [user]);
 
@@ -36,6 +41,15 @@ export function Sidebar() {
             setDocuments(resp.data);
         } catch (err) {
             console.error('Failed to fetch documents:', err);
+        }
+    };
+
+    const fetchPrompts = async () => {
+        try {
+            const resp = await apiService.getPrompts();
+            setPrompts(resp.data);
+        } catch (err) {
+            console.error('Failed to fetch prompts:', err);
         }
     };
 
@@ -134,6 +148,50 @@ export function Sidebar() {
             fetchDocuments();
         } catch (err) {
             setError('Failed to delete document');
+        }
+    };
+
+    const handleCreatePrompt = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newPromptName.trim() || !newPromptContent.trim()) {
+            setError('Please provide both name and content');
+            return;
+        }
+        try {
+            await apiService.createPrompt({ name: newPromptName, content: newPromptContent });
+            setNewPromptName('');
+            setNewPromptContent('');
+            setIsPromptModalOpen(false);
+            fetchPrompts();
+        } catch (err) {
+            setError('Failed to create prompt');
+        }
+    };
+
+    const handleActivatePrompt = async (id: number) => {
+        try {
+            await apiService.activatePrompt(id);
+            fetchPrompts();
+        } catch (err) {
+            setError('Failed to activate prompt');
+        }
+    };
+
+    const handleResetPrompt = async () => {
+        try {
+            await apiService.resetPrompt();
+            fetchPrompts();
+        } catch (err) {
+            setError('Failed to reset prompt');
+        }
+    };
+
+    const handleDeletePrompt = async (id: number) => {
+        try {
+            await apiService.deletePrompt(id);
+            fetchPrompts();
+        } catch (err) {
+            setError('Failed to delete prompt');
         }
     };
 
@@ -336,7 +394,76 @@ export function Sidebar() {
                     </div>
                 </div>
 
+                {/* Super Prompts Section */}
+                <div className="px-6 pt-2 pb-6 border-t border-fuchsia-500/10">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                            <h3 className="text-[10px] font-bold text-fuchsia-400/80 uppercase tracking-[0.2em]">Super Prompts</h3>
+                            <div className="group relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-fuchsia-400/60 hover:text-fuchsia-400 cursor-help" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div className="absolute left-0 top-6 w-64 p-3 bg-slate-900 border border-fuchsia-500/30 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity z-50 text-[10px] text-gray-300 leading-relaxed">
+                                    <p className="font-bold text-fuchsia-300 mb-1">What are Super Prompts?</p>
+                                    <p>Override the bot's default behavior with custom instructions. Create different AI personalities for different tasks!</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <motion.button
+                                onClick={() => setIsPromptModalOpen(true)}
+                                className="w-7 h-7 flex items-center justify-center text-lg font-bold text-white 
+                                         rounded-lg border border-transparent hover:border-fuchsia-500/30 hover:bg-fuchsia-500/10 transition-all"
+                                whileHover={{ scale: 1.1, rotate: 90 }}
+                                whileTap={{ scale: 0.9 }}
+                                title="Create New Super Prompt"
+                            >
+                                +
+                            </motion.button>
+                            <motion.button
+                                onClick={handleResetPrompt}
+                                className="w-7 h-7 flex items-center justify-center text-xs text-slate-500 hover:text-cyan-400 
+                                         rounded-lg border border-transparent hover:border-cyan-500/30 hover:bg-cyan-500/10 transition-all"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                title="Reset to Default"
+                            >
+                                🔄
+                            </motion.button>
+                        </div>
+                    </div>
 
+                    <div className="space-y-2">
+                        {prompts.length === 0 ? (
+                            <p className="text-[9px] text-slate-500 italic text-center py-2">Using default KnowBot system instructions.</p>
+                        ) : (
+                            prompts.map((prompt) => (
+                                <motion.div
+                                    key={prompt.id}
+                                    className={`rounded-xl p-3 border transition-all cursor-pointer relative group
+                                        ${prompt.is_active
+                                            ? 'bg-fuchsia-500/10 border-fuchsia-500/30 shadow-lg shadow-fuchsia-500/10'
+                                            : 'bg-slate-900/40 border-slate-800 hover:border-fuchsia-500/20'}`}
+                                    onClick={() => handleActivatePrompt(prompt.id)}
+                                    whileHover={{ x: 4 }}
+                                >
+                                    <div className="pr-6">
+                                        <p className={`text-[10px] font-bold ${prompt.is_active ? 'text-fuchsia-300' : 'text-gray-400'}`}>
+                                            {prompt.is_active && '⭐ '}{prompt.name}
+                                        </p>
+                                        <p className="text-[8px] text-gray-500 mt-1 line-clamp-1">{prompt.content}</p>
+                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleDeletePrompt(prompt.id); }}
+                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 text-gray-600 hover:text-red-400 transition-opacity"
+                                    >
+                                        ✕
+                                    </button>
+                                </motion.div>
+                            ))
+                        )}
+                    </div>
+                </div>
 
             </div>
 
@@ -395,6 +522,67 @@ export function Sidebar() {
                 </div>
             </div>
 
+            {/* Prompt Creation Modal */}
+            <AnimatePresence>
+                {isPromptModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                            className="w-full max-w-md bg-slate-900 border border-fuchsia-500/30 rounded-2xl shadow-2xl p-6 overflow-hidden relative"
+                        >
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-fuchsia-500/10 blur-3xl -mr-16 -mt-16 rounded-full" />
+
+                            <h2 className="text-xl font-bold text-white mb-1">Create Super Prompt</h2>
+                            <p className="text-xs text-fuchsia-400/60 mb-6 uppercase tracking-[0.2em] font-semibold">Custom AI Instructions</p>
+
+                            <form onSubmit={handleCreatePrompt} className="space-y-4">
+                                <div>
+                                    <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1.5 ml-1">Prompt Name</label>
+                                    <input
+                                        type="text"
+                                        value={newPromptName}
+                                        onChange={(e) => setNewPromptName(e.target.value)}
+                                        placeholder="e.g. Code Expert, Creative Writer"
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-fuchsia-500/50 transition-all"
+                                        autoFocus
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1.5 ml-1">Super Prompt</label>
+                                    <textarea
+                                        value={newPromptContent}
+                                        onChange={(e) => setNewPromptContent(e.target.value)}
+                                        placeholder="You are a helpful coding assistant specialized in Python..."
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-fuchsia-500/50 h-32 resize-none transition-all"
+                                    />
+                                </div>
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsPromptModalOpen(false)}
+                                        className="flex-1 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-gray-300 text-xs font-bold rounded-xl transition-all"
+                                    >
+                                        CANCEL
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="flex-1 px-4 py-3 bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-fuchsia-500/20 transition-all"
+                                    >
+                                        ACTIVATE PROMPT
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
         </div>
     );

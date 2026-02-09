@@ -405,7 +405,45 @@ def preview_document(request, pk):
         return Response({'error': 'Document not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
+class SystemPromptViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing system prompts (Personas).
+    Ensures that only ONE prompt is active at a time per user.
+    """
+    serializer_class = SystemPromptSerializer
 
+    def get_queryset(self):
+        return SystemPrompt.objects.filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    @action(detail=False, methods=['get'], url_path='active')
+    def get_active(self, request):
+        """Returns the currently selected persona."""
+        try:
+            prompt = SystemPrompt.objects.get(is_active=True, user=request.user)
+            return Response(SystemPromptSerializer(prompt).data)
+        except SystemPrompt.DoesNotExist:
+            return Response({'message': 'No active prompt. Using default.'})
+    
+    @action(detail=True, methods=['post'], url_path='activate')
+    def activate(self, request, pk=None):
+        """Set a specific prompt as the current persona."""
+        # First, deactivate ALL prompts for this user
+        SystemPrompt.objects.filter(user=request.user, is_active=True).update(is_active=False)
+        
+        # Then activate the selected prompt
+        prompt = self.get_object()
+        prompt.is_active = True
+        prompt.save()
+        return Response(SystemPromptSerializer(prompt).data)
+    
+    @action(detail=False, methods=['post'], url_path='reset')
+    def reset_to_default(self, request):
+        """Deactivates all custom prompts, falling back to System default."""
+        SystemPrompt.objects.filter(is_active=True, user=request.user).update(is_active=False)
+        return Response({'message': 'Reset to default prompt'})
 
 
 @api_view(['GET'])

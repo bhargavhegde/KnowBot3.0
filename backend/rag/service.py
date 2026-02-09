@@ -445,6 +445,7 @@ Answer:"""
             )
         self.vector_store_manager = VectorStoreManager(user_id=user_id)
         self.indexed_files = self._get_indexed_files()
+        self.custom_prompt = self._get_active_prompt()  # Load Super Prompt if active
     
     def _get_indexed_files(self) -> List[str]:
         """Fetch list of indexed filenames for the user."""
@@ -454,6 +455,19 @@ Answer:"""
             return [doc.original_filename for doc in docs]
         except Exception:
             return []
+    
+    def _get_active_prompt(self) -> str:
+        """Load the active Super Prompt for this user, if any."""
+        try:
+            from api.models import SystemPrompt
+            prompt = SystemPrompt.objects.filter(user_id=self.user_id, is_active=True).first()
+            if prompt:
+                print(f"✨ Using Super Prompt: {prompt.name}")
+                return prompt.content
+            return None
+        except Exception as e:
+            print(f"Could not load Super Prompt: {e}")
+            return None
 
     def build_prompt(self, has_history: bool = False) -> ChatPromptTemplate:
         """
@@ -463,14 +477,20 @@ Answer:"""
         1. The list of current user's files.
         2. The chat history (if any).
         3. The retrieved document context.
+        4. Custom Super Prompt (if active).
         """
         file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
         
         history_placeholder = "{chat_history}\n" if has_history else ""
-        template = self.DEFAULT_TEMPLATE.replace("{file_list}", file_list_str)
-        if has_history:
-            # We inject the history directly into the template so the AI remembers previous turns.
-            template = template.replace("Question: {question}", f"{history_placeholder}\nQuestion: {{question}}")
+        
+        # Use Super Prompt if active, otherwise use default
+        if self.custom_prompt:
+            template = f"{self.custom_prompt}\n\n[FILES_IN_COLLECTION]:\n{file_list_str}\n\n[CONTEXT]:\n{{context}}\n\n{history_placeholder}Question: {{question}}\n\nAnswer:"
+        else:
+            template = self.DEFAULT_TEMPLATE.replace("{file_list}", file_list_str)
+            if has_history:
+                # We inject the history directly into the template so the AI remembers previous turns.
+                template = template.replace("Question: {question}", f"{history_placeholder}\nQuestion: {{question}}")
         
         return ChatPromptTemplate.from_template(template)
     
