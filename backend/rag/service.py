@@ -862,13 +862,13 @@ Standalone Question:"""
             suggestions = [s.strip() for s in raw_list if '?' in s][:3]
             
             if len(suggestions) < 3:
-                defaults = ["Summarize my documents.", "What are the key takeaways?", "Tell me about Bhargav."]
+                defaults = ["Summarize my documents.", "What are the key takeaways?", "Explain the RAG architecture."]
                 suggestions.extend(defaults[:(3 - len(suggestions))])
                 
             return suggestions
         except Exception as e:
             print(f"Error generating initial suggestions: {e}")
-            return ["Summarize my documents.", "What are the key takeaways?", "Tell me about Bhargav."]
+            return ["Summarize my documents.", "What are the key takeaways?", "Explain the RAG architecture."]
 
 
 # Convenience functions for backward compatibility
