@@ -446,32 +446,35 @@ Answer:"""
         """Build the prompt template with optional custom instructions and history support."""
         file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
         
-        history_placeholder = "{chat_history}\n" if has_history else ""
-        
         if self.custom_prompt and self.custom_prompt.strip():
             print(f"[DEBUG build_prompt] Using CUSTOM prompt")
-            # Use custom prompt as the PRIMARY template - make it VERY prominent
-            template = f"""CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:
-{self.custom_prompt.strip()}
-
-{history_placeholder}
-Available Documents:
-{file_list_str}
-
-Retrieved Context:
-{{context}}
-
-User Question: {{question}}
-
-REMEMBER: {self.custom_prompt.strip()}
-
-Answer:"""
+            # Build template using .format() to avoid f-string curly brace issues
+            template_parts = ["CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:"]
+            template_parts.append(self.custom_prompt.strip())
+            template_parts.append("")
+            
+            if has_history:
+                template_parts.append("{chat_history}")
+            
+            template_parts.append("Available Documents:")
+            template_parts.append(file_list_str)
+            template_parts.append("")
+            template_parts.append("Retrieved Context:")
+            template_parts.append("{context}")
+            template_parts.append("")
+            template_parts.append("User Question: {question}")
+            template_parts.append("")
+            template_parts.append("REMEMBER: " + self.custom_prompt.strip())
+            template_parts.append("")
+            template_parts.append("Answer:")
+            
+            template = "\n".join(template_parts)
         else:
             print(f"[DEBUG build_prompt] Using DEFAULT prompt")
             template = self.DEFAULT_TEMPLATE.replace("{file_list}", file_list_str)
             if has_history:
                 # Insert history before the question in the default template
-                template = template.replace("Question: {question}", f"{history_placeholder}\nQuestion: {{question}}")
+                template = template.replace("Question: {question}", "{chat_history}\nQuestion: {question}")
         
         return ChatPromptTemplate.from_template(template)
     
