@@ -217,6 +217,8 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
+from django.db.models import Count, Prefetch
+
 class ChatSessionViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing chat sessions.
@@ -224,7 +226,11 @@ class ChatSessionViewSet(viewsets.ModelViewSet):
     """
     
     def get_queryset(self):
-        return ChatSession.objects.filter(user=self.request.user)
+        # Optimization: Prevent N+1 queries by pre-fetching related data
+        # We annotate the count so we don't need a separate query for every session
+        return ChatSession.objects.filter(user=self.request.user).annotate(
+            annotated_message_count=Count('messages')
+        ).prefetch_related('messages').order_by('-updated_at')
     
     def get_serializer_class(self):
         if self.action == 'list':

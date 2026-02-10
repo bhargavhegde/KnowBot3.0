@@ -139,11 +139,20 @@ class ChatSessionListSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'created_at', 'updated_at', 'message_count', 'last_message']
     
     def get_message_count(self, obj):
+        # Use the annotated value from get_queryset if available (0 DB hits)
+        if hasattr(obj, 'annotated_message_count'):
+            return obj.annotated_message_count
         return obj.messages.count()
     
     def get_last_message(self, obj):
         """Returns a short snippet of the final message for display in the sidebar."""
-        last = obj.messages.last()
+        # Use prefetched objects if available to avoid N+1 N+1 DB hits
+        if getattr(obj, '_prefetched_objects_cache', {}).get('messages'):
+            messages = list(obj.messages.all())
+            last = messages[-1] if messages else None
+        else:
+            last = obj.messages.last()
+            
         if last:
             preview = last.content[:100] + "..." if len(last.content) > 100 else last.content
             return {'role': last.role, 'content': preview}
