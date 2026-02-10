@@ -1,29 +1,10 @@
 """
-RAG Service - The Core "Brain" of KnowBot.
-
-This module implements the Retrieval Augmented Generation (RAG) pipeline.
-It connects the specific user's query to their private documents and feeds that context to the LLM.
-
-KEY COMPONENTS:
-
 1. `DocumentProcessor` (Ingestion):
-   - HOW IT WORKS: Takes a file path -> Reads content -> Splits into small chunks.
-   - CONTEXT WINDOW STRATEGY: We split files into chunks of 800 characters with 150 overlap.
-     This ensures that we can feed small, relevant pieces to the LLM without exceeding its
-     token limit (typically 8k or 128k tokens). We don't feed the whole file!
-
+    
 2. `VectorStoreManager` (Long-Term Memory):
-   - STORAGE: Uses ChromaDB to store "Embeddings" (vectors representing text meaning).
-   - ISOLATION: Each chunk matches a `user_id`. When searching, we strict-filter by this ID
-     so users never see each other's data.
+   
 
 3. `RAGEngine` (The Thinking Process):
-   - RETRIEVAL: Converts user question to vector -> finds top 5 closest chunks in ChromaDB.
-   - GENERATION: Combines [System Prompt] + [Top 5 Chunks] + [User Question] -> LLM.
-   - HYBRID SEARCH: Optionally combines Keyword search (BM25) with Semantic search (Vectors)
-     for better accuracy.
-
-Refactored to use chromadb.PersistentClient to fix HNSW index errors.
 """
 
 import os
@@ -376,13 +357,6 @@ class VectorStoreManager:
 
 
 class RAGEngine:
-    """
-    Main RAG engine for building and executing RAG chains with multi-user support.
-    
-    CONTEXT MANAGEMENT:
-    This class is responsible for the "R" in RAG (Retrieval).
-    It ensures that when a user asks a question, we only retrieve their documents.
-    """
     
     DEFAULT_TEMPLATE = """You are KnowBot, a professional AI Knowledge Engine.
 You answer questions based ONLY on the provided Context and the list of Files in your collection.
@@ -630,11 +604,14 @@ Answer:"""
         file_list_str = "\n".join([f"- {f}" for f in self.indexed_files]) if self.indexed_files else "No documents indexed."
         
         # Build template without f-strings to avoid curly brace issues
+        # SAFE FIX: We must NOT inject context_str directly into the template because
+        # it might contain curly braces (from code/JSON in documents) which breaks .from_template()
+        
         if self.custom_prompt and self.custom_prompt.strip():
             template = "CRITICAL INSTRUCTION - YOU MUST FOLLOW THIS:\n" + self.custom_prompt.strip() + "\n\n"
             template += "You answer questions based ONLY on the provided Context and the list of Files in your collection.\n\n"
             template += "[FILES_IN_COLLECTION]:\n" + file_list_str + "\n\n"
-            template += "[CONTEXT]:\n" + context_str + "\n\n"
+            template += "[CONTEXT]:\n{context}\n\n"
             if has_history:
                 template += "{chat_history}\n"
             template += "User Question: {question}\n\nREMEMBER: " + self.custom_prompt.strip() + "\n\nAnswer:"
@@ -650,7 +627,7 @@ CRITICAL INSTRUCTION:
 """ + file_list_str + """
 
 [CONTEXT]:
-""" + context_str + """
+{context}
 
 """ + ("{chat_history}\n" if has_history else "") + """Question: {question}
 
@@ -660,7 +637,7 @@ Answer:"""
         prompt = ChatPromptTemplate.from_template(template)
         chain = prompt | self.llm | StrOutputParser()
         
-        input_data = {"question": question}
+        input_data = {"question": question, "context": context_str}
         if has_history:
             input_data["chat_history"] = chat_history
             
