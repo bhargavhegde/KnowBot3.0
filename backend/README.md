@@ -72,7 +72,7 @@ This project includes a `railway.json` for easy deployment.
    - `SECRET_KEY`: Generate a strong random key.
    - `DEBUG`: `False`
    - `ALLOWED_HOSTS`: `*` (or your frontend domain)
-   - `CORS_ALLOWED_ORIGINS`: Your Vercel frontend URL (e.g., `https://knowbot-frontend.vercel.app`)
+   - `CORS_ALLOWED_ORIGINS`: Your Vercel frontend URL (e.g., `https://knowbot30frontend-439w28wq2-bhargavhegdes-projects.vercel.app`)
 
 ---
 
