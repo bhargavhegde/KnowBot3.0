@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# KnowBot 3.0 Frontend
 
-## Getting Started
+The frontend for KnowBot 3.0 is a high-performance **Next.js 15** application designed with a futuristic "Cybernetic" aesthetic. It connects to the Django backend to provide a seamless RAG experience.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS v4, Framer Motion
+- **State Management**: React Context API
+- **Authentication**: JWT-based auth with auto-refresh mechanism
+- **Design**: Glassmorphism, custom SVG animations, and responsive layouts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Development Setup
 
-## Learn More
+### Prerequisites
+- Node.js 18+
+- npm or yarn
 
-To learn more about Next.js, take a look at the following resources:
+### Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Configure Environment**
+   Create a `.env.local` file in the `frontend` directory:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:8000
+   ```
 
-## Deploy on Vercel
+3. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ☁️ Deployment on Vercel
+
+1. **Commit your changes**: Ensure your latest code is pushed to GitHub.
+2. **Import Project**: Go to [Vercel](https://vercel.com/) and import your `frontend` directory.
+3. **Environment Variables**:
+   Add the following environment variable in the Vercel dashboard:
+   - `NEXT_PUBLIC_API_URL`: The URL of your deployed backend (e.g., `https://knowbot-backend-production.up.railway.app`).
+4. **Deploy**: Click "Deploy" and wait for the build to complete.
+
+---
+
+## 📂 Key Directories
+
+- `src/app/`: App Router pages and layouts.
+- `src/components/`: Reusable UI components (Sidebar, ChatBubble, etc.).
+- `src/context/`: Global state (Auth, Chat).
+- `src/lib/`: API utilities and types.
+
+For a deep dive into the architecture, check out [FRONTEND_GUIDE.md](FRONTEND_GUIDE.md).

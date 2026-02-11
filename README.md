@@ -1,107 +1,111 @@
 # KnowBot 3.0 - The Neural Knowledge Assistant 🧠⚡
 
+![KnowBot 3.0 Banner](https://github.com/user-attachments/assets/ed61a9c1-fd7e-42a5-9214-24f9cfea72c6)
 
+[![Vercel](https://img.shields.io/badge/Frontend-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://knowbot-3-0-frontend.vercel.app/)
+[![Railway](https://img.shields.io/badge/Backend-Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://railway.app/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
-**KnowBot 2.0** is a high-fidelity, private RAG (Retrieval-Augmented Generation) application designed for high-performance personal knowledge management. Featuring a stunning cybernetic interface and a robust full-stack architecture, it allows you to chat with your local documents with zero data leaks.
+**KnowBot 3.0** is the latest evolution of the high-fidelity, private RAG (Retrieval-Augmented Generation) application. Rebuilt for scalability and performance, it features a decoupled architecture with a **Next.js 15 frontend hosted on Vercel** and a **Django REST Framework backend hosted on Railway**.
 
 ---
 
-## 🚀 What's New in 2.0?
+## 🚀 What's New in 3.0?
 
-KnowBot has evolved from a simple Streamlit script into a professional-grade full-stack beast:
+KnowBot 3.0 transitions from a monolithic Docker setup to a cloud-native microservices architecture:
 
-- **Next-Gen Cybernetic UI**: Built with Next.js 15, Framer Motion, and Tailwind CSS. Features glassmorphism, holographic effects, and a custom-animated "Cyber Brain" avatar.
-- **Persistent Chat History**: Full multi-session support. Save, resume, or delete your "neural threads" at any time.
-- **Neural Knowledge Sync**: The AI explicitly tracks which files it has indexed feedback during document retrieval.
-- **Enterprise-Ready Backend**: Django REST Framework handles orchestration, while **Celery + Redis** manage asynchronous document indexing.
-- **Secure Multi-User**: Built-in authentication system with JWT. Your knowledge base is isolated to your account.
-- **Async Indexing**: Upload mega-files and watch them process in the background without blocking the UI.
+- **Cloud-Native Architecture**: Frontend and Backend are decoupled for independent scaling.
+- **Enhanced UI/UX**: Premium "Cybernetic" interface with refined animations, glassmorphism, and responsive design.
+- **Robust RAG Pipeline**: Improved document chunking, hybrid search capabilities, and optimized vector retrieval.
+- **Production Ready**: Configured for effortless deployment on Vercel and Railway.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
+### Frontend (Vercel)
 - **Framework**: Next.js 15 (App Router)
-- **Styling**: Tailwind CSS + Framer Motion
-- **Icons**: Custom SVG Cyber-Visuals
-- **State Management**: React Context API
+- **Styling**: Tailwind CSS v4 + Framer Motion
+- **State**: React Context API
+- **HTTP Client**: Axios with Interceptors
 
-### Backend
+### Backend (Railway)
 - **Framework**: Django REST Framework
-- **Task Queue**: Celery + Redis
-- **Database**: PostgreSQL (Users/Sessions) + ChromaDB (Vector Store)
-- **RAG Engine**: LangChain + Ollama
-
-### AI Core
-- **LLM**: Llama 3.1 8B (via Ollama)
-- **Embeddings**: Nomic Embed Text
-- **Vector Store**: Chroma (Persistent)
+- **Database**: PostgreSQL (Railway)
+- **Vector Store**: ChromaDB (Persistent)
+- **Async Tasks**: Celery + Redis
+- **LLM Engine**: LangChain + Ollama (Llama 3.1)
 
 ---
 
 ## 🏗️ Quick Start
 
-The entire stack is containerized for a single-command deployment.
+You can run KnowBot 3.0 locally using Docker Compose or individually.
 
-### 1. Prerequisites
-- **Docker & Docker Compose** installed.
-- **Ollama** running on your host machine (or accessible via network).
-```bash
-ollama pull llama3.1:8b
-ollama pull nomic-embed-text
-```
+### Prerequisites
+- **Docker & Docker Compose**
+- **Ollama** running locally (for local RAG)
+  ```bash
+  ollama pull llama3.1:8b
+  ollama pull nomic-embed-text
+  ```
 
-### 2. Setup Environment
-Clone the repo and create your `.env` file:
-```bash
-git clone https://github.com/bhargavhegde/KnowBot-2.0.git
-cd KnowBot-2.0
-cp .env.example .env
-```
+### Local Setup (Docker)
 
-### 3. Launch via Docker
-```bash
-docker-compose up --build
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/bhargavhegde/KnowBot3.0.git
+   cd KnowBot3.0
+   ```
 
-- **Frontend**: [http://localhost:3000](http://localhost:3000)
-- **Backend API**: [http://localhost:8000/api](http://localhost:8000/api)
-- **Admin Dashboard**: [http://localhost:8000/admin](http://localhost:8000/admin)
+2. **Configure Environment**
+   ```bash
+   cp .env.example .env
+   # Update .env with your configuration
+   ```
+
+3. **Start the Stack**
+   ```bash
+   docker-compose up --build
+   ```
+   - Frontend: `http://localhost:3000`
+   - Backend: `http://localhost:8000`
+
+---
+
+## ☁️ Deployment
+
+### Frontend (Vercel)
+1. Push `frontend/` to your GitHub repository.
+2. Import the project into Vercel.
+3. Set Environment Variables:
+   - `NEXT_PUBLIC_API_URL`: URL of your Railway backend (e.g., `https://web-production-xxxx.up.railway.app`)
+
+### Backend (Railway)
+1. Push `backend/` (or the root) to GitHub.
+2. Create a new project on Railway.
+3. Provision a **PostgreSQL** database and **Redis** service.
+4. Deploy the repository and set Environment Variables:
+   - `DATABASE_URL`: Your Railway Postgres URL.
+   - `REDIS_URL`: Your Railway Redis URL.
+   - `ALLOWED_HOSTS`: `*` (or your Vercel domain).
+   - `CORS_ALLOWED_ORIGINS`: Your Vercel domain.
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-KnowBot-2.0/
-├── backend/            # Django REST Framework app
-│   ├── api/            # Endpoints for chat, docs, and authentication
-│   ├── rag/            # The LangChain RAG engine logic
-│   └── knowbot/         # System settings & Celery config
-├── frontend/           # Next.js 15 Application
-│   ├── src/app/        # Pages (Login, Chat, Register)
-│   ├── src/components/ # Cybernetic UI Components
-│   └── src/context/    # State management
-├── streamlit_backup/   # Legacy Streamlit code (v1.0)
-└── docker-compose.yml  # Full-stack orchestration
+KnowBot3.0/
+├── backend/            # Django application (Railway)
+├── frontend/           # Next.js application (Vercel)
+├── tilt_logs.txt       # Development logs
+├── requirements.txt    # Python dependencies
+└── docker-compose.yml  # Local orchestration
 ```
 
----
-
-## 📌 Features in Detail
-
-
-### 🧠 System Prompts
-Customize your AI's personality. Switch between a professional analyst, a creative tutor, or a strict fact-checker via the sidebar.
-
-### 📄 Managed Knowledge
-Upload **PDFs, TXTs, or MDs**. KnowBot chunks them, generates embeddings, and stores them in your private vector vault. You can delete documents individually or refresh your entire "Neural Memory" with one click.
-
----
-
 ## 🤝 Contributing
-Feel free to fork this project and add new features! Whether it's more document loaders, new UI animations, or advanced RAG techniques, contributions are welcome.
+Contributions are welcome! Please open an issue or submit a pull request.
 
 ## 📄 License
 MIT License - 2024 Bhargav Hegde
