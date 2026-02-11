@@ -21,6 +21,34 @@ KnowBot 3.0 transitions from a monolithic Docker setup to a cloud-native microse
 
 ---
 
+## 🌟 Key Features
+
+### 🧠 Advanced RAG Engine
+KnowBot isn't just a wrapper. It's a fully engineered Retrieval-Augmented Generation system.
+- **Hybrid Search**: Combines **Keyword Search (BM25)** with **Semantic Vector Search (ChromaDB)** for superior accuracy.
+- **Context Awareness**: Intelligent context window management ensures the LLM sees the *right* information, not just *more* information.
+- **Auto-Citations**: Every answer includes precise citations to source documents.
+
+### 👁️ Built-in OCR (Optical Character Recognition)
+Unlock data from scanned documents and images.
+- **Automatic Detection**: KnowBot detects if a PDF is a scanned image or contains text.
+- **Image Support**: Upload `.png`, `.jpg`, or `.tiff` files directly.
+- **Tesseract Integration**: Uses Tesseract OCR to extract text from visual data, making it searchable and queryable.
+
+### 🌐 Autonomous Web Search
+When your local documents aren't enough, KnowBot connects to the internet.
+- **Tavily API**: Integrated high-speed web search optimized for LLMs.
+- **Smart Fallback**: If local document retrieval has low confidence, the system automatically suggests or triggers a web search.
+- **Query Reformulation**: The AI rewrites your question to be search-engine friendly based on conversation history.
+
+### 🎭 Custom System Personas
+Mold the AI to fit your specific needs.
+- **Dynamic Prompts**: Define custom "System Prompts" to change the bot's personality or rules.
+- **Use Cases**: Create a "Code Reviewer", "Legal Analyst", or "Creative Writer" persona.
+- **Persistence**: Save multiple personas and switch between them instantly.
+
+---
+
 ## 🛠️ Tech Stack
 
 ### Frontend (Vercel)
