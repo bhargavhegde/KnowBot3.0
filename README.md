@@ -1,5 +1,5 @@
-# KnowBot 2.0 - The Neural Knowledge Assistant 🧠⚡
-<img width="2404" height="1187" alt="image" src="https://github.com/user-attachments/assets/ed61a9c1-fd7e-42a5-9214-24f9cfea72c6" />
+# KnowBot 3.0 - The Neural Knowledge Assistant 🧠⚡
+
 
 
 **KnowBot 2.0** is a high-fidelity, private RAG (Retrieval-Augmented Generation) application designed for high-performance personal knowledge management. Featuring a stunning cybernetic interface and a robust full-stack architecture, it allows you to chat with your local documents with zero data leaks.
