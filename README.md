@@ -1,6 +1,6 @@
 # KnowBot 3.0 - The Neural Knowledge Assistant 🧠⚡
 
-![KnowBot 3.0 Banner](https://github.com/user-attachments/assets/ed61a9c1-fd7e-42a5-9214-24f9cfea72c6)
+
 
 [![Vercel](https://img.shields.io/badge/Frontend-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://knowbot30frontend-439w28wq2-bhargavhegdes-projects.vercel.app/)
 [![Railway](https://img.shields.io/badge/Backend-Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://railway.app/)
